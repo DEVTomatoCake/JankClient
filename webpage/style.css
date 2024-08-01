@@ -230,10 +230,11 @@ th {
 	max-width: 100%;
 	display: flex;
 	flex-direction: column;
-	padding: 3px 25px 3px 15px;
+	padding: 0 25px 3px 15px;
 	max-height: 20in;
 	flex-shrink: 0;
-	width: 96%;
+	width: 100%;
+	box-sizing: border-box;
 }
 .messagediv:hover, .messagediv:focus {
 	background-color: var(--message-bg-hover);
@@ -429,7 +430,8 @@ p {
 	top: var(--top-height);
 	height: calc(100dvh - 54px - var(--top-height));
 	width: 2.5in;
-	overflow: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
 	user-select: none;
 }
 
@@ -486,14 +488,19 @@ div {
 #typebox {
 	padding: 7px;
 	margin: 0 0 8px 10px;
-	border-radius: 8px;
-	min-height: 40px;
+	margin-bottom: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	border-radius: .15cm;
+	width: 99%;
+	min-height: .5in;
+	z-index: -100;
 	display: flex;
 	max-height: 1.5in;
 	overflow-y: auto;
 	color: var(--primary-text);
-	background-color: var(--textarea-bg);
-	border: 1px solid;
+	background: var(--profile-info-bg);
+	border: 0 solid;
 	box-sizing: border-box;
 }
 
@@ -558,7 +565,7 @@ hr {
 	display: flex;
 	position: absolute;
 	bottom: 23px;
-	right: 11px;
+	right: 12px;
 	background-color: var(--typing-bg);
 	width: fit-content;
 	transform: translateY(-100%);
@@ -823,9 +830,11 @@ textarea {
 #userdock {
 	background-color: var(--user-dock-bg);
 	position: relative;
-	justify-content: space-between;
+	justify-content: center;
 	align-items: center;
-	padding: 3px;
+	padding: 2px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
 	width: 100%;
@@ -835,20 +844,32 @@ textarea {
 #user-actions {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 3px;
-	margin-right: 10px;
+	gap: .05in;
 }
 
 #user-actions h2 {
 	cursor: pointer;
 	user-select: none;
-	border-radius: .1in;
+	border-radius: .3in;
 	transition: color .5s;
 	text-align: center;
 	overflow: visible;
+	width: .2in;
+	height: .2in;
+	padding: .02in;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 #user-actions h2:hover, #user-actions h2:focus {
+	background: var(--settings-hover);
 	color: var(--timestamp-color);
+}
+
+#user-actions img {
+	width: 100%;
+	height: auto;
 }
 
 #userinfo {
@@ -1237,11 +1258,14 @@ span {
 
 #replybox {
 	display: flex;
-	width: 100%;
+	justify-content: space-between;
+	width: 98%;
 	height: .3in;
 	background-color: var(--reply-bg);
 	transition: height .2s, padding .2s;
 	border-radius: .1in .1in 0 0;
+	margin-left: 10px;
+	margin-right: 10px;
 	padding: 0 .05in;
 	box-sizing: border-box;
 	top: 6px;
@@ -1253,13 +1277,14 @@ span {
 }
 
 .cancelReply {
-	align-self: flex-start;
+	align-self: center;
 	color: #F00;
 	height: auto;
 	width: .25in;
 	text-align: center;
 	padding: 0;
 	border: none;
+	background: none;
 }
 
 #replybox.hideReplyBox {
@@ -1267,6 +1292,12 @@ span {
 }
 #replybox.hideReplyBox span, #replybox.hideReplyBox button {
 	display: none;
+}
+
+/* Conditionally remove border radius from the top when hideReplyBox is not present */
+#replybox:not(.hideReplyBox) ~ #typediv #typebox {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 #discovery-guild-content {
@@ -1697,9 +1728,12 @@ form div {
 	width: .15in;
 	padding-left: .05in;
 	padding-right: .025in;
-	transition: rotate .1s;
+	transition: rotate .2s;
 }
 .hiddencat {
 	rotate: -90deg;
 }
 
+.accent {
+	color: var(--link);
+}
