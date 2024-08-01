@@ -69,8 +69,8 @@ self.addEventListener("fetch", event => {
 
 			const responseFromCache = await cache.match(isindexhtml(event.request.url) ? "/index" : event.request)
 			if (responseFromCache && (
-				url.pathname == "/manifest.json" || url.pathname == "/icon.svg" || url.pathname == "/icon.png" ||
-				/^\/font\/\w+.ttf$/.test(url.pathname) || /^\/font\/\w+.woff$/.test(url.pathname) || /^\/font\/\w+.woff2$/.test(url.pathname)
+				url.pathname == "/manifest.json" || url.pathname == "/logo.svg" ||
+				url.pathname.startsWith("/icons/") || url.pathname.startsWith("/font/")
 			)) return responseFromCache
 			else if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/index" : event.request.url))
 

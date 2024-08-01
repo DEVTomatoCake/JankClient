@@ -197,8 +197,11 @@ class Channel {
 			const caps = document.createElement("div")
 
 			const decdiv = document.createElement("div")
-			const decoration = document.createElement("b")
-			decoration.textContent = "▼"
+			decdiv.classList.add("channeleffects")
+
+			const decoration = document.createElement("img")
+			decoration.src = "/icons/collapse.svg"
+			decoration.classList.add("svgtheme", "collapse-icon")
 			decdiv.appendChild(decoration)
 
 			const myhtml = document.createElement("span")
@@ -219,7 +222,6 @@ class Channel {
 			}
 			div.appendChild(caps)
 			caps.classList.add("flex")
-			decdiv.classList.add("channeleffects")
 
 			Channel.contextmenu.bind(decdiv, this)
 			decdiv.all = this
@@ -232,15 +234,17 @@ class Channel {
 				childrendiv.style.height = childrendiv.scrollHeight + "px"
 			}, 100)
 
-			decdiv.onclick = function() {
-				if (decoration.textContent == "▼") {
-					decoration.textContent = "▲"
+			let open = true
+			decdiv.addEventListener("click", () => {
+				if (open) {
+					decoration.classList.add("hiddencat")
 					childrendiv.style.height = "0"
 				} else {
-					decoration.textContent = "▼"
+					decoration.classList.remove("hiddencat")
 					childrendiv.style.height = childrendiv.scrollHeight + "px"
 				}
-			}
+				open = !open
+			})
 			div.appendChild(childrendiv)
 		} else {
 			div.classList.add("channel")
@@ -253,35 +257,43 @@ class Channel {
 			const myhtml = document.createElement("span")
 			myhtml.textContent = this.name
 
-			const decoration = document.createElement("b")
-			if (this.parent) decoration.classList.add("indent")
+			if (this.type == 0 || this.type == 2 || this.type == 5) {
+				const icon = document.createElement("img")
+				if (this.parent) icon.classList.add("indent")
 
-			if (this.type == 0) {
-				decoration.textContent = "#"
-				decoration.classList.add("space")
-			} else if (this.type == 2) {
-				decoration.textContent = "🕪"
-				decoration.classList.add("space", "spacee")
-			} else if (this.type == 5) {
-				decoration.textContent = "📣"
-				decoration.classList.add("space", "spacee")
-			} else if (this.type >= 10 && this.type <= 12) {
-				decoration.textContent = "🧵"
-				decoration.classList.add("space", "spacee")
-			} else if (this.type == 13) {
-				decoration.textContent = "🎭"
-				decoration.classList.add("space", "spacee")
-			} else if (this.type == 15) {
-				decoration.textContent = "🗂️"
-				decoration.classList.add("space", "spacee")
-			} else if (this.type == 16) {
-				decoration.textContent = "📸"
-				decoration.classList.add("space", "spacee")
+				if (this.type == 0) {
+					icon.src = "/icons/channel.svg"
+					icon.classList.add("space", "svgtheme")
+				} else if (this.type == 2) {
+					icon.src = "/icons/voice.svg"
+					icon.classList.add("space", "svgtheme")
+				} else if (this.type == 5) {
+					icon.src = "/icons/announce.svg"
+					icon.classList.add("space", "svgtheme")
+				}
+				div.appendChild(icon)
 			} else {
-				decoration.textContent = "❓"
-				console.warn("Unable to handle channel type " + this.type)
+				const decoration = document.createElement("b")
+				if (this.parent) decoration.classList.add("indent")
+
+				if (this.type >= 10 && this.type <= 12) {
+					decoration.textContent = "🧵"
+					decoration.classList.add("space", "spacee")
+				} else if (this.type == 13) {
+					decoration.textContent = "🎭"
+					decoration.classList.add("space", "spacee")
+				} else if (this.type == 15) {
+					decoration.textContent = "🗂️"
+					decoration.classList.add("space", "spacee")
+				} else if (this.type == 16) {
+					decoration.textContent = "📸"
+					decoration.classList.add("space", "spacee")
+				} else {
+					decoration.textContent = "❓"
+					console.warn("Unable to handle channel type " + this.type)
+				}
+				div.appendChild(decoration)
 			}
-			div.appendChild(decoration)
 
 			div.appendChild(myhtml)
 			div.onclick = () => {
@@ -778,3 +790,46 @@ class Channel {
 }
 
 Channel.setupcontextmenu()
+
+document.addEventListener("DOMContentLoaded", () => {
+	let last
+	const dud = document.createElement("p")
+	dud.classList.add("svgtheme")
+	document.body.append(dud)
+	const css = window.getComputedStyle(dud)
+
+	const fixsvgtheme = () => {
+		const thing = css.color.replace("rgb(", "").replace(")", "").split(",")
+		const r = Number.parseInt(thing[0]) / 255
+		const g = Number.parseInt(thing[1]) / 255
+		const b = Number.parseInt(thing[2]) / 255
+		const max = Math.max(r, g, b)
+		const min = Math.min(r, g, b)
+		const l = (max + min) / 2
+		let s
+		let h
+		if (max == min) {
+			s = 0
+			h = 0
+		} else {
+			if (l <= 0.5) s = (max - min) / (max + min)
+			else s = (max - min) / (2 - max - min)
+
+			if (r == max) h = (g - b) / (max - min)
+			else if (g == max) h = 2 + (b - r) / (max - min)
+			else if (b == max) h = 4 + (r - g) / (max - min)
+		}
+
+		const rot = Math.floor(h * 60) + "deg"
+		const invert = 0.5 - (s / 2) + ""
+		const brightness = Math.floor((l * 200)) + "%"
+		const current = rot + invert + brightness
+		if (current != last) {
+			last = current
+			document.documentElement.style.setProperty("--rot", rot)
+			document.documentElement.style.setProperty("--invert", invert)
+			document.documentElement.style.setProperty("--brightness", brightness)
+		}
+	}
+	setInterval(fixsvgtheme, 100)
+})

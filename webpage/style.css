@@ -41,10 +41,11 @@
 	--black: #000;
 	--shadow: #000;
 
-	--red: red;
-	--green: green;
-	--yellow: yellow;
-	--focus: #8888ff;
+	--red: #f00;
+	--green: #008000;
+	--yellow: #ff0;
+	--focus: #88f;
+	--icon-color: #fff;
 
 	--message-bg-hover: #1e1e28;
 	--typing-bg: #161616;
@@ -62,7 +63,7 @@
 	--pronouns: #797979;
 	--error-color: #ff4949;
 	--embed: #1a1823;
-	--link: #8888ff;
+	--link: #88f;
 	--embed-fallback: #6b717c;
 	--message-jump: #7678b0;
 
@@ -115,8 +116,9 @@
 
 	--red: #dd6c6c;
 	--green: #639d63;
-	--yellow: yellow;
+	--yellow: #ff0;
 	--focus: #47bbff;
+	--icon-color: #000;
 
 	--message-bg-hover: #dedee2;
 	--typing-bg: #dad8d8;
@@ -141,9 +143,9 @@
 	--button-bg: #b7b7c7;
 	--button-hover: #FFF;
 
-	--channels-bg: #d6d6db;
-	--channel-hover: #c2c2cc;
-	--channel-active: #b1afbd;
+	--channels-bg: #e4e4e9;
+	--channel-hover: #cbcbd8;
+	--channel-active: #bdbbc9;
 
 	--profile-bg: #ccccd3;
 	--profile-info-bg: #bdbdc9;
@@ -445,14 +447,17 @@ p {
 }
 
 .space {
-	margin-right: .02in;
+	margin: .02in;
 	font-size: .25in;
 	display: inline-block;
 	text-indent: .05in;
+	width: .175in;
+	padding-right: .026in;
 }
 
 .spacee {
 	font-size: .15in;
+	width: .2in;
 }
 
 .indent {
@@ -739,15 +744,18 @@ textarea {
 	transition: height .2s ease-in-out;
 	user-select: none;
 	cursor: pointer;
+	padding-left: .05in;
 }
 
 .channel {
 	user-select: none;
 	cursor: pointer;
 	transition: font-weight .1s;
-	height: 30px;
 	display: flex;
 	align-items: center;
+	margin: 2px;
+	border-radius: .05in;
+	padding: .05in .1in;
 }
 .channel:hover, .channel:focus {
 	background-color: var(--channel-hover);
@@ -780,6 +788,9 @@ textarea {
 	flex-direction: row;
 	align-self: stretch;
 	width: 100%;
+	display: flex;
+	align-items: center;
+	padding: .025in 0;
 }
 .channeleffects:hover, .channeleffects:focus {
 	background-color: var(--channel-hover);
@@ -1672,3 +1683,23 @@ textarea:focus-visible,
 form div {
 	width: 100%;
 }
+
+.svgtheme {
+	color: var(--icon-color);
+	filter: hue-rotate(var(--rot)) invert(var(--invert)) brightness(var(--brightness));
+}
+
+.channels .channel {
+	margin-bottom: .03in;
+}
+
+.collapse-icon {
+	width: .15in;
+	padding-left: .05in;
+	padding-right: .025in;
+	transition: rotate .1s;
+}
+.hiddencat {
+	rotate: -90deg;
+}
+

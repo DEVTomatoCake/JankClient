@@ -934,7 +934,7 @@ class LocalUser {
 		botDialog.show()
 	}
 	static async loadSVG(name = "") {
-		const res = await fetch("/img/" + name + ".svg", {
+		const res = await fetch("/icons/bootstrap/" + name + ".svg", {
 			headers: {
 				Accept: "image/svg+xml"
 			},

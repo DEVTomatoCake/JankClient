@@ -61,8 +61,12 @@ app.use("/", (req, res) => {
 		res.sendFile(path.join(__dirname, "webpage", "font", reqPath.replace("font", "")), {
 			maxAge: 1000 * 60 * 60 * 24 * 90
 		})
-	} else if (fs.existsSync(path.join(__dirname, "webpage", "img", reqPath.replace("img", "")))) {
-		res.sendFile(path.join(__dirname, "webpage", "img", reqPath.replace("img", "")), {
+	} else if (fs.existsSync(path.join(__dirname, "webpage", "icons", "bootstrap", reqPath.replace("iconsbootstrap", "")))) {
+		res.sendFile(path.join(__dirname, "webpage", "icons", "bootstrap", reqPath.replace("iconsbootstrap", "")), {
+			maxAge: 1000 * 60 * 60 * 24
+		})
+	} else if (fs.existsSync(path.join(__dirname, "webpage", "icons", reqPath.replace("icons", "")))) {
+		res.sendFile(path.join(__dirname, "webpage", "icons", reqPath.replace("icons", "")), {
 			maxAge: 1000 * 60 * 60 * 24
 		})
 	} else if (fs.existsSync(path.join(__dirname, "webpage", reqPath + ".html"))) res.sendFile(path.join(__dirname, "webpage", reqPath + ".html"))
