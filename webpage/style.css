@@ -182,7 +182,7 @@
 body {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 400;
-	background-color: var(--primary-bg);
+	background: var(--primary-bg);
 	color: var(--primary-text);
 	overflow-y: hidden;
 	overflow-x: hidden;
@@ -237,7 +237,7 @@ th {
 	box-sizing: border-box;
 }
 .messagediv:hover, .messagediv:focus {
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 }
 
 .topMessage {
@@ -246,7 +246,7 @@ th {
 }
 
 pre {
-	background-color: var(--code-bg);
+	background: var(--code-bg);
 	color: var(--code-text);
 	width: 100vw;
 	max-width: max-content;
@@ -257,14 +257,14 @@ pre {
 }
 
 code {
-	background-color: var(--code-bg);
+	background: var(--code-bg);
 	color: var(--code-text);
 	font-size: 16px;
 }
 
 .contextbutton {
 	transition: background-color .1s ease-in-out;
-	background-color: var(--channels-hover);
+	background: var(--channels-hover);
 	color: var(--primary-text);
 	font-weight: bold;
 	width: 5cm;
@@ -276,7 +276,7 @@ code {
 	margin: .02in .05in;
 }
 .contextbutton:hover, .contextbutton:focus {
-	background-color: var(--primary-bg);
+	background: var(--primary-bg);
 }
 .contextbutton:active {
 	border-width: 0;
@@ -287,12 +287,12 @@ code {
 	border-width: 0;
 }
 .contextbutton:disabled:hover, .contextbutton:disabled:focus {
-	background-color: var(--channels-bg);
+	background: var(--channels-bg);
 }
 
 .infosection {
 	display: inline-block;
-	background-color: var(--profile-info-bg);
+	background: var(--profile-info-bg);
 	border-radius: 10%;
 	padding: .3cm;
 	width: 100%;
@@ -339,7 +339,7 @@ small.subtext {
 
 .contextmenu {
 	position: absolute;
-	background-color: var(--profile-info-bg);
+	background: var(--profile-info-bg);
 	border-radius: .05in;
 	z-index: 5;
 }
@@ -364,7 +364,7 @@ small.subtext {
 	border-radius: 50%;
 	width: .5in;
 	height: .5in;
-	background-color: var(--blank-bg);
+	background: var(--blank-bg);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -425,7 +425,7 @@ p {
 
 #channels {
 	--top-height: 37px;
-	background-color: var(--channels-bg);
+	background: var(--channels-bg);
 	position: absolute;
 	top: var(--top-height);
 	height: calc(100dvh - 54px - var(--top-height));
@@ -468,11 +468,11 @@ p {
 
 .viewChannel {
 	font-weight: bold;
-	background-color: var(--channel-active);
+	background: var(--channel-active);
 }
 
 input {
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	color: var(--primary-text);
 	padding: 8px 3px;
 	width: 97.5%;
@@ -529,36 +529,36 @@ hr {
 }
 
 .spoiler {
-	background-color: var(--spoiler-closed);
+	background: var(--spoiler-closed);
 	color: var(--spoiler-closed);
 	border-radius: 3px;
 	cursor: pointer;
 }
 .spoiler:hover, .spoiler:focus {
-	background-color: var(--spoiler-hover);
+	background: var(--spoiler-hover);
 	color: var(--spoiler-hover);
 }
 
 .unspoiled {
-	background-color: var(--spoiler-open-bg);
+	background: var(--spoiler-open-bg);
 	color: var(--primary-text);
 	border-radius: 3px;
 	cursor: auto;
 }
 
 .md-timestamp {
-	background-color: var(--timestamp-bg);
+	background: var(--timestamp-bg);
 	border-radius: 3px;
 }
 .md-mention {
-	background-color: var(--mention-bg);
+	background: var(--mention-bg);
 	color: var(--mention-color);
 	cursor: pointer;
 	border-radius: 3px;
 }
 
 .replying {
-	background-color: var(--reply-bg);
+	background: var(--reply-bg);
 }
 
 #typing {
@@ -566,7 +566,7 @@ hr {
 	position: absolute;
 	bottom: 23px;
 	right: 12px;
-	background-color: var(--typing-bg);
+	background: var(--typing-bg);
 	width: fit-content;
 	transform: translateY(-100%);
 	border-radius: 5px 5px 0 0;
@@ -631,7 +631,7 @@ hr {
 .lightbr {
 	border-color: var(--light-border);
 	color: var(--black);
-	background-color: var(--black);
+	background: var(--black);
 	width: 80%;
 }
 
@@ -639,7 +639,7 @@ hr {
 	border-radius: 50%;
 	width: .5in;
 	height: .5in;
-	background-color: var(--blank-bg);
+	background: var(--blank-bg);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -720,11 +720,11 @@ hr {
 }
 
 ::-webkit-scrollbar-track {
-	background-color: var(--scrollbar-track);
+	background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: var(--scrollbar-thumb);
+	background: var(--scrollbar-thumb);
 	border-radius: .08in;
 	border: .03in solid transparent;
 	background-clip: padding-box;
@@ -738,7 +738,7 @@ hr {
 
 textarea {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	background-color: var(--textarea-bg);
+	background: var(--textarea-bg);
 	color: var(--primary-text);
 	width: 3.5in;
 	resize: none;
@@ -765,7 +765,7 @@ textarea {
 	padding: .05in .1in;
 }
 .channel:hover, .channel:focus {
-	background-color: var(--channel-hover);
+	background: var(--channel-hover);
 }
 
 #servername, #channelname {
@@ -778,7 +778,7 @@ textarea {
 }
 
 .servertd {
-	background-color: var(--server-bg);
+	background: var(--server-bg);
 	border-color: var(--server-border);
 	border-width: .1cm;
 	border-style: solid;
@@ -800,7 +800,7 @@ textarea {
 	padding: .025in 0;
 }
 .channeleffects:hover, .channeleffects:focus {
-	background-color: var(--channel-hover);
+	background: var(--channel-hover);
 }
 
 .dm-container {
@@ -828,7 +828,7 @@ textarea {
 }
 
 #userdock {
-	background-color: var(--user-dock-bg);
+	background: var(--user-dock-bg);
 	position: relative;
 	justify-content: center;
 	align-items: center;
@@ -874,7 +874,7 @@ textarea {
 
 #userinfo {
 	position: relative;
-	background-color: var(--user-info-bg);
+	background: var(--user-info-bg);
 	border-radius: .1in;
 	cursor: pointer;
 	flex-shrink: 0;
@@ -892,7 +892,7 @@ textarea {
 
 button, input::file-selector-button {
 	transition: background-color .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	border-color: var(--settings-hover);
 	color: var(--primary-text);
 	font-weight: bold;
@@ -912,11 +912,11 @@ button:disabled {
 	border-width: 0;
 }
 button:disabled:hover, button:disabled:focus {
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	color: var(--primary-text);
 }
 button:hover, button:focus {
-	background-color: var(--primary-bg);
+	background: var(--primary-bg);
 }
 
 input[type="file"] {
@@ -924,7 +924,7 @@ input[type="file"] {
 }
 select {
 	transition: background-color .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
@@ -942,7 +942,7 @@ select {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	background-color: var(--dialog-bg);
+	background: var(--dialog-bg);
 	min-width: max(min(70%, calc(50% + .5in)), min(3in, 100%));
 	min-height: 70%;
 	border-radius: .1in;
@@ -977,7 +977,7 @@ select {
 	user-select: none;
 }
 .addchannel:hover, .addchannel:focus {
-	background-color: var(--black);
+	background: var(--black);
 }
 
 .flex {
@@ -1009,7 +1009,7 @@ input[type="checkbox"] {
 	width: 3px;
 	height: 100%;
 	position: absolute;
-	background-color: var(--quote-bg);
+	background: var(--quote-bg);
 	border-radius: 3px;
 }
 
@@ -1028,7 +1028,7 @@ span {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background-color: var(--loading-bg);
+	background: var(--loading-bg);
 	z-index: 100;
 	text-align: center;
 	transition: transform .2s;
@@ -1054,7 +1054,7 @@ span {
 }
 
 .unknownfile {
-	background-color: var(--unknown-file-bg);
+	background: var(--unknown-file-bg);
 	border-style: solid;
 	border-radius: .1in;
 	border-color: var(--unknown-file-border);
@@ -1074,7 +1074,7 @@ span {
 
 .unread {
 	position: absolute;
-	background-color: var(--primary-text);
+	background: var(--primary-text);
 	height: .075in;
 	width: .075in;
 	transition: transform .2s, background-color .2s, height .2s, width .2s;
@@ -1096,7 +1096,7 @@ span {
 
 .pinged {
 	transform: translate(0, .35in);
-	background-color: var(--notify-bg);
+	background: var(--notify-bg);
 	height: .17in;
 	width: .17in;
 	text-align: center;
@@ -1116,7 +1116,7 @@ span {
 }
 
 .tabbed-head {
-	background-color: var(--settings-hover);
+	background: var(--settings-hover);
 }
 .tabbed-content td {
 	border-inline: medium solid var(--textarea-bg);
@@ -1126,7 +1126,7 @@ span {
 }
 
 .accountSwitcher {
-	background-color: var(--profile-bg);
+	background: var(--profile-bg);
 	display: inline-block;
 	cursor: pointer;
 	box-shadow: 0 -.5in 1in color-mix(in srgb, var(--shadow) 42%, transparent);
@@ -1138,11 +1138,11 @@ span {
 }
 .accountSwitcher tr {
 	transition: background-color .3s;
-	background-color: var(--profile-bg);
+	background: var(--profile-bg);
 	cursor: pointer;
 }
 .accountSwitcher tr:hover, .accountSwitcher tr:focus {
-	background-color: var(--profile-info-bg);
+	background: var(--profile-info-bg);
 }
 
 .switchtable tr {
@@ -1203,10 +1203,10 @@ span {
 .embed-color {
 	padding-left: .04in;
 	border-radius: .07in;
-	background-color: var(--black);
+	background: var(--black);
 }
 .embed {
-	background-color: var(--embed);
+	background: var(--embed);
 	padding: .075in;
 	border-radius: .05in;
 	max-width: 4in;
@@ -1261,7 +1261,7 @@ span {
 	justify-content: space-between;
 	width: 98%;
 	height: .3in;
-	background-color: var(--reply-bg);
+	background: var(--reply-bg);
 	transition: height .2s, padding .2s;
 	border-radius: .1in .1in 0 0;
 	margin-left: 10px;
@@ -1310,7 +1310,7 @@ span {
 	height: 175px;
 	margin: 5px;
 	padding: 5px;
-	background-color: var(--discovery-bg);
+	background: var(--discovery-bg);
 	border-radius: 5px;
 	box-shadow: 1px 1px 7px var(--primary-text);
 	overflow: hidden;
@@ -1362,7 +1362,7 @@ video {
 }
 
 .Buttons {
-	background-color: var(--primary-bg);
+	background: var(--primary-bg);
 	position: relative;
 }
 .flexltr {
@@ -1386,7 +1386,7 @@ video {
 	gap: .04in;
 }
 .setting {
-	background-color: var(--user-info-bg);
+	background: var(--user-info-bg);
 	padding: .075in;
 	border-radius: .075in;
 	box-shadow: 0 0 .1in var(--message-bg-hover);
@@ -1400,7 +1400,7 @@ video {
 .profile {
 	display: inline-block;
 	position: absolute;
-	background-color: var(--profile-bg);
+	background: var(--profile-bg);
 	border-radius: 10%;
 	padding: .2cm;
 	width: 7cm;
@@ -1411,7 +1411,7 @@ video {
 
 .hypoprofile {
 	display: inline-block;
-	background-color: var(--profile-bg);
+	background: var(--profile-bg);
 	border-radius: 10%;
 	padding: .2cm;
 	width: 7cm;
@@ -1430,14 +1430,14 @@ video {
 	font-weight: 900;
 	font-size: .25in;
 	border-bottom: solid var(--message-bg-hover);
-	background-color: var(--primary-bg);
+	background: var(--primary-bg);
 	padding: .02in .1in;
 }
 .exitsettings {
 	position: absolute;
 	top: .05in;
 	right: .05in;
-	background-color: var(--channel-hover);
+	background: var(--channel-hover);
 	width: .3in;
 	height: .3in;
 	display: flex;
@@ -1496,7 +1496,7 @@ video {
 
 .savediv {
 	position: absolute;
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	border: solid var(--black);
 	border-radius: .075in;
 	padding: .05in .2in;
@@ -1604,7 +1604,7 @@ video {
 	justify-content: space-between;
 	padding: 8px;
 	margin: 0 16px 0 0;
-	background-color: var(--select-bg);
+	background: var(--select-bg);
 	color: var(--select-color);
 	border: 1px solid var(--select-border);
 	width: 400px;
@@ -1625,11 +1625,11 @@ video {
 #connection-container div, #app-list-container div {
 	padding: 5px 10px;
 	border-radius: 5px;
-	background-color: var(--textarea-bg);
+	background: var(--textarea-bg);
 	cursor: pointer;
 }
 #connection-container .disabled {
-	background-color: var(--embed-fallback);
+	background: var(--embed-fallback);
 	cursor: not-allowed;
 }
 
@@ -1637,11 +1637,11 @@ video {
 	padding: 1px 8px;
 	border-radius: 5px;
 	border: 2px solid var(--light-border);
-	background-color: var(--code-bg);
+	background: var(--code-bg);
 }
 .reaction.me {
 	border: 2px solid var(--mention-color);
-	background-color: var(--mention-bg);
+	background: var(--mention-bg);
 }
 
 .reaction span {
@@ -1664,7 +1664,7 @@ textarea:focus-visible,
 		background-color: transparent;
 	}
 	50% {
-		background-color: var(--message-jump);
+		background: var(--message-jump);
 	}
 }
 
@@ -1673,7 +1673,7 @@ textarea:focus-visible,
 	animation: goout 6s forwards;
 }
 .suberrora {
-	background-color: var(--channel-hover);
+	background: var(--channel-hover);
 	border-radius: .1in;
 	position: absolute;
 	border: solid var(--primary-text) .02in;
