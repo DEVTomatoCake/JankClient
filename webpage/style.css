@@ -747,7 +747,8 @@ textarea {
 }
 
 .channels {
-	overflow: auto;
+	overflow-x: auto;
+	overflow-y: clip;
 	transition: height .2s ease-in-out;
 	user-select: none;
 	cursor: pointer;

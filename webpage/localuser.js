@@ -323,24 +323,27 @@ class LocalUser {
 		return guild
 	}
 	async buildservers() {
-		const outdiv = document.createElement("div")
 		const serverlist = document.getElementById("servers")
 		serverlist.innerHTML = ""
 
-		const homeButton = document.createElement("p")
-		homeButton.classList.add("home", "servericon")
-		homeButton.appendChild(await LocalUser.loadSVG("home"))
-		homeButton.all = this.guildids.get("@me")
-		homeButton.onclick = function() {
+		const div = document.createElement("div")
+		div.classList.add("home", "servericon")
+		const img = document.createElement("img")
+		img.classList.add("svgtheme")
+		img.src = "/icons/home.svg"
+		img.all = this.guildids.get("@me")
+		img.onclick = function() {
 			this.all.loadGuild()
 			this.all.loadChannel()
 		}
+		div.appendChild(img)
 
+		const outdiv = document.createElement("div")
 		this.guildids.get("@me").html = outdiv
 		const unread = document.createElement("div")
 		unread.classList.add("unread")
 		outdiv.append(unread)
-		outdiv.appendChild(homeButton)
+		outdiv.append(div)
 		serverlist.append(outdiv)
 
 		const sentdms = document.createElement("div")
@@ -377,13 +380,13 @@ class LocalUser {
 			this.createGuild()
 		})
 
-		const guildDiscoveryButton = document.createElement("div")
-		guildDiscoveryButton.classList.add("home", "servericon")
-		guildDiscoveryButton.appendChild(await LocalUser.loadSVG("guildDiscovery"))
-		serverlist.appendChild(guildDiscoveryButton)
-		guildDiscoveryButton.addEventListener("click", () => {
-			this.guildDiscovery()
-		})
+		const guildsDiv = document.createElement("div")
+		const guildDiscoveryContainer = document.createElement("img")
+		guildDiscoveryContainer.src = "/icons/explore.svg"
+		guildDiscoveryContainer.classList.add("svgtheme")
+		guildsDiv.classList.add("home", "servericon")
+		guildsDiv.appendChild(guildDiscoveryContainer)
+		serverlist.appendChild(guildsDiv)
 	}
 	createGuild() {
 		let inviteurl = ""
