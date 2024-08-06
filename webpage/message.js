@@ -49,11 +49,10 @@ class Message {
 			navigator.clipboard.writeText(this.id)
 		})
 
-		Message.contextmenu.addbutton("React", function() {
-			this.react("🎭")
-		})
-		Message.contextmenu.addbutton("Unreact", function() {
-			this.unreact("🎭")
+		Message.contextmenu.addsubmenu("Add reaction", function(e) {
+			Emoji.emojiPicker(e.x, e.y).then(emoji => {
+				this.reactionToggle(emoji)
+			})
 		})
 
 		Message.contextmenu.addbutton("Edit", function() {
@@ -111,12 +110,13 @@ class Message {
 			}
 		}
 
-		if (messagejson.reactions) {
+		/*if (messagejson.reactions) {
 			this.reactions = []
 			for (const thing of messagejson.reactions) {
 				this.reactions.push(new Reaction(thing, this))
 			}
-		}
+		}*/
+		console.log(this.reactions)
 
 		if (!this.member && this.guild.id != "@me") {
 			this.author.resolvemember(this.guild).then(member => {
@@ -157,6 +157,21 @@ class Message {
 	}
 	get id() {
 		return this.snowflake.id
+	}
+	reactionToggle(emoji) {
+		if (typeof emoji == "string") {
+			let remove = false
+			for (const thing of this.reactions) {
+				if (thing.emoji.name == emoji) {
+					remove = thing.me
+					break
+				}
+			}
+			fetch(this.info.api.toString() + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + encodeURIComponent(emoji) + "/@me", {
+				method: remove ? "DELETE" : "PUT",
+				headers: this.headers
+			})
+		}
 	}
 	messageevents(obj, del = Message.del) {
 		const func = Message.contextmenu.bind(obj, this)
@@ -388,7 +403,74 @@ class Message {
 			div.classList.add("topMessage")
 		}
 		div.all = this
+
+		const reactions = document.createElement("div")
+		reactions.classList.add("flexltr", "reactiondiv")
+		this.reactdiv = new WeakRef(reactions)
+		this.updateReactions()
+		div.append(reactions)
+
 		return div
+	}
+	updateReactions() {
+		const reactdiv = this.reactdiv.deref()
+		if (!reactdiv) return
+
+		reactdiv.innerHTML = ""
+		for (const thing of this.reactions) {
+			console.log(thing)
+			const reaction = document.createElement("div")
+			reaction.classList.add("reaction")
+			if (thing.me) reaction.classList.add("meReacted")
+
+			const emoji = document.createElement("p")
+			emoji.textContent = thing.emoji.name
+			const count = document.createElement("p")
+			count.textContent = "" + thing.count
+			count.classList.add("reactionCount")
+			reaction.append(count)
+			reaction.append(emoji)
+			reactdiv.append(reaction)
+			reaction.onclick = () => {
+				this.reactionToggle(thing.emoji.name)
+			}
+		}
+	}
+	giveReaction(data, member) {
+		for (const thing of this.reactions) {
+			if (thing.emoji.name == data.name) {
+				thing.count++
+				if (member.id == this.localuser.user.id) {
+					thing.me = true
+					this.updateReactions()
+					return
+				}
+			}
+		}
+		this.reactions.push({
+			count: 1,
+			emoji: data,
+			me: member.id == this.localuser.user.id
+		})
+		this.updateReactions()
+	}
+	takeReaction(data, id) {
+		for (const i in this.reactions) {
+			const thing = this.reactions[i]
+			if (thing.emoji.name == data.name) {
+				thing.count--
+				if (thing.count == 0) {
+					this.reactions.splice(i, 1)
+					this.updateReactions()
+					return
+				}
+				if (this.localuser.user.id == id) {
+					thing.me = false
+					this.updateReactions()
+					return
+				}
+			}
+		}
 	}
 	buildhtml(premessage, del = Message.del) {
 		if (this.div) {
@@ -413,7 +495,7 @@ class Message {
 			headers: this.headers
 		})
 	}
-	handleReactionAdd(json) {
+	/*handleReactionAdd(json) {
 		if (this.reactions.some(react => react.json.emoji.name == json.emoji.name))
 			this.reactions.find(react => react.json.emoji.name == json.emoji.name).json.count++
 		else this.reactions.push(new Reaction(json, this))
@@ -426,7 +508,7 @@ class Message {
 		else reaction.json.count--
 
 		this.generateMessage()
-	}
+	}*/
 }
 
 Message.setup()

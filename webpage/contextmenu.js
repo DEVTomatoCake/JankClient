@@ -17,7 +17,11 @@ class Contextmenu {
 		this.buttons = []
 	}
 	addbutton(text, onclick, img = null, shown = () => true, enabled = () => true) {
-		this.buttons.push({text, onclick, img, shown, enabled})
+		this.buttons.push({type: "button", text, onclick, img, shown, enabled})
+		return {}
+	}
+	addsubmenu(text, onclick, img = null, shown = () => true, enabled = () => true) {
+		this.buttons.push({type: "submenu", text, onclick, img, shown, enabled})
 		return {}
 	}
 	makemenu(x, y, addinfo, obj) {
@@ -32,7 +36,10 @@ class Contextmenu {
 			intext.classList.add("contextbutton")
 			intext.textContent = button.text
 			textb.appendChild(intext)
-			intext.onclick = button.onclick.bind(addinfo, obj)
+
+			if (button.type == "button") intext.onclick = button.onclick.bind(addinfo, obj)
+			else intext.onclick = button.onclick.bind(addinfo)
+
 			div.appendChild(textb)
 		}
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()

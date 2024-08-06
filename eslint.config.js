@@ -27,6 +27,7 @@ const global = {
 	InfiniteScroller: "writable",
 	LocalUser: "writable",
 	MarkDown: "writable",
+	Emoji: "writable",
 	Member: "writable",
 	Message: "writable",
 	Permissions: "writeable",

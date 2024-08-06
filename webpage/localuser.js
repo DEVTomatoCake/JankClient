@@ -209,13 +209,26 @@ class LocalUser {
 					const message = SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject()
 					message.giveData(json.d)
 					break
-				case "MESSAGE_REACTION_ADD":
+				/*case "MESSAGE_REACTION_ADD":
 					const messageReactionAdd = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
 					messageReactionAdd.handleReactionAdd(json.d)
 					break
 				case "MESSAGE_REACTION_REMOVE":
 					const messageReactionRemove = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
 					messageReactionRemove.handleReactionRemove(json.d)
+					break*/
+				case "MESSAGE_REACTION_ADD":
+					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
+						const messageReactionAdd = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+						const guild = SnowFlake.getSnowFlakeFromID(json.d.guild_id, Guild).getObject()
+						messageReactionAdd.giveReaction(json.d.emoji, new Member(json.d.member, guild))
+					}
+					break
+				case "MESSAGE_REACTION_REMOVE":
+					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
+						const messageReactionRemove = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+						messageReactionRemove.takeReaction(json.d.emoji, json.d.user_id)
+					}
 					break
 				case "TYPING_START":
 					if (this.initialized) this.typingStart(json)
@@ -329,7 +342,7 @@ class LocalUser {
 		const div = document.createElement("div")
 		div.classList.add("home", "servericon")
 		const img = document.createElement("img")
-		img.classList.add("svgtheme")
+		img.classList.add("svgtheme", "svgicon")
 		img.src = "/icons/home.svg"
 		img.all = this.guildids.get("@me")
 		img.onclick = function() {
@@ -383,7 +396,7 @@ class LocalUser {
 		const guildsDiv = document.createElement("div")
 		const guildDiscoveryContainer = document.createElement("img")
 		guildDiscoveryContainer.src = "/icons/explore.svg"
-		guildDiscoveryContainer.classList.add("svgtheme")
+		guildDiscoveryContainer.classList.add("svgtheme", "svgicon")
 		guildsDiv.classList.add("home", "servericon")
 		guildsDiv.appendChild(guildDiscoveryContainer)
 		serverlist.appendChild(guildsDiv)
@@ -946,5 +959,57 @@ class LocalUser {
 		const xml = await res.text()
 		const parser = new DOMParser()
 		return parser.parseFromString(xml, "image/svg+xml").documentElement
+	}
+	//---------- resolving members code -----------
+	waitingmembers = new Map()
+	async resolvemember(id, guildid) {
+		console.warn("this function is currently non-functional, either due to a bug in the client or the server, it's currently unclear, use at your own risk")
+		if (!this.waitingmembers.has(guildid)) {
+			this.waitingmembers.set(guildid, new Map())
+		}
+		let res
+		const promise = new Promise(r => {
+			res = r
+		})
+		this.waitingmembers.get(guildid).set(id, res)
+		this.getmembers()
+		return await promise
+	}
+	fetchingmembers = new Map()
+	async getmembers() {
+		if (this.ws) {
+			this.waitingmembers.forEach(async (value, guildid) => {
+				const keys = value.keys()
+				if (this.fetchingmembers.has(guildid)) {
+					return
+				}
+				const build = []
+				for (const key of keys) {
+					build.push(key)
+				}
+
+				let res
+				const promise = new Promise(r => {
+					res = r
+				})
+				this.ws.send(JSON.stringify({
+					op: 8,
+					d: {
+						query: "",
+						user_ids: build,
+						guild_id: guildid,
+						limit: 100,
+						nonce: "" + Math.floor(Math.random() * 100000000)
+					}
+				}))
+				this.fetchingmembers.set(guildid, res)
+				const data = await promise
+				for (const thing of data) {
+					value.get(thing.id)(thing)
+					value.delete(thing.id)
+				}
+				this.getmembers()
+			})
+		}
 	}
 }
