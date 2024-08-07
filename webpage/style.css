@@ -1799,14 +1799,11 @@ form div {
 }
 
 .reaction span {
+	flex-grow: 0;
+	flex-shrink: 0;
 	font-size: 13px;
 }
 .meReacted {
 	border: 2px solid var(--mention-color);
 	background: var(--mention-bg);
-}
-
-.reaction p {
-	flex-grow: 0;
-	flex-shrink: 0;
 }

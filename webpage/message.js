@@ -401,20 +401,51 @@ class Message {
 
 		reactdiv.innerHTML = ""
 		for (const thing of this.reactions) {
-			console.log(thing)
-			const reaction = document.createElement("div")
-			reaction.classList.add("reaction")
-			if (thing.me) reaction.classList.add("meReacted")
+			const reactionContainer = document.createElement("div")
+			reactionContainer.classList.add("reaction")
+			if (thing.me) reactionContainer.classList.add("meReacted")
 
-			const emoji = document.createElement("p")
-			emoji.textContent = thing.emoji.name
-			const count = document.createElement("p")
-			count.textContent = "" + thing.count
-			count.classList.add("reactionCount")
-			reaction.append(count)
-			reaction.append(emoji)
-			reactdiv.append(reaction)
-			reaction.onclick = () => {
+			if (thing.emoji.id) {
+				const text = document.createElement("span")
+				text.textContent = thing.count
+				text.classList.add("reactionCount")
+
+				const img = document.createElement("img")
+				img.crossOrigin = "anonymous"
+				img.src = instance.cdn + "/emojis/" + thing.emoji.id + ".png?size=32"
+				img.width = 22
+				img.height = 22
+				img.alt = ""
+				reactionContainer.appendChild(img)
+			} else {
+				const text = document.createElement("span")
+				text.classList.add("reactionCount")
+
+				const twEmoji = emojiRegex.exec(thing.emoji.name)
+				if (twEmoji) {
+					const alt = twEmoji[0]
+					const icon = twEmoji[1]
+					const variant = twEmoji[2]
+
+					if (variant != "\uFE0E") {
+						const img = document.createElement("img")
+						img.crossOrigin = "anonymous"
+						img.src = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/15.0.3/72x72/" +
+							MarkDown.toCodePoint(icon.length == 3 && icon.charAt(1) == "\uFE0F" ? icon.charAt(0) + icon.charAt(2) : icon) + ".png"
+						img.width = 22
+						img.height = 22
+						img.alt = "Emoji: " + Object.keys(emojis)[Object.values(emojis).findIndex(e => e == alt)]
+
+						text.textContent = thing.count
+						text.appendChild(img)
+					}
+				} else text.textContent = thing.count + " " + thing.emoji.name
+
+				reactionContainer.appendChild(text)
+			}
+
+			reactdiv.append(reactionContainer)
+			reactionContainer.onclick = () => {
 				this.reactionToggle(thing.emoji.name)
 			}
 		}

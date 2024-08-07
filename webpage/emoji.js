@@ -29,7 +29,7 @@ class Emoji {
 
 		const build = []
 		let cats = read16()
-		for (; cats !== 0; cats--) {
+		for (; cats != 0; cats--) {
 			const name = readString16()
 			const emojis = []
 			let emojinumber = read16()
@@ -65,10 +65,10 @@ class Emoji {
 		menu.classList.add("flextttb", "emojiPicker")
 		menu.style.top = y + "px"
 		menu.style.left = x + "px"
+
 		setTimeout(() => {
-			if (Contextmenu.currentmenu != "") {
-				Contextmenu.currentmenu.remove()
-			}
+			if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
+
 			document.body.append(menu)
 			Contextmenu.currentmenu = menu
 			Contextmenu.keepOnScreen(menu)
@@ -111,7 +111,6 @@ class Emoji {
 		}
 		menu.append(selection)
 		menu.append(body)
-		console.log("menu :3")
 		return promise
 	}
 }
