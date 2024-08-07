@@ -1635,21 +1635,6 @@ video {
 	cursor: not-allowed;
 }
 
-.reaction {
-	padding: 1px 8px;
-	border-radius: 5px;
-	border: 2px solid var(--light-border);
-	background: var(--code-bg);
-}
-.reaction.me {
-	border: 2px solid var(--mention-color);
-	background: var(--mention-bg);
-}
-
-.reaction span {
-	font-size: 13px;
-}
-
 input[type=text]:focus-visible,
 input[type=password]:focus-visible,
 textarea:focus-visible,
@@ -1806,15 +1791,19 @@ form div {
 	display: flex;
 	flex-direction: row;
 	align-content: stretch;
-	background: var(--profile-info-bg);
-	border-radius: .05in;
-	border: solid var(--black);
 	margin-right: .05in;
-	padding: .03in;
+	padding: 1px 8px;
+	border-radius: 5px;
+	border: 2px solid var(--light-border);
+	background: var(--code-bg);
 }
 
-.meReacted{
-	background: var(--channels-bg);
+.reaction span {
+	font-size: 13px;
+}
+.meReacted {
+	border: 2px solid var(--mention-color);
+	background: var(--mention-bg);
 }
 
 .reaction p {

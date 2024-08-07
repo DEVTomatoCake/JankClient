@@ -209,14 +209,6 @@ class LocalUser {
 					const message = SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject()
 					message.giveData(json.d)
 					break
-				/*case "MESSAGE_REACTION_ADD":
-					const messageReactionAdd = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
-					messageReactionAdd.handleReactionAdd(json.d)
-					break
-				case "MESSAGE_REACTION_REMOVE":
-					const messageReactionRemove = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
-					messageReactionRemove.handleReactionRemove(json.d)
-					break*/
 				case "MESSAGE_REACTION_ADD":
 					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
 						const messageReactionAdd = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()

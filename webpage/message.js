@@ -110,14 +110,6 @@ class Message {
 			}
 		}
 
-		/*if (messagejson.reactions) {
-			this.reactions = []
-			for (const thing of messagejson.reactions) {
-				this.reactions.push(new Reaction(thing, this))
-			}
-		}*/
-		console.log(this.reactions)
-
 		if (!this.member && this.guild.id != "@me") {
 			this.author.resolvemember(this.guild).then(member => {
 				this.member = member
@@ -167,7 +159,7 @@ class Message {
 					break
 				}
 			}
-			fetch(this.info.api.toString() + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + encodeURIComponent(emoji) + "/@me", {
+			fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + encodeURIComponent(emoji) + "/@me", {
 				method: remove ? "DELETE" : "PUT",
 				headers: this.headers
 			})
@@ -366,15 +358,6 @@ class Message {
 				}
 				texttxt.appendChild(components)
 			}
-
-			if (this.reactions && this.reactions.length > 0) {
-				const reactions = document.createElement("div")
-				reactions.classList.add("flexltr")
-				for (const thing of this.reactions) {
-					reactions.appendChild(thing.generateHTML())
-				}
-				texttxt.appendChild(reactions)
-			}
 		} else if (this.type == 7) {
 			const text = document.createElement("div")
 			text.classList.add("flexttb")
@@ -495,20 +478,6 @@ class Message {
 			headers: this.headers
 		})
 	}
-	/*handleReactionAdd(json) {
-		if (this.reactions.some(react => react.json.emoji.name == json.emoji.name))
-			this.reactions.find(react => react.json.emoji.name == json.emoji.name).json.count++
-		else this.reactions.push(new Reaction(json, this))
-
-		this.generateMessage()
-	}
-	handleReactionRemove(json) {
-		const reaction = this.reactions.find(react => react.json.emoji.name == json.emoji.name)
-		if (reaction.json.count == 1) this.reactions.splice(this.reactions.indexOf(reaction), 1)
-		else reaction.json.count--
-
-		this.generateMessage()
-	}*/
 }
 
 Message.setup()
