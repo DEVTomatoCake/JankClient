@@ -335,9 +335,8 @@ class Options {
 			this.haschanged = true
 			this.owner.changed(div)
 			button.onclick = () => {
-				if (this.owner instanceof Buttons) {
-					this.owner.save()
-				}
+				// eslint-disable-next-line no-use-before-define
+				if (this.owner instanceof Buttons) this.owner.save()
 				div.remove()
 				this.submit()
 			}
