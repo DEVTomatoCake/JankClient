@@ -87,6 +87,10 @@ const setDefaults = () => {
 	if (userinfos.preferences && userinfos.preferences.notisound === void 0)
 		userinfos.preferences.notisound = "three"
 
+	if (userinfos.accent_color === void 0 && userinfos.preferences.theme == "dark") userinfos.accent_color = "#242443"
+	else if (userinfos.accent_color === void 0) userinfos.accent_color = "#f0f0f0"
+	document.documentElement.style.setProperty("--accent-color", userinfos.accent_color)
+
 	localStorage.setItem("userinfos", JSON.stringify(userinfos))
 }
 setDefaults()

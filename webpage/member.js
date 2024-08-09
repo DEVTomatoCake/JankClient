@@ -84,7 +84,7 @@ class Member {
 			headers: guild.headers
 		})
 		fetchPromise.catch(console.warn)
-        guild.localuser.resolvemember(id?.id, guild.id)
+		guild.localuser.resolvemember(id?.id, guild.id)
 		const promise = fetchPromise.then(res => res.json()).then(json => {
 			const memb = new Member(json, guild)
 			Member.already[guild.id][id] = memb

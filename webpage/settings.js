@@ -59,35 +59,269 @@ class PermissionToggle {
 		}
 		return div
 	}
+	submit() {}
+}
+
+class TextInput {
+	constructor(label, onSubmit, owner, { initText = "" } = {}) {
+		this.label = label
+		this.textContent = initText
+		this.owner = owner
+		this.onSubmit = onSubmit
+	}
+	generateHTML() {
+		const div = document.createElement("div")
+		const span = document.createElement("span")
+		span.textContent = this.label
+		div.append(span)
+		const input = document.createElement("input")
+		input.value = this.textContent
+		input.type = "text"
+		input.oninput = this.onChange.bind(this)
+		this.input = new WeakRef(input)
+		div.append(input)
+		return div
+	}
+	onChange() {
+		this.owner.changed()
+		const value = this.input.deref().value
+		this.onchange(value)
+		this.textContent = value
+	}
+	onchange = () => {}
+	watchForChange(func) {
+		this.onchange = func
+	}
+	submit() {
+		this.onSubmit(this.textContent)
+	}
+}
+
+class MDInput {
+	constructor(label, onSubmit, owner, { initText = "" } = {}) {
+		this.label = label
+		this.textContent = initText
+		this.owner = owner
+		this.onSubmit = onSubmit
+	}
+	generateHTML() {
+		const div = document.createElement("div")
+		const span = document.createElement("span")
+		span.textContent = this.label
+		div.append(span)
+		div.append(document.createElement("br"))
+		const input = document.createElement("textarea")
+		input.value = this.textContent
+		input.oninput = this.onChange.bind(this)
+		this.input = new WeakRef(input)
+		div.append(input)
+		return div
+	}
+	onChange() {
+		this.owner.changed()
+		const value = this.input.deref().value
+		this.onchange(value)
+		this.textContent = value
+	}
+	onchange = () => {}
+	watchForChange(func) {
+		this.onchange = func
+	}
+	submit() {
+		this.onSubmit(this.textContent)
+	}
+}
+
+class SelectInput {
+	constructor(label, onSubmit, options, owner, { defaultIndex = 0 } = {}) {
+		this.label = label
+		this.index = defaultIndex
+		this.owner = owner
+		this.onSubmit = onSubmit
+		this.options = options
+	}
+	generateHTML() {
+		const div = document.createElement("div")
+		const span = document.createElement("span")
+		span.textContent = this.label
+		div.append(span)
+		const select = document.createElement("select")
+		select.onchange = this.onChange.bind(this)
+		for (const thing of this.options) {
+			const option = document.createElement("option")
+			option.textContent = thing
+			select.appendChild(option)
+		}
+		this.select = new WeakRef(select)
+		select.selectedIndex = this.index
+		div.append(select)
+		return div
+	}
+	onChange() {
+		this.owner.changed()
+		const value = this.select.deref().selectedIndex
+		this.onchange(value)
+		this.index = value
+	}
+	onchange = () => {}
+	watchForChange(func) {
+		this.onchange = func
+	}
+	submit() {
+		this.onSubmit(this.index)
+	}
+}
+
+class FileInput {
+	constructor(label, onSubmit, owner) {
+		this.label = label
+		this.owner = owner
+		this.onSubmit = onSubmit
+	}
+	generateHTML() {
+		const div = document.createElement("div")
+		const span = document.createElement("span")
+		span.textContent = this.label
+		div.append(span)
+		const input = document.createElement("input")
+		input.type = "file"
+		input.oninput = this.onChange.bind(this)
+		this.input = new WeakRef(input)
+		div.append(input)
+		return div
+	}
+	onChange() {
+		this.owner.changed()
+		if (this.onchange) {
+			this.onchange(this.input.deref().files)
+		}
+	}
+	onchange = null
+	watchForChange(func) {
+		this.onchange = func
+	}
+	submit() {
+		this.onSubmit(this.input.deref().files)
+	}
+}
+
+class HtmlArea {
+	constructor(html, submit) {
+		this.submit = submit
+		this.html = html
+	}
+	generateHTML() {
+		if (this.html instanceof Function) return this.html()
+		return this.html
+	}
+}
+
+class ColorInput {
+	constructor(label, onSubmit, owner, { initColor = "" } = {}) {
+		this.label = label
+		this.colorContent = initColor
+		this.owner = owner
+		this.onSubmit = onSubmit
+	}
+	generateHTML() {
+		const div = document.createElement("div")
+		const span = document.createElement("span")
+		span.textContent = this.label
+		div.append(span)
+		const input = document.createElement("input")
+		input.value = this.colorContent
+		input.type = "color"
+		input.oninput = this.onChange.bind(this)
+		this.input = new WeakRef(input)
+		div.append(input)
+		return div
+	}
+	onChange() {
+		this.owner.changed()
+		const value = this.input.deref().value
+		this.onchange(value)
+		this.colorContent = value
+	}
+	onchange = () => {}
+	watchForChange(func) {
+		this.onchange = func
+	}
+	submit() {
+		this.onSubmit(this.colorContent)
+	}
 }
 
 class Options {
 	haschanged = false
-	constructor(name, owner) {
+	constructor(name, owner, { ltr = false } = {}) {
 		this.name = name
 		this.options = []
 		this.owner = owner
+		this.ltr = ltr
 	}
 	addPermissionToggle(roleJSON, permissions) {
 		this.options.push(new PermissionToggle(roleJSON, permissions, this))
 	}
+	addOptions(name, { ltr = false } = {}) {
+		const options = new Options(name, this, { ltr })
+		this.options.push(options)
+		return options
+	}
+	addSelect(label, onSubmit, selections, { defaultIndex = 0 } = {}) {
+		const select = new SelectInput(label, onSubmit, selections, this, { defaultIndex })
+		this.options.push(select)
+		return select
+	}
+	addFileInput(label, onSubmit) {
+		const FI = new FileInput(label, onSubmit, this, {})
+		this.options.push(FI)
+		return FI
+	}
+	addTextInput(label, onSubmit, { initText = "" } = {}) {
+		const textInput = new TextInput(label, onSubmit, this, { initText })
+		this.options.push(textInput)
+		return textInput
+	}
+	addMDInput(label, onSubmit, { initText = "" } = {}) {
+		const mdInput = new MDInput(label, onSubmit, this, { initText })
+		this.options.push(mdInput)
+		return mdInput
+	}
+	addColorInput(label, onSubmit, { initColor = "" } = {}) {
+		const colorInput = new ColorInput(label, onSubmit, this, { initColor })
+		this.options.push(colorInput)
+		return colorInput
+	}
+	addHTMLArea(html, submit = () => {}) {
+		const htmlarea = new HtmlArea(html, submit)
+		this.options.push(htmlarea)
+		return htmlarea
+	}
 	generateHTML() {
 		const div = document.createElement("div")
 		div.classList.add("titlediv")
-		const title = document.createElement("h2")
-		title.classList.add("settingstitle")
-		title.textContent = this.name
-		div.append(title)
 
-		const table = document.createElement("div")
-		table.classList.add("flexttb", "flexspace")
-		for (const thing of this.options) {
-			table.append(thing.generateHTML())
+		if (this.name != "") {
+			const title = document.createElement("h2")
+			title.textContent = this.name
+			div.append(title)
+			title.classList.add("settingstitle")
 		}
-		div.append(table)
+
+		const container = document.createElement("div")
+		container.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace")
+		for (const thing of this.options) {
+			container.append(thing.generateHTML())
+		}
+		div.append(container)
 		return div
 	}
 	changed() {
+		if (this.owner instanceof Options) {
+			this.owner.changed()
+			return
+		}
+
 		if (!this.haschanged) {
 			const div = document.createElement("div")
 			div.classList.add("flexltr", "savediv")
@@ -101,9 +335,17 @@ class Options {
 			this.haschanged = true
 			this.owner.changed(div)
 			button.onclick = () => {
-				this.owner.save()
+				if (this.owner instanceof Buttons) {
+					this.owner.save()
+				}
 				div.remove()
+				this.submit()
 			}
+		}
+	}
+	submit() {
+		for (const thing of this.options) {
+			thing.submit()
 		}
 	}
 }
@@ -119,11 +361,12 @@ class Buttons {
 		return thing
 	}
 	generateHTML() {
-		const bigtable = document.createElement("div")
-		bigtable.classList.add("Buttons", "flexltr")
-		this.bigtable = bigtable
+		const buttonList = document.createElement("div")
+		buttonList.classList.add("Buttons", "flexltr")
+		this.buttonList = buttonList
 
 		const htmlarea = document.createElement("div")
+		htmlarea.classList.add("flexgrow")
 		const buttonTable = document.createElement("div")
 		buttonTable.classList.add("flexttb", "settingbuttons")
 
@@ -139,28 +382,29 @@ class Buttons {
 		}
 
 		this.generateHTMLArea(this.buttons[0][1], htmlarea)
-		bigtable.append(buttonTable)
-		bigtable.append(htmlarea)
-		return bigtable
+		buttonList.append(buttonTable)
+		buttonList.append(htmlarea)
+		return buttonList
 	}
 	handleString(str) {
-		const div = document.createElement("div")
+		const div = document.createElement("span")
 		div.textContent = str
 		return div
 	}
-	generateHTMLArea(genation, htmlarea) {
+	generateHTMLArea(buttonInfo, htmlarea) {
 		let html
-		if (genation instanceof Options) html = genation.generateHTML()
-		else html = this.handleString(genation)
+		if (buttonInfo instanceof Options) html = buttonInfo.generateHTML()
+		else html = this.handleString(buttonInfo)
 
 		htmlarea.innerHTML = ""
 		htmlarea.append(html)
 	}
 	changed(html) {
 		this.warndiv = html
-		this.bigtable.append(html)
+		this.buttonList.append(html)
 	}
 	save() {}
+	submit() {}
 }
 
 // eslint-disable-next-line no-unused-vars

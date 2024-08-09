@@ -618,73 +618,84 @@ class LocalUser {
 				: typingUsers[0] + " is typing"
 		} else document.getElementById("typing").classList.add("hidden")
 	}
-	genusersettings() {
-		const hypothetcialprofie = document.createElement("div")
-		let file = null
-		let newprouns = null
-		let newbio = null
-		let newTheme = null
+	showusersettings() {
+		const settings = new Settings("Settings")
+		this.usersettings = settings
+		{
+			const userOptions = settings.addButton("User Settings", { ltr: true })
+			const hypotheticalProfile = document.createElement("div")
+			let file = null
+			let newpronouns = null
+			let newbio = null
+			const hypouser = this.user.clone()
 
-		let hypouser = this.user.clone()
-		const regen = () => {
-			hypothetcialprofie.innerHTML = hypouser.buildprofile(-1, -1).innerHTML
-		}
-		regen()
-
-		this.usersettings = new Dialog(
-			["vdiv",
-				["hdiv",
-					["vdiv",
-						["fileupload", "upload pfp:", event => {
-							file = event.target.files[0]
-							const blob = URL.createObjectURL(event.target.files[0])
-							hypouser.avatar = blob
-							hypouser.hypotheticalpfp = true
-							regen()
-						}],
-						["textbox", "Pronouns:", this.user.pronouns, event => {
-							hypouser.pronouns = event.target.value
-							newprouns = event.target.value
-							regen()
-						}],
-						["mdbox", "Bio:", this.user.bio.rawString, event => {
-							hypouser.bio = new MarkDown(event.target.value, thisuser)
-							newbio = event.target.value
-							regen()
-						}]
-					],
-					["vdiv",
-						["html", hypothetcialprofie]
-					]
-				],
-				["select", "Theme", ["Dark", "Light"], event => {
-					newTheme = event.target.value == "Light" ? "light" : "dark"
-				}, thisuser.settings.theme == "light" ? 1 : 0],
-				["select", "Notification sound:", Audio.sounds, e => {
-					Audio.setNotificationSound(Audio.sounds[e.target.selectedIndex])
-					Audio.noises(Audio.sounds[e.target.selectedIndex])
-				}, Audio.sounds.indexOf(Audio.getNotificationSound())],
-				["button", "update user content:", "submit", () => {
-					if (file !== null) this.updatepfp(file)
-					if (newprouns !== null) this.updatepronouns(newprouns)
-					if (newbio !== null) this.updatebio(newbio)
-					if (newTheme !== null) {
-						thisuser.updateSettings({theme: newTheme})
-						localStorage.setItem("theme", newTheme)
-
-						setTheme(newTheme)
-					}
-				}]
-			], () => {}, () => {
-				hypouser = this.user.clone()
-				regen()
-				file = null
-				newprouns = null
-				newbio = null
-				newTheme = null
+			const regen = () => {
+				hypotheticalProfile.textContent = ""
+				const hypoprofile = hypouser.buildprofile(-1, -1)
+				hypotheticalProfile.appendChild(hypoprofile)
 			}
-		)
+			regen()
 
+			const settingsLeft = userOptions.addOptions("")
+			const settingsRight = userOptions.addOptions("")
+			settingsRight.addHTMLArea(hypotheticalProfile)
+			const finput = settingsLeft.addFileInput("Upload pfp:", () => {
+				if (file) this.updatepfp(file)
+			})
+			finput.watchForChange(value => {
+				if (value.length) {
+					file = value[0]
+					const blob = URL.createObjectURL(file)
+					hypouser.avatar = blob
+					hypouser.hypotheticalpfp = true
+					regen()
+				}
+			})
+
+			const pronounbox = settingsLeft.addTextInput("Pronouns", () => {
+				if (newpronouns) this.updatepronouns(newpronouns)
+			}, { initText: this.user.pronouns })
+			pronounbox.watchForChange(value => {
+				hypouser.pronouns = value
+				newpronouns = value
+				regen()
+			})
+
+			const bioBox = settingsLeft.addMDInput("Bio:", () => {
+				if (newbio) this.updatebio(newbio)
+			}, { initText: this.user.bio.rawString })
+			bioBox.watchForChange(value => {
+				newbio = value
+				hypouser.bio = new MarkDown(value, this)
+				regen()
+			})
+		}
+
+		const tas = settings.addButton("Themes & sounds")
+
+		const themes = ["Dark", "Light"]
+		tas.addSelect("Theme:", value => {
+			localStorage.setItem("theme", themes[value])
+			setTheme()
+		}, themes, { defaultIndex: themes.indexOf(localStorage.getItem("theme")) })
+
+		const sounds = Voice.sounds
+		tas.addSelect("Notification sound:", value => {
+			Voice.setNotificationSound(sounds[value])
+		}, sounds, { defaultIndex: sounds.indexOf(Voice.getNotificationSound()) }).watchForChange(_ => {
+			Voice.noises(sounds[_])
+		})
+
+		const userinfos = getBulkInfo()
+		tas.addColorInput("Accent color:", value => {
+			userinfos.accent_color = value
+			localStorage.setItem("userinfos", JSON.stringify(userinfos))
+			document.documentElement.style.setProperty("--accent-color", userinfos.accent_color)
+		}, { initColor: userinfos.accent_color })
+
+		settings.show()
+	}
+	genusersettings() {
 		const connectionContainer = document.createElement("div")
 		connectionContainer.id = "connection-container"
 		this.userConnections = new Dialog(
@@ -952,7 +963,7 @@ class LocalUser {
 		const parser = new DOMParser()
 		return parser.parseFromString(xml, "image/svg+xml").documentElement
 	}
-	//---------- resolving members code -----------
+
 	waitingmembers = new Map()
 	async resolvemember(id, guildid) {
 		console.warn("this function is currently non-functional, either due to a bug in the client or the server, it's currently unclear, use at your own risk")
@@ -972,9 +983,8 @@ class LocalUser {
 		if (this.ws) {
 			this.waitingmembers.forEach(async (value, guildid) => {
 				const keys = value.keys()
-				if (this.fetchingmembers.has(guildid)) {
-					return
-				}
+				if (this.fetchingmembers.has(guildid)) return
+
 				const build = []
 				for (const key of keys) {
 					build.push(key)
@@ -987,7 +997,6 @@ class LocalUser {
 				this.ws.send(JSON.stringify({
 					op: 8,
 					d: {
-						query: "",
 						user_ids: build,
 						guild_id: guildid,
 						limit: 100,

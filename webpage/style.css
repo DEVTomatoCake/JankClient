@@ -33,11 +33,15 @@
 	font-weight: 400;
 }
 
+:root {
+	--accent-color: #242443;
+}
+
 .dark-theme {
 	color-scheme: dark;
 
 	--primary-text: #FFF;
-	--primary-bg: #282832;
+	--primary-bg: color-mix(in srgb, #2f2f2f 70%, var(--accent-color));
 	--black: #000;
 	--shadow: #000;
 
@@ -47,41 +51,41 @@
 	--focus: #88f;
 	--icon-color: #fff;
 
-	--message-bg-hover: #1e1e28;
+	--message-bg-hover: color-mix(in srgb, #1e1e28 85%, var(--accent-color));
 	--typing-bg: #161616;
 	--timestamp-color: #a2a2a2;
-	--code-bg: #101014;
-	--user-info-bg: #323039;
-	--user-dock-bg: #1a1a23;
+	--code-bg: color-mix(in srgb, #121212 95%, var(--accent-color));
+	--user-info-bg: color-mix(in srgb,#383838 85%, var(--accent-color));
+	--user-dock-bg: color-mix(in srgb,#111111 90%, var(--accent-color));
 	--blank-bg: #1b1b1b;
 	--light-border: #929292;
-	--settings-hover: #0e0d10;
+	--settings-hover: color-mix(in srgb, #000000 95%, var(--accent-color) 5%);
 	--quote-bg: #7a798e;
-	--textarea-bg: #424244;
+	--textarea-bg: color-mix(in srgb, #272727 85%, var(--accent-color));
 	--filename: #47bbff;
 	--notify-bg: #fc7537;
 	--pronouns: #797979;
 	--error-color: #ff4949;
-	--embed: #1a1823;
+	--embed: color-mix(in srgb, #131313 90%, var(--accent-color));
 	--link: #88f;
 	--embed-fallback: #6b717c;
 	--message-jump: #7678b0;
 
-	--button-bg: #1b1b28;
+	--button-bg: color-mix(in srgb, #303030 80%, var(--accent-color));
 	--button-hover: #282832;
 
-	--channels-bg: #2f2f36;
-	--channel-hover: #3e3e47;
+	--channels-bg: color-mix(in srgb,#3f3f3f 70%, var(--accent-color));
+	--channel-hover: color-mix(in srgb, #2c2c2c 70%, var(--accent-color));
 	--channel-active: #4e4e55;
 
-	--profile-bg: #2e2d33;
-	--profile-info-bg: #1a1a1e;
+	--profile-bg: color-mix(in srgb, #232323 90%, var(--accent-color));
+	--profile-info-bg: color-mix(in srgb, #121212 90%, var(--accent-color));
 
 	--mention-color: #b7c5db;
 	--mention-bg: #4f60be;
 
-	--server-border: #1b1b24;
-	--server-bg: #252530;
+	--server-border: color-mix(in srgb, #000000 80%, var(--accent-color));
+	--server-bg: color-mix(in srgb, #2a2a2a 80%, var(--accent-color));
 	--discovery-bg: #37373b;
 
 	--reply-border: #585a68;
@@ -840,6 +844,7 @@ textarea {
 	border-top-right-radius: 3px;
 	width: 100%;
 	gap: .1in;
+	flex-grow: 0;
 }
 
 #user-actions {
@@ -1362,15 +1367,13 @@ video {
 	max-height: 4in;
 }
 
-.Buttons {
-	background: var(--primary-bg);
-	position: relative;
-}
 .flexltr {
 	display: flex;
 	max-height: 100%;
 	overflow: auto;
-	flex-shrink: 0;
+	flex-shrink: 1;
+	flex-grow: 1;
+	align-items: stretch;
 }
 .flexttb {
 	display: flex;
@@ -1383,9 +1386,11 @@ video {
 
 .settingbuttons {
 	padding-top: .075in;
-	width: 4in;
+	width: 1.75in;
 	border-right: solid var(--message-bg-hover);
 	gap: .04in;
+	flex-grow: 0;
+	flex-shrink: 0;
 }
 .setting {
 	background: var(--user-info-bg);
@@ -1397,6 +1402,10 @@ video {
 	font-size: .25in;
 	font-weight: bold;
 	margin-right: .1in;
+}
+
+.flexgrow {
+	flex-grow:1;
 }
 
 .profile {
@@ -1806,4 +1815,13 @@ form div {
 .meReacted {
 	border: 2px solid var(--mention-color);
 	background: var(--mention-bg);
+}
+
+.Buttons {
+	background:var(--primary-bg);
+	position: relative;
+	height: 100%;
+	display: flex;
+	align-content: stretch;
+	align-items: stretch;
 }

@@ -14,7 +14,7 @@ thisuser.initwebsocket().then(() => {
 })
 
 const userSettings = () => {
-	thisuser.usersettings.show()
+	thisuser.showUserSettings()
 }
 const userConnections = () => {
 	thisuser.userConnections.show()
