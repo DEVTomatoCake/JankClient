@@ -16,12 +16,6 @@ thisuser.initwebsocket().then(() => {
 const userSettings = () => {
 	thisuser.showusersettings()
 }
-const userConnections = () => {
-	thisuser.userConnections.show()
-}
-const devPortal = () => {
-	thisuser.devPortal.show()
-}
 
 document.addEventListener("DOMContentLoaded", async () => {
 	const menu = new Contextmenu()
@@ -112,8 +106,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 		})
 
 	document.getElementById("settings").addEventListener("click", userSettings)
-	document.getElementById("connections").addEventListener("click", userConnections)
-	document.getElementById("dev-portal").addEventListener("click", devPortal)
 
 	if ("serviceWorker" in navigator) {
 		navigator.serviceWorker.register("/service.js")
