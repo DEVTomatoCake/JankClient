@@ -4,6 +4,8 @@ let connectionSucceed = 0
 let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
+const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".repeat(4)
+
 // eslint-disable-next-line no-unused-vars
 class LocalUser {
 	constructor(userinfo) {
@@ -699,7 +701,7 @@ class LocalUser {
 
 		const security = settings.addButton("Account Security")
 		if (this.mfa_enabled) {
-			security.addTextInput("Disable 2FA, totp code:", value => {
+			security.addTextInput("Disable MFA, TOTP code:", value => {
 				fetch(instance.api + "/users/@me/mfa/totp/disable", {
 					method: "POST",
 					headers: this.headers,
@@ -710,30 +712,33 @@ class LocalUser {
 					if (json.message) alert(json.message)
 					else {
 						this.mfa_enabled = false
-						alert("2FA turned off successfully")
+						alert("MFA turned off successfully")
 					}
 				})
 			})
 		} else {
-			security.addButtonInput("", "Enable 2FA", async () => {
-				let secret = ""
-				for (let i = 0; i < 18; i++) {
-					secret += "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[Math.floor(Math.random() * 32)]
+			security.addButtonInput("", "Enable MFA", async () => {
+				const randomBytes = new Uint8Array(32)
+				crypto.getRandomValues(randomBytes)
+				let secret = "" // Cannot use .map()
+				for (const byte of randomBytes) {
+					secret += chars.charAt(byte)
 				}
+
 				let password = ""
 				let code = ""
 				const addmodel = new Dialog(["vdiv",
-					["title", "2FA set up"],
-					["text", "Copy this secret into your totp(time-based one time password) app"],
-					["text", "Your secret is: " + secret + " and it's 6 digits, with a 30 second token period"],
+					["title", "MFA set up"],
+					["text", "Copy this secret into your TOTP (time-based one time password) app, e.g. Authy or Google Authenticator"],
+					["text", "Your secret is: " + secret + " (Configuration: 6 digits, 30 second interval)"],
 					["textbox", "Account password:", "", function() {
 						password = this.value
 					}],
-					["textbox", "Code:", "", function() {
+					["textbox", "TOTP Code:", "", function() {
 						code = this.value
 					}],
-					["button", "", "Submit", () => {
-						fetch(instance.api + "/users/@me/mfa/totp/enable/", {
+					["button", "", "Enable MFA", () => {
+						fetch(instance.api + "/users/@me/mfa/totp/enable", {
 							method: "POST",
 							headers: this.headers,
 							body: JSON.stringify({
