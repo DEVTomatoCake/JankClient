@@ -59,7 +59,7 @@
 	--user-dock-bg: color-mix(in srgb,#111111 90%, var(--accent-color));
 	--blank-bg: #1b1b1b;
 	--light-border: #929292;
-	--settings-hover: color-mix(in srgb, #000000 95%, var(--accent-color) 5%);
+	--settings-hover: color-mix(in srgb, #000000 95%, var(--accent-color));
 	--quote-bg: #7a798e;
 	--textarea-bg: color-mix(in srgb, #272727 85%, var(--accent-color));
 	--filename: #47bbff;
@@ -74,7 +74,7 @@
 	--button-bg: color-mix(in srgb, #303030 80%, var(--accent-color));
 	--button-hover: #282832;
 
-	--channels-bg: color-mix(in srgb,#3f3f3f 70%, var(--accent-color));
+	--channels-bg: color-mix(in srgb,#3f3f3f 75%, var(--accent-color));
 	--channel-hover: color-mix(in srgb, #2c2c2c 70%, var(--accent-color));
 	--channel-active: #4e4e55;
 
@@ -114,51 +114,51 @@
 	color-scheme: light;
 
 	--primary-text: #000;
-	--primary-bg: #FFF;
+	--primary-bg: color-mix(in srgb, #FFF 70%, var(--accent-color));
 	--black: #FFF;
 	--shadow: #777;
 
-	--red: #dd6c6c;
-	--green: #639d63;
+	--red: #dd6060;
+	--green: #4fad56;
 	--yellow: #ff0;
 	--focus: #47bbff;
 	--icon-color: #000;
 
-	--message-bg-hover: #dedee2;
+	--message-bg-hover: color-mix(in srgb, #dedee2 85%, var(--accent-color));
 	--typing-bg: #dad8d8;
 	--timestamp-color: #5d5d66;
-	--code-bg: #cbcbcc;
-	--user-info-bg: #b3b1c2;
-	--user-dock-bg: #bdbdc9;
+	--code-bg: color-mix(in srgb, #cbcbcc 95%, var(--accent-color));
+	--user-info-bg: color-mix(in srgb, #b3b1c2 85%, var(--accent-color));
+	--user-dock-bg: color-mix(in srgb, #bdbdc9 90%, var(--accent-color));
 	--blank-bg: #ceccdd;
 	--light-border: #98979e;
-	--settings-hover: #b5b1bb;
+	--settings-hover: color-mix(in srgb, #b5b1bb 95%, var(--accent-color));
 	--quote-bg: #9595a3;
-	--textarea-bg: #b4b7c7;
+	--textarea-bg: color-mix(in srgb, #b4b7c7 85%, var(--accent-color));
 	--filename: #47bbff;
 	--notify-bg: #ff170f;
 	--pronouns: #6a6a6d;
 	--error-color: #d40404;
-	--embed: #f2f3f5;
+	--embed: color-mix(in srgb, #f2f3f5 90%, var(--accent-color));
 	--link: #3333ee;
 	--embed-fallback: #6b717c;
 	--message-jump: #ccceff;
 
-	--button-bg: #b7b7c7;
+	--button-bg: color-mix(in srgb, #b7b7c7 80%, var(--accent-color));
 	--button-hover: #FFF;
 
-	--channels-bg: #e4e4e9;
-	--channel-hover: #cbcbd8;
+	--channels-bg: color-mix(in srgb, #e4e4e9 75%, var(--accent-color));
+	--channel-hover: color-mix(in srgb, #cbcbd8 70%, var(--accent-color));
 	--channel-active: #bdbbc9;
 
-	--profile-bg: #ccccd3;
-	--profile-info-bg: #bdbdc9;
+	--profile-bg: color-mix(in srgb, #ccccd3 90%, var(--accent-color));
+	--profile-info-bg: color-mix(in srgb, #bdbdc9 90%, var(--accent-color));
 
 	--mention-color: #4351d1;
 	--mention-bg: #ccd2f3;
 
-	--server-border: #c2c2ce;
-	--server-bg: #bfbfcf;
+	--server-border: color-mix(in srgb, #c2c2ce 80%, var(--accent-color));
+	--server-bg: color-mix(in srgb, #bfbfcf 80%, var(--accent-color));
 	--discovery-bg: #c8c8d4;
 
 	--reply-border: #b1b2bd;
@@ -209,7 +209,15 @@ body {
 }
 
 dialog {
-	max-width: 90%;
+	min-width: 30%;
+	min-height: 50%;
+	max-width: 95%;
+	max-height: 95%;
+	background: var(--primary-bg);
+}
+
+dialog.settings {
+	width: 80%;
 }
 
 dialog .close {
@@ -483,6 +491,9 @@ input {
 	border-color: var(--settings-hover);
 	border-width: 0 0 .04in 0;
 	border-radius: .05in;
+}
+input[type="color"] {
+	padding: 0;
 }
 
 div {
@@ -1469,7 +1480,7 @@ video {
 	margin: .015in;
 }
 .tritoggle:first-child {
-	accent-color: green;
+	accent-color: var(--green);
 }
 .tritoggle:last-child {
 	accent-color: red;
@@ -1522,7 +1533,7 @@ video {
 	height: .5in;
 }
 .savediv button {
-	background-color: green;
+	background-color: var(--green);
 }
 
 .flex {
@@ -1787,6 +1798,10 @@ form div {
 	flex-grow: 1;
 }
 
+.reactiondiv {
+	margin-left: .5in;
+}
+
 .reactionCount {
 	font-size: .125in;
 	padding: 0 .01in;
@@ -1824,4 +1839,8 @@ form div {
 	display: flex;
 	align-content: stretch;
 	align-items: stretch;
+}
+
+.dontshrink {
+	flex-shrink:0;
 }

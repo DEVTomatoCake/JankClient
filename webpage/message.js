@@ -413,8 +413,8 @@ class Message {
 				const img = document.createElement("img")
 				img.crossOrigin = "anonymous"
 				img.src = instance.cdn + "/emojis/" + thing.emoji.id + ".png?size=32"
-				img.width = 22
-				img.height = 22
+				img.width = 16
+				img.height = 16
 				img.alt = ""
 				reactionContainer.appendChild(img)
 			} else {
@@ -432,8 +432,8 @@ class Message {
 						img.crossOrigin = "anonymous"
 						img.src = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/15.0.3/72x72/" +
 							MarkDown.toCodePoint(icon.length == 3 && icon.charAt(1) == "\uFE0F" ? icon.charAt(0) + icon.charAt(2) : icon) + ".png"
-						img.width = 22
-						img.height = 22
+						img.width = 16
+						img.height = 16
 						img.alt = "Emoji: " + Object.keys(emojis)[Object.values(emojis).findIndex(e => e == alt)]
 
 						text.textContent = thing.count

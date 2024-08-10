@@ -37,7 +37,6 @@ const global = {
 	User: "writable",
 	Settings: "writable",
 	SnowFlake: "writable",
-	Voice: "writable",
 
 	thisuser: "writable",
 	messagelist: "writable",

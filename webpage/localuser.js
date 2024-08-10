@@ -24,6 +24,7 @@ class LocalUser {
 		this.guildids = new Map()
 		this.guildhtml = new Map()
 		this.user = User.checkuser(ready.d.user, this)
+		this.mfa_enabled = ready.d.user.mfa_enabled
 		this.userinfo.username = this.user.username
 		this.userinfo.pfpsrc = this.user.getpfpsrc()
 		this.usersettings = null
@@ -621,77 +622,138 @@ class LocalUser {
 	showusersettings() {
 		const settings = new Settings("Settings")
 		this.usersettings = settings
-		{
-			const userOptions = settings.addButton("User Settings", { ltr: true })
-			const hypotheticalProfile = document.createElement("div")
-			let file = null
-			let newpronouns = null
-			let newbio = null
-			const hypouser = this.user.clone()
 
-			const regen = () => {
-				hypotheticalProfile.textContent = ""
-				const hypoprofile = hypouser.buildprofile(-1, -1)
-				hypotheticalProfile.appendChild(hypoprofile)
-			}
-			regen()
+		const userOptions = settings.addButton("User Settings", { ltr: true })
+		const hypotheticalProfile = document.createElement("div")
+		let file = null
+		let newpronouns = null
+		let newbio = null
+		const hypouser = this.user.clone()
 
-			const settingsLeft = userOptions.addOptions("")
-			const settingsRight = userOptions.addOptions("")
-			settingsRight.addHTMLArea(hypotheticalProfile)
-			const finput = settingsLeft.addFileInput("Upload pfp:", () => {
-				if (file) this.updatepfp(file)
-			})
-			finput.watchForChange(value => {
-				if (value.length) {
-					file = value[0]
-					const blob = URL.createObjectURL(file)
-					hypouser.avatar = blob
-					hypouser.hypotheticalpfp = true
-					regen()
-				}
-			})
-
-			const pronounbox = settingsLeft.addTextInput("Pronouns", () => {
-				if (newpronouns) this.updatepronouns(newpronouns)
-			}, { initText: this.user.pronouns })
-			pronounbox.watchForChange(value => {
-				hypouser.pronouns = value
-				newpronouns = value
-				regen()
-			})
-
-			const bioBox = settingsLeft.addMDInput("Bio:", () => {
-				if (newbio) this.updatebio(newbio)
-			}, { initText: this.user.bio.rawString })
-			bioBox.watchForChange(value => {
-				newbio = value
-				hypouser.bio = new MarkDown(value, this)
-				regen()
-			})
+		const regen = () => {
+			hypotheticalProfile.textContent = ""
+			const hypoprofile = hypouser.buildprofile(-1, -1)
+			hypotheticalProfile.appendChild(hypoprofile)
 		}
+		regen()
+
+		const settingsLeft = userOptions.addOptions("")
+		const settingsRight = userOptions.addOptions("")
+		settingsRight.addHTMLArea(hypotheticalProfile)
+		const finput = settingsLeft.addFileInput("Upload pfp:", () => {
+			if (file) this.updatepfp(file)
+		})
+		finput.watchForChange(value => {
+			if (value.length) {
+				file = value[0]
+				const blob = URL.createObjectURL(file)
+				hypouser.avatar = blob
+				hypouser.hypotheticalpfp = true
+				regen()
+			}
+		})
+
+		const pronounbox = settingsLeft.addTextInput("Pronouns", () => {
+			if (newpronouns) this.updatepronouns(newpronouns)
+		}, { initText: this.user.pronouns })
+		pronounbox.watchForChange(value => {
+			hypouser.pronouns = value
+			newpronouns = value
+			regen()
+		})
+
+		const bioBox = settingsLeft.addMDInput("Bio:", () => {
+			if (newbio) this.updatebio(newbio)
+		}, { initText: this.user.bio.rawString })
+		bioBox.watchForChange(value => {
+			newbio = value
+			hypouser.bio = new MarkDown(value, this)
+			regen()
+		})
 
 		const tas = settings.addButton("Themes & sounds")
 
-		const themes = ["Dark", "Light"]
+		const themes = ["dark", "light"]
 		tas.addSelect("Theme:", value => {
-			localStorage.setItem("theme", themes[value])
-			setTheme()
-		}, themes, { defaultIndex: themes.indexOf(localStorage.getItem("theme")) })
-
-		const sounds = Voice.sounds
-		tas.addSelect("Notification sound:", value => {
-			Voice.setNotificationSound(sounds[value])
-		}, sounds, { defaultIndex: sounds.indexOf(Voice.getNotificationSound()) }).watchForChange(_ => {
-			Voice.noises(sounds[_])
+			localStorage.setItem("theme", themes[value].toLowerCase())
+			setTheme(themes[value].toLowerCase())
+		}, themes.map(theme => theme.charAt(0).toUpperCase() + theme.slice(1)), {
+			defaultIndex: themes.indexOf(localStorage.getItem("theme"))
 		})
 
-		const userinfos = getBulkInfo()
+		const sounds = Audio.sounds
+		tas.addSelect("Notification sound:", value => {
+			Audio.setNotificationSound(sounds[value])
+		}, sounds, {
+			defaultIndex: sounds.indexOf(Audio.getNotificationSound())
+		}).watchForChange(value => {
+			Audio.noises(sounds[value])
+		})
+
 		tas.addColorInput("Accent color:", value => {
+			const userinfos = getBulkInfo()
 			userinfos.accent_color = value
 			localStorage.setItem("userinfos", JSON.stringify(userinfos))
 			document.documentElement.style.setProperty("--accent-color", userinfos.accent_color)
-		}, { initColor: userinfos.accent_color })
+		}, { initColor: getBulkInfo().accent_color })
+
+		const security = settings.addButton("Account Security")
+		if (this.mfa_enabled) {
+			security.addTextInput("Disable 2FA, totp code:", value => {
+				fetch(instance.api + "/users/@me/mfa/totp/disable", {
+					method: "POST",
+					headers: this.headers,
+					body: JSON.stringify({
+						code: value
+					})
+				}).then(r => r.json()).then(json => {
+					if (json.message) alert(json.message)
+					else {
+						this.mfa_enabled = false
+						alert("2FA turned off successfully")
+					}
+				})
+			})
+		} else {
+			security.addButtonInput("", "Enable 2FA", async () => {
+				let secret = ""
+				for (let i = 0; i < 18; i++) {
+					secret += "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[Math.floor(Math.random() * 32)]
+				}
+				let password = ""
+				let code = ""
+				const addmodel = new Dialog(["vdiv",
+					["title", "2FA set up"],
+					["text", "Copy this secret into your totp(time-based one time password) app"],
+					["text", "Your secret is: " + secret + " and it's 6 digits, with a 30 second token period"],
+					["textbox", "Account password:", "", function() {
+						password = this.value
+					}],
+					["textbox", "Code:", "", function() {
+						code = this.value
+					}],
+					["button", "", "Submit", () => {
+						fetch(instance.api + "/users/@me/mfa/totp/enable/", {
+							method: "POST",
+							headers: this.headers,
+							body: JSON.stringify({
+								password,
+								code,
+								secret
+							})
+						}).then(r => r.json()).then(json => {
+							if (json.message) alert(json.message)
+							else {
+								alert("2FA set up successfully")
+								addmodel.hide()
+								this.mfa_enabled = true
+							}
+						})
+					}]
+				])
+				addmodel.show()
+			})
+		}
 
 		settings.show()
 	}

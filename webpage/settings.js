@@ -9,11 +9,13 @@ class PermissionToggle {
 	generateHTML() {
 		const div = document.createElement("div")
 		div.classList.add("setting")
+
 		const name = document.createElement("span")
 		name.textContent = this.rolejson.readableName
 		name.classList.add("settingsname")
 		div.append(name)
 		div.append(this.generateCheckbox())
+
 		const p = document.createElement("p")
 		p.innerText = this.rolejson.description
 		div.appendChild(p)
@@ -106,15 +108,18 @@ class MDInput {
 	}
 	generateHTML() {
 		const div = document.createElement("div")
+
 		const span = document.createElement("span")
 		span.textContent = this.label
 		div.append(span)
 		div.append(document.createElement("br"))
+
 		const input = document.createElement("textarea")
 		input.value = this.textContent
 		input.oninput = this.onChange.bind(this)
 		this.input = new WeakRef(input)
 		div.append(input)
+
 		return div
 	}
 	onChange() {
@@ -142,9 +147,11 @@ class SelectInput {
 	}
 	generateHTML() {
 		const div = document.createElement("div")
+
 		const span = document.createElement("span")
 		span.textContent = this.label
 		div.append(span)
+
 		const select = document.createElement("select")
 		select.onchange = this.onChange.bind(this)
 		for (const thing of this.options) {
@@ -155,6 +162,7 @@ class SelectInput {
 		this.select = new WeakRef(select)
 		select.selectedIndex = this.index
 		div.append(select)
+
 		return div
 	}
 	onChange() {
@@ -180,21 +188,22 @@ class FileInput {
 	}
 	generateHTML() {
 		const div = document.createElement("div")
+
 		const span = document.createElement("span")
 		span.textContent = this.label
 		div.append(span)
+
 		const input = document.createElement("input")
 		input.type = "file"
 		input.oninput = this.onChange.bind(this)
 		this.input = new WeakRef(input)
 		div.append(input)
+
 		return div
 	}
 	onChange() {
 		this.owner.changed()
-		if (this.onchange) {
-			this.onchange(this.input.deref().files)
-		}
+		if (this.onchange) this.onchange(this.input.deref().files)
 	}
 	onchange = null
 	watchForChange(func) {
@@ -216,6 +225,34 @@ class HtmlArea {
 	}
 }
 
+class ButtonInput {
+	constructor(label, textContent, onClick, owner) {
+		this.label = label
+		this.owner = owner
+		this.onClick = onClick
+		this.textContent = textContent
+	}
+	generateHTML() {
+		const div = document.createElement("div")
+
+		const span = document.createElement("span")
+		span.textContent = this.label
+		div.append(span)
+
+		const button = document.createElement("button")
+		button.textContent = this.textContent
+		button.onclick = this.onClickEvent.bind(this)
+		div.append(button)
+
+		return div
+	}
+	onClickEvent() {
+		this.onClick()
+	}
+	watchForChange() {}
+	submit() {}
+}
+
 class ColorInput {
 	constructor(label, onSubmit, owner, { initColor = "" } = {}) {
 		this.label = label
@@ -225,13 +262,15 @@ class ColorInput {
 	}
 	generateHTML() {
 		const div = document.createElement("div")
+
 		const span = document.createElement("span")
 		span.textContent = this.label
 		div.append(span)
+
 		const input = document.createElement("input")
 		input.value = this.colorContent
 		input.type = "color"
-		input.oninput = this.onChange.bind(this)
+		input.addEventListener("input", this.onChange.bind(this))
 		this.input = new WeakRef(input)
 		div.append(input)
 		return div
@@ -287,6 +326,11 @@ class Options {
 		this.options.push(mdInput)
 		return mdInput
 	}
+	addButtonInput(label, textContent, onSubmit) {
+		const button = new ButtonInput(label, textContent, onSubmit, this)
+		this.options.push(button)
+		return button
+	}
 	addColorInput(label, onSubmit, { initColor = "" } = {}) {
 		const colorInput = new ColorInput(label, onSubmit, this, { initColor })
 		this.options.push(colorInput)
@@ -329,6 +373,7 @@ class Options {
 			const span = document.createElement("span")
 			span.textContent = "Careful, you have unsaved changes"
 			div.append(span)
+
 			const button = document.createElement("button")
 			button.textContent = "Save changes"
 			div.append(button)
@@ -400,7 +445,7 @@ class Buttons {
 	}
 	changed(html) {
 		this.warndiv = html
-		this.buttonList.append(html)
+		this.buttonList.parentElement.append(html)
 	}
 	save() {}
 	submit() {}
@@ -450,6 +495,7 @@ class Settings extends Buttons {
 	}
 	show() {
 		const background = document.createElement("dialog")
+		background.classList.add("settings")
 
 		const title = document.createElement("h2")
 		title.textContent = this.name

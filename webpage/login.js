@@ -62,7 +62,7 @@ const getBulkUsers = () => {
 }
 
 const setDefaults = () => {
-	let userinfos = getBulkInfo()
+	const userinfos = getBulkInfo()
 	if (!userinfos) {
 		localStorage.setItem("userinfos", JSON.stringify({
 			currentuser: null,
@@ -71,25 +71,14 @@ const setDefaults = () => {
 				theme: "dark",
 				notifications: false,
 				notisound: "three"
-			}
+			},
+			accent_color: "#242443"
 		}))
-		userinfos = getBulkInfo()
+		return
 	}
-
-	if (userinfos.users === void 0) userinfos.users = {}
-	if (userinfos.preferences === void 0) {
-		userinfos.preferences = {
-			theme: "dark",
-			notifcations: false,
-			notisound: "three"
-		}
-	}
-	if (userinfos.preferences && userinfos.preferences.notisound === void 0)
-		userinfos.preferences.notisound = "three"
 
 	if (userinfos.accent_color === void 0 && userinfos.preferences.theme == "dark") userinfos.accent_color = "#242443"
 	else if (userinfos.accent_color === void 0) userinfos.accent_color = "#f0f0f0"
-	document.documentElement.style.setProperty("--accent-color", userinfos.accent_color)
 
 	localStorage.setItem("userinfos", JSON.stringify(userinfos))
 }
@@ -105,9 +94,8 @@ const adduser = user => {
 
 const login = async (username, password, captcha) => {
 	const info = JSON.parse(localStorage.getItem("instanceEndpoints"))
-	const url = new URL(info.login)
 
-	const res = await fetch(url.origin + "/api/auth/login", {
+	const res = await fetch(info.login + "/auth/login", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json; charset=UTF-8"
@@ -143,8 +131,38 @@ const login = async (username, password, captcha) => {
 			capt.append(capty)
 		}
 	} else {
-		adduser({serverurls: info, email: username, token: json.token})
-		location.href = "/channels/@me"
+		if (json.ticket) {
+			let onetimecode = ""
+			new Dialog(
+				["vdiv",
+					["title", "2FA code:"],
+					["textbox", "", "", function() {
+						onetimecode = this.value
+					}],
+					["button", "", "Submit", function() {
+						fetch(info.login + "/auth/mfa/totp", {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify({
+								code: onetimecode,
+								ticket: json.ticket
+							})
+						}).then(r => r.json()).then(response => {
+							if (response.message) alert(response.message)
+							else {
+								adduser({serverurls: info, email: username, token: response.token})
+								location.href = "/channels/@me"
+							}
+						})
+					}]
+				]
+			).show()
+		} else {
+			adduser({serverurls: info, email: username, token: json.token})
+			location.href = "/channels/@me"
+		}
 	}
 }
 
@@ -208,8 +226,10 @@ const setTheme = theme => {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-	if (localStorage.getItem("theme")) setTheme(localStorage.getItem("theme"))
+	if (localStorage.getItem("theme") != "dark") setTheme(localStorage.getItem("theme"))
 	else if (window.matchMedia("(prefers-color-scheme: light)").matches) setTheme("light")
+
+	document.documentElement.style.setProperty("--accent-color", getBulkInfo().accent_color)
 
 	if (!document.getElementById("instancein")) return
 
