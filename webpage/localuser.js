@@ -676,8 +676,10 @@ class LocalUser {
 
 		const themes = ["dark", "light"]
 		tas.addSelect("Theme:", value => {
-			localStorage.setItem("theme", themes[value].toLowerCase())
-			setTheme(themes[value].toLowerCase())
+			const newTheme = themes[value].toLowerCase()
+			localStorage.setItem("theme", newTheme)
+			setTheme(newTheme)
+			this.updateSettings({theme: newTheme})
 		}, themes.map(theme => theme.charAt(0).toUpperCase() + theme.slice(1)), {
 			defaultIndex: themes.indexOf(localStorage.getItem("theme"))
 		})

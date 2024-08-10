@@ -227,7 +227,7 @@ const setTheme = theme => {
 
 document.addEventListener("DOMContentLoaded", async () => {
 	if (localStorage.getItem("theme") != "dark") setTheme(localStorage.getItem("theme"))
-	else if (window.matchMedia("(prefers-color-scheme: light)").matches) setTheme("light")
+	else if (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: light)").matches) setTheme("light")
 
 	document.documentElement.style.setProperty("--accent-color", getBulkInfo().accent_color)
 
