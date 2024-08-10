@@ -4,7 +4,8 @@ let connectionSucceed = 0
 let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
-const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".repeat(4)
+let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+while (chars.length < 256) chars += chars
 
 // eslint-disable-next-line no-unused-vars
 class LocalUser {
