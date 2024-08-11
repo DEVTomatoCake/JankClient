@@ -168,6 +168,10 @@ class LocalUser {
 			document.getElementById("loading").classList.remove("doneloading")
 			document.getElementById("loading").classList.add("loading")
 
+			this.fetchingmembers = new Map()
+			this.noncemap = new Map()
+			this.noncebuild = new Map()
+
 			if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code))) {
 				if (connectionSucceed != 0 && Date.now() > connectionSucceed + 20000) errorBackoff = 0
 				else errorBackoff = Math.min(errorBackoff + 1, 40)
@@ -261,6 +265,9 @@ class LocalUser {
 					document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"))
 					break
 				}
+				case "GUILD_MEMBERS_CHUNK":
+					this.gotChunk(json.d)
+					break
 			}
 		} else if (json.op == 1) this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
 		else if (json.op == 10) {
@@ -983,7 +990,7 @@ class LocalUser {
 						"",
 						"Reset token",
 						async () => {
-							if (!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it.")) return
+							if (!confirm("Are you sure you want to reset the token? Your bot will stop working until you update it.")) return
 
 							const updateRes = await fetch(instance.api + "/applications/" + appId + "/bot/reset", {
 								method: "POST",
@@ -1013,10 +1020,8 @@ class LocalUser {
 
 	waitingmembers = new Map()
 	async resolvemember(id, guildid) {
-		console.warn("this function is currently non-functional, either due to a bug in the client or the server, it's currently unclear, use at your own risk")
-		if (!this.waitingmembers.has(guildid)) {
-			this.waitingmembers.set(guildid, new Map())
-		}
+		if (!this.waitingmembers.has(guildid)) this.waitingmembers.set(guildid, new Map())
+
 		let res
 		const promise = new Promise(r => {
 			res = r
@@ -1026,7 +1031,31 @@ class LocalUser {
 		return await promise
 	}
 	fetchingmembers = new Map()
+	noncemap = new Map()
+	noncebuild = new Map()
+	async gotChunk(chunk) {
+		chunk.members ??= []
+		const arr = this.noncebuild.get(chunk.nonce)
+		arr[0] = arr[0].concat(chunk.members)
+		if (chunk.not_found) {
+			arr[1] = chunk.not_found
+		}
+		arr[2].push(chunk.chunk_index)
+		if (arr[2].length == chunk.chunk_count) {
+			this.noncebuild.delete(chunk.nonce)
+			const func = this.noncemap.get(chunk.nonce)
+			func([arr[0], arr[1]])
+			this.noncemap.delete(chunk.nonce)
+		}
+	}
 	async getmembers() {
+		let res
+		const promise = new Promise(r => {
+			res = r
+		})
+		setTimeout(res, 10)
+		await promise //allow for more to be sent at once
+
 		if (this.ws) {
 			this.waitingmembers.forEach(async (value, guildid) => {
 				const keys = value.keys()
@@ -1035,27 +1064,51 @@ class LocalUser {
 				const build = []
 				for (const key of keys) {
 					build.push(key)
+					if (build.length == 100) break
 				}
 
-				let res
-				const promise = new Promise(r => {
-					res = r
+				if (!build.length) {
+					this.waitingmembers.delete(guildid)
+					return
+				}
+
+				let res2
+				const promise2 = new Promise(r => {
+					res2 = r
 				})
+
+				const nonce = "" + Math.floor(Math.random() * 100000000000)
+				this.noncemap.set(nonce, res2)
+				this.noncebuild.set(nonce, [[], [], []])
 				this.ws.send(JSON.stringify({
 					op: 8,
 					d: {
 						user_ids: build,
 						guild_id: guildid,
 						limit: 100,
-						nonce: "" + Math.floor(Math.random() * 100000000)
+						//presences: true,
+						nonce
 					}
 				}))
-				this.fetchingmembers.set(guildid, res)
-				const data = await promise
+				this.fetchingmembers.set(guildid, true)
+				const prom = await promise2
+
+				const data = prom[0]
 				for (const thing of data) {
 					value.get(thing.id)(thing)
 					value.delete(thing.id)
+					if (value.has(thing.id)) {
+						value.get(thing.id)(thing)
+						value.delete(thing.id)
+					}
 				}
+				for (const thing of prom[1]) {
+					if (value.has(thing)) {
+						value.get(thing)()
+						value.delete(thing)
+					}
+				}
+				this.fetchingmembers.delete(guildid)
 				this.getmembers()
 			})
 		}
