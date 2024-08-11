@@ -1,6 +1,5 @@
 "use strict"
 
-
 class Member {
 	static already = {}
 	static contextmenu = new Contextmenu()
@@ -19,6 +18,11 @@ class Member {
 		})
 	}
 
+	/**
+	 * @param {memberjson|User|{guild_member: memberjson, user: userjson}} memberjson
+	 * @param {Guild} owner
+	 * @param {boolean} error
+	 */
 	constructor(memberjson, owner, error = false) {
 		this.error = error
 		if (!owner) console.error("Guild not included in the creation of a member object")
@@ -61,6 +65,11 @@ class Member {
 	get info() {
 		return this.owner.info
 	}
+	/**
+	 * @param {User|memberjson|string} unknown
+	 * @param {Guild} guild
+	 * @returns {Promise<Member>}
+	 */
 	static async resolve(unknown, guild) {
 		if (!(guild instanceof Guild)) console.error(guild)
 
