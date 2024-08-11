@@ -154,10 +154,10 @@ class User {
 		return div
 	}
 	profileclick(obj, author) {
-		obj.onclick = event => {
+		obj.addEventListener("click", event => {
 			event.stopPropagation()
 			this.buildprofile(event.clientX, event.clientY, author)
-		}
+		})
 	}
 	contextMenuBind(html, guild) {
 		if (guild && guild.id != "@me") {

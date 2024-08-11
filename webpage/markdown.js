@@ -429,7 +429,7 @@ class MarkDown {
 						emojiElem.width = isEmojiOnly ? 48 : 22
 						emojiElem.height = isEmojiOnly ? 48 : 22
 						emojiElem.crossOrigin = "anonymous"
-						emojiElem.src = instance.cdn + "/emojis/" + parts[2] + "." + (parts[1] ? "gif" : "png") + "?size=32"
+						emojiElem.src = instance.cdn + "/emojis/" + parts[2] + "." + (parts[1] && this.owner.localuser.settings.animate_emoji ? "gif" : "png") + "?size=32"
 						emojiElem.alt = ""
 						emojiElem.loading = "lazy"
 						span.appendChild(emojiElem)
@@ -442,23 +442,10 @@ class MarkDown {
 			if (!txt[i - 1] || txt[i - 1] != "\\") {
 				const twEmoji = emojiRegex.exec(txt[i] + (txt[i + 1] || "") + (txt[i + 2] || ""))
 				if (twEmoji) {
-					const alt = twEmoji[0]
-					const icon = twEmoji[1]
-					const variant = twEmoji[2]
-
 					i++
-					if (variant != "\uFE0E") {
+					if (twEmoji[2] != "\uFE0E") {
 						appendcurrent()
-
-						const img = document.createElement("img")
-						img.crossOrigin = "anonymous"
-						img.src = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/15.0.3/72x72/" +
-							MarkDown.toCodePoint(icon.length == 3 && icon.charAt(1) == "\uFE0F" ? icon.charAt(0) + icon.charAt(2) : icon) + ".png"
-						img.width = 22
-						img.height = 22
-						img.alt = "Emoji: " + Object.keys(emojis)[Object.values(emojis).findIndex(e => e == alt)]
-
-						span.appendChild(img)
+						span.appendChild(MarkDown.renderTwemoji(twEmoji[1]))
 					}
 
 					continue
@@ -544,6 +531,26 @@ class MarkDown {
 			else r.push(c.toString(16))
 		}
 		return r.join("-")
+	}
+	static renderTwemoji(emoji = "", size = 22) {
+		const img = document.createElement("img")
+		img.crossOrigin = "anonymous"
+		img.src = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/15.0.3/72x72/" +
+			MarkDown.toCodePoint(emoji.length == 3 && emoji.charAt(1) == "\uFE0F" ? emoji.charAt(0) + emoji.charAt(2) : emoji) + ".png"
+		img.width = size
+		img.height = size
+		img.alt = "Emoji: " + Object.keys(emojis)[Object.values(emojis).findIndex(e => e == emoji)]
+
+		let firstFail = true
+		img.addEventListener("error", () => {
+			if (firstFail) {
+				img.src = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/15.0.3/72x72/" +
+					MarkDown.toCodePoint(emoji.length == 3 && emoji.charAt(1) == "\uFE0F" ? emoji.charAt(0) + emoji.charAt(2) : emoji).replace(/-fe0f/g, "") + ".png"
+				firstFail = false
+			} else console.warn("Unable to load Twemoji: " + emoji)
+		})
+
+		return img
 	}
 	giveBox(box) {
 		let prevcontent = ""

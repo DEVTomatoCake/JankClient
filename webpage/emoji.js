@@ -57,9 +57,9 @@ class Emoji {
 		})
 	}
 	static async emojiPicker(x, y) {
-		let res
+		let resolve
 		const promise = new Promise(r => {
-			res = r
+			resolve = r
 		})
 		const menu = document.createElement("div")
 		menu.classList.add("flextttb", "emojiPicker")
@@ -84,30 +84,35 @@ class Emoji {
 
 		const body = document.createElement("div")
 		body.classList.add("emojiBody")
-		let i = 0
+		let isFirst = true
 		for (const thing of Emoji.emojis) {
 			const select = document.createElement("div")
 			select.textContent = thing.emojis[0].emoji
 			select.classList.add("emojiSelect")
 			selection.append(select)
+
 			const clickEvent = () => {
 				title.textContent = thing.name
 				body.innerHTML = ""
 				for (const emojit of thing.emojis) {
-					const emoji = document.createElement("div")
-					emoji.classList.add("emojiSelect")
-					emoji.textContent = emojit.emoji
-					body.append(emoji)
-					emoji.onclick = () => {
-						res(emojit.emoji)
+					const emojiElem = document.createElement("span")
+					emojiElem.classList.add("emojiSelect")
+
+					emojiElem.append(MarkDown.renderTwemoji(emojit.emoji, 26))
+					body.append(emojiElem)
+
+					emojiElem.addEventListener("click", () => {
+						resolve(emojit.emoji)
 						Contextmenu.currentmenu.remove()
-					}
+					})
 				}
 			}
 
-			select.onclick = clickEvent
-			if (i == 0) clickEvent()
-			i++
+			select.addEventListener("click", clickEvent)
+			if (isFirst) {
+				clickEvent()
+				isFirst = false
+			}
 		}
 		menu.append(selection)
 		menu.append(body)

@@ -81,7 +81,7 @@ class Message {
 		this.author = User.checkuser(messagejson.author, this.localuser)
 		this.member = messagejson.member ? new Member(messagejson.member, this.guild) : void 0
 		this.content = new MarkDown(messagejson.content, this.channel)
-		this.tts = messagejson.tts
+		this.tts = messagejson.tts && this.owner.localuser.settings.enable_tts_command
 		this.timestamp = messagejson.timestamp
 		this.edited_timestamp = messagejson.edited_timestamp
 		this.message_reference = messagejson.message_reference
@@ -262,9 +262,9 @@ class Message {
 				author.contextMenuBind(username, this.guild)
 			})
 
-			reply.onclick = () => {
+			reply.addEventListener("click", () => {
 				this.channel.infinite.focus(this.message_reference.message_id)
-			}
+			})
 			div.appendChild(replyline)
 		}
 
@@ -331,9 +331,17 @@ class Message {
 			const messagedwrap = document.createElement("div")
 			messagedwrap.classList.add("flexttb")
 			messagedwrap.appendChild(messaged)
+			if (this.edited_timestamp) {
+				const edited = document.createElement("small")
+				edited.classList.add("edited")
+				edited.textContent = "(edited)"
+				edited.title = "Edited " + formatTime(new Date(this.edited_timestamp))
+				messagedwrap.appendChild(edited)
+			}
 			texttxt.appendChild(messagedwrap)
 
 			build.appendChild(text)
+
 			if (this.attachments && this.attachments.length > 0) {
 				const attach = document.createElement("div")
 				attach.classList.add("flexltr")
@@ -341,7 +349,7 @@ class Message {
 				texttxt.appendChild(attach)
 			}
 
-			if (this.embeds && this.embeds.length > 0) {
+			if (this.embeds && this.embeds.length > 0 && this.localuser.settings.render_embeds) {
 				const embeds = document.createElement("div")
 				embeds.classList.add("flexltr")
 				for (const thing of this.embeds) {
@@ -396,6 +404,8 @@ class Message {
 		return div
 	}
 	updateReactions() {
+		if (!this.localuser.settings.render_reactions) return
+
 		const reactdiv = this.reactdiv.deref()
 		if (!reactdiv) return
 
@@ -420,34 +430,17 @@ class Message {
 			} else {
 				const text = document.createElement("span")
 				text.classList.add("reactionCount")
+				text.textContent = thing.count
 
-				const twEmoji = emojiRegex.exec(thing.emoji.name)
-				if (twEmoji) {
-					const alt = twEmoji[0]
-					const icon = twEmoji[1]
-					const variant = twEmoji[2]
-
-					if (variant != "\uFE0E") {
-						const img = document.createElement("img")
-						img.crossOrigin = "anonymous"
-						img.src = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/15.0.3/72x72/" +
-							MarkDown.toCodePoint(icon.length == 3 && icon.charAt(1) == "\uFE0F" ? icon.charAt(0) + icon.charAt(2) : icon) + ".png"
-						img.width = 16
-						img.height = 16
-						img.alt = "Emoji: " + Object.keys(emojis)[Object.values(emojis).findIndex(e => e == alt)]
-
-						text.textContent = thing.count
-						text.appendChild(img)
-					}
-				} else text.textContent = thing.count + " " + thing.emoji.name
+				text.appendChild(MarkDown.renderTwemoji(thing.emoji.name, 16))
 
 				reactionContainer.appendChild(text)
 			}
 
 			reactdiv.append(reactionContainer)
-			reactionContainer.onclick = () => {
+			reactionContainer.addEventListener("click", () => {
 				this.reactionToggle(thing.emoji.name)
-			}
+			})
 		}
 	}
 	giveReaction(data, member) {

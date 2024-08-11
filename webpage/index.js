@@ -77,7 +77,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 				users.currentuser = thing.uid
 				localStorage.setItem("userinfos", JSON.stringify(users))
 				thisuser.initwebsocket().then(() => {
-					if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
+					Contextmenu.currentmenu.remove()
+
 					thisuser.loaduser()
 					thisuser.init()
 					document.getElementById("loading").classList.add("doneloading")
@@ -157,6 +158,19 @@ const messagelist = []
 let images = []
 let replyingto = null
 
+const emojiConversions = {
+	":D": "😄",
+	":)": "😊",
+	":(": "😞",
+	":P": "😛",
+	";)": "😉",
+	":*": "😘",
+	":O": "😲",
+	":-)": "🙂",
+	":-(": "🙁",
+	"D:": "😧"
+}
+
 const typebox = document.getElementById("typebox")
 const markdown = new MarkDown("", thisuser)
 markdown.giveBox(typebox)
@@ -168,8 +182,13 @@ typebox.addEventListener("keyup", event => {
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
 
-		const content = markdown.rawString.trim()
+		let content = markdown.rawString.trim()
 			.replace(/:([-+\w]+):/g, (match, p1) => emojis[p1] || match)
+
+		if (thisuser.settings.convert_emoticons)
+			Object.keys(emojiConversions).forEach(emoji => {
+				content = content.replaceAll(emoji, emojiConversions[emoji])
+			})
 
 		if (channel.editing) {
 			channel.editing.edit(content)
@@ -224,15 +243,15 @@ document.getElementById("messagecontainer").addEventListener("scroll", () => {
 })
 
 if (screen.width <= 600) {
-	document.getElementById("channelw").onclick = () => {
+	document.getElementById("channelw").addEventListener("click", () => {
 		document.getElementById("channels").parentNode.classList.add("collapse")
 		document.getElementById("servertd").classList.add("collapse")
 		document.getElementById("servers").classList.add("collapse")
-	}
+	})
 	document.getElementById("mobileback").textContent = "#"
-	document.getElementById("mobileback").onclick = () => {
+	document.getElementById("mobileback").addEventListener("click", () => {
 		document.getElementById("channels").parentNode.classList.remove("collapse")
 		document.getElementById("servertd").classList.remove("collapse")
 		document.getElementById("servers").classList.remove("collapse")
-	}
+	})
 }

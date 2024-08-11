@@ -1,5 +1,6 @@
 "use strict"
 
+const supportsCompression = "DecompressionStream" in window
 let connectionSucceed = 0
 let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
@@ -88,7 +89,7 @@ class LocalUser {
 		const promise = new Promise(resolve => {
 			returny = resolve
 		})
-		this.ws = new WebSocket(instance.gateway + "/?v=9&encoding=json" + ("DecompressionStream" in window ? "&compress=zlib-stream" : ""))
+		this.ws = new WebSocket(instance.gateway + "/?v=9&encoding=json" + (supportsCompression ? "&compress=zlib-stream" : ""))
 
 		this.ws.addEventListener("open", () => {
 			console.log("WebSocket connected")
@@ -104,7 +105,7 @@ class LocalUser {
 						client_build_number: 0,
 						release_channel: "Custom"
 					},
-					compress: "DecompressionStream" in window,
+					compress: supportsCompression,
 					presence: {
 						status: "online",
 						since: Date.now(),
@@ -119,7 +120,7 @@ class LocalUser {
 		let w
 		let r
 		let arr
-		if ("DecompressionStream" in window) {
+		if (supportsCompression) {
 			ds = new DecompressionStream("deflate")
 			w = ds.writable.getWriter()
 			r = ds.readable.getReader()
@@ -290,13 +291,13 @@ class LocalUser {
 	updateChannel(json) {
 		SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().updateChannel(json)
 
-		if (json.guild_id == this.lookingguild.snowflake) this.loadGuild(json.guild_id)
+		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
 	}
 	createChannel(json) {
 		json.guild_id ??= "@me"
 		SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().createChannelpac(json)
 
-		if (json.guild_id == this.lookingguild.snowflake) this.loadGuild(json.guild_id)
+		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
 	}
 	delChannel(json) {
 		json.guild_id ??= "@me"
@@ -347,10 +348,10 @@ class LocalUser {
 		img.classList.add("svgtheme", "svgicon")
 		img.src = "/icons/home.svg"
 		img.all = this.guildids.get("@me")
-		img.onclick = function() {
+		img.addEventListener("click", function() {
 			this.all.loadGuild()
 			this.all.loadChannel()
-		}
+		})
 		div.appendChild(img)
 
 		const outdiv = document.createElement("div")
@@ -390,18 +391,21 @@ class LocalUser {
 		const joinCreateButton = document.createElement("p")
 		joinCreateButton.classList.add("home", "servericon")
 		joinCreateButton.appendChild(await LocalUser.loadSVG("add"))
-		serverlist.appendChild(joinCreateButton)
 		joinCreateButton.addEventListener("click", () => {
 			this.createGuild()
 		})
+		serverlist.appendChild(joinCreateButton)
 
-		const guildsDiv = document.createElement("div")
-		const guildDiscoveryContainer = document.createElement("img")
-		guildDiscoveryContainer.src = "/icons/explore.svg"
-		guildDiscoveryContainer.classList.add("svgtheme", "svgicon")
-		guildsDiv.classList.add("home", "servericon")
-		guildsDiv.appendChild(guildDiscoveryContainer)
-		serverlist.appendChild(guildsDiv)
+		const guildDiscoveryContainer = document.createElement("div")
+		guildDiscoveryContainer.classList.add("home", "servericon")
+		const guildDiscoveryIcon = document.createElement("img")
+		guildDiscoveryIcon.src = "/icons/explore.svg"
+		guildDiscoveryIcon.classList.add("svgtheme", "svgicon")
+		guildDiscoveryContainer.appendChild(guildDiscoveryIcon)
+		guildDiscoveryContainer.addEventListener("click", () => {
+			this.guildDiscovery()
+		})
+		serverlist.appendChild(guildDiscoveryContainer)
 	}
 	createGuild() {
 		let inviteurl = ""
@@ -482,6 +486,12 @@ class LocalUser {
 		const full = new Dialog(["html", container])
 		full.show()
 
+		const categoryRes = await fetch(instance.api + "/discovery/categories", {
+			headers: this.headers
+		})
+		if (!categoryRes.ok) return container.textContent = "An error occurred (response code " + categoryRes.status + ")"
+		const categories = await categoryRes.json()
+
 		const res = await fetch(instance.api + "/discoverable-guilds?limit=50", {
 			headers: this.headers
 		})
@@ -517,7 +527,7 @@ class LocalUser {
 			const img = document.createElement("img")
 			img.classList.add("pfp", "servericon")
 			img.crossOrigin = "anonymous"
-			img.src = instance.cdn + "/" + (guild.icon ? ("icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "embed/avatars/3.png")
+			img.src = instance.cdn + "/" + (guild.icon ? ("icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "embed/avatars/" + ((guild.id >>> 22) % 6) + ".png")
 			img.alt = ""
 			img.loading = "lazy"
 			nameContainer.appendChild(img)
@@ -530,6 +540,12 @@ class LocalUser {
 			const desc = document.createElement("p")
 			desc.textContent = guild.description
 			content.appendChild(desc)
+
+			if (categories.length > 0 && guild.primary_category_id && categories.some(category => category.id == guild.primary_category_id)) {
+				const category = document.createElement("p")
+				category.textContent = "Category: " + categories.find(cat => cat.id == guild.primary_category_id).name
+				content.appendChild(category)
+			}
 
 			content.addEventListener("click", async () => {
 				const joinRes = await fetch(instance.api + "/guilds/" + guild.id + "/members/@me", {

@@ -4,13 +4,12 @@ let lastCache
 let lastChecked = 0
 const checkCache = async () => {
 	if (lastChecked + 1000 * 60 * 30 > Date.now()) return
+	lastChecked = Date.now()
 
 	const prevCache = await caches.match("/getupdates")
 	if (prevCache) lastCache = await prevCache.text()
 
 	fetch("/getupdates").then(async data => {
-		lastChecked = Date.now()
-
 		const text = await data.clone().text()
 		if (lastCache != text) {
 			caches.delete("cache")
@@ -72,7 +71,8 @@ self.addEventListener("fetch", event => {
 				url.pathname == "/emoji.bin" ||
 				url.pathname == "/favicon.ico" || url.pathname == "/logo.svg" || url.pathname == "/logo.webp" ||
 				url.pathname == "/manifest.json" ||
-				url.pathname.startsWith("/font/") || url.pathname.startsWith("/icons/")
+				url.pathname.startsWith("/font/") || url.pathname.startsWith("/icons/") ||
+				url.pathname.startsWith("/cdn/") // If running on the same domain as the API
 			)) return responseFromCache
 			if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/index" : url.pathname))
 

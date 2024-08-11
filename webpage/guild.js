@@ -111,7 +111,7 @@ class Guild {
 		const build = []
 		for (const thing of this.headchannels) {
 			const thisthing = {
-				id: thing.snowflake,
+				id: thing.id,
 				position: void 0,
 				parent_id: void 0
 			}
@@ -123,13 +123,11 @@ class Guild {
 			position = thing.position
 			if (thing.move_id && thing.move_id != thing.parent_id) {
 				thing.parent_id = thing.move_id
-				thisthing.parent_id = thing.parent_id
+				thisthing.parent_id = thing.parent_id.id
 				thing.move_id = void 0
 			}
-			if (thisthing.position || thisthing.parent_id) {
-				build.push(thisthing)
-				console.log(this.channelids[thisthing.parent_id])
-			}
+			if (thisthing.position || thisthing.parent_id) build.push(thisthing)
+
 			if (thing.children.length > 0) {
 				const things = thing.calculateReorder()
 				for (const thing2 of things) {
@@ -228,10 +226,11 @@ class Guild {
 	}
 	updateChannel(json) {
 		SnowFlake.getSnowFlakeFromID(json.id, Channel).getObject().updateChannel(json)
-		this.headchannels = []
 		for (const thing of this.channels) {
 			thing.children = []
 		}
+
+		this.headchannels = []
 		for (const thing of this.channels) {
 			if (thing.resolveparent(this)) this.headchannels.push(thing)
 		}
@@ -245,8 +244,7 @@ class Guild {
 
 		this.calculateReorder()
 	}
-	createchannels(func = this.createChannel) {
-		console.log(func, this.createChannel)
+	createchannels() {
 		let name = ""
 		let type = 0
 		const channelselect = new Dialog(
@@ -262,7 +260,7 @@ class Guild {
 					name = event.target.value
 				}],
 				["button", "", "submit", () => {
-					func(name, type)
+					this.createChannel(name, type)
 					channelselect.hide()
 				}]
 			])
@@ -289,14 +287,6 @@ class Guild {
 		this.channels.splice(this.channels.indexOf(channel), 1)
 		const indexy = this.headchannels.indexOf(channel)
 		if (indexy != -1) this.headchannels.splice(indexy, 1)
-
-		/*const build = []
-		for (const thing of this.channels) {
-			if (thing.id == json.id) {
-				if (thing.parent) thing.parent.delChannel(json)
-			} else build.push(thing)
-		}
-		this.channels = build*/
 	}
 	createChannel(name, type) {
 		fetch(instance.api + "/guilds/" + this.id + "/channels", {

@@ -156,7 +156,10 @@ class Channel {
 		let position = -1
 		const build = []
 		for (const thing of this.children) {
-			const thisthing = { id: thing.snowflake }
+			const thisthing = {
+				id: thing.id
+			}
+
 			if (thing.position < position) {
 				thisthing.position = position + 1
 				thing.position = thisthing.position
@@ -164,7 +167,7 @@ class Channel {
 			position = thing.position
 			if (thing.move_id && thing.move_id != thing.parent_id) {
 				thing.parent_id = thing.move_id
-				thisthing.parent_id = thing.parent_id
+				thisthing.parent_id = thing.parent_id.id
 				thing.move_id = void 0
 			}
 			if (thisthing.position || thisthing.parent_id) build.push(thisthing)
@@ -216,7 +219,7 @@ class Channel {
 				addchannel.classList.add("addchannel")
 				caps.appendChild(addchannel)
 				addchannel.onclick = function() {
-					this.guild.createchannels(this.createChannel.bind(this))
+					this.guild.createchannels()
 				}.bind(this)
 				this.coatDropDiv(decdiv, childrendiv)
 			}
@@ -296,9 +299,9 @@ class Channel {
 			}
 
 			div.appendChild(myhtml)
-			div.onclick = () => {
+			div.addEventListener("click", () => {
 				this.getHTML()
-			}
+			})
 		}
 		return div
 	}
@@ -354,7 +357,6 @@ class Channel {
 				console.log(this, that)
 				this.children.unshift(that)
 			} else {
-				console.log(this, Channel.dragged)
 				that.move_id = this.parent_id
 				if (that.parent) that.parent.children.splice(that.parent.children.indexOf(that), 1)
 				else this.guild.headchannels.splice(this.guild.headchannels.indexOf(that), 1)
@@ -606,12 +608,23 @@ class Channel {
 		messages.innerHTML = ""
 		let id
 		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) id = this.lastreadmessageid
-		else if (this.lastmessage) {
-			id = this.goBackIds(this.lastmessage.snowflake, 50)
-			console.log("shouldn't")
-		}
+		else if (this.lastmessage) id = this.goBackIds(this.lastmessage.snowflake, 50)
 
-		if (!id) return console.error("Missing id for building messages on " + this.name + " in " + this.guild.name)
+		if (!id) {
+			const emptyContainer = document.createElement("div")
+
+			const emptyTitle = document.createElement("h1")
+			emptyTitle.textContent = "No messages in this channel"
+			emptyContainer.appendChild(emptyTitle)
+
+			const emptyText = document.createElement("p")
+			emptyText.textContent = "This channel is empty. Start the conversation!"
+			emptyContainer.appendChild(emptyText)
+
+			messages.append(emptyContainer)
+
+			return console.warn("Missing id for building messages on " + this.name + " in " + this.guild.name)
+		}
 
 		messages.append(await this.infinite.getDiv(id.id))
 		this.infinite.updatestuff()

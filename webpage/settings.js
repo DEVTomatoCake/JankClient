@@ -32,20 +32,20 @@ class PermissionToggle {
 		div.append(on)
 		if (state == 1) on.checked = true
 
-		on.onclick = () => {
+		on.addEventListener("click", () => {
 			this.permissions.setPermission(this.rolejson.name, 1)
 			this.owner.changed()
-		}
+		})
 		const no = document.createElement("input")
 		no.type = "radio"
 		no.name = this.rolejson.name
 		div.append(no)
 		if (state == 0) no.checked = true
 
-		no.onclick = () => {
+		no.addEventListener("click", () => {
 			this.permissions.setPermission(this.rolejson.name, 0)
 			this.owner.changed()
-		}
+		})
 
 		if (this.permissions.hasDeny) {
 			const off = document.createElement("input")
@@ -54,10 +54,10 @@ class PermissionToggle {
 			div.append(off)
 			if (state == -1) off.checked = true
 
-			off.onclick = () => {
+			off.addEventListener("click", () => {
 				this.permissions.setPermission(this.rolejson.name, -1)
 				this.owner.changed()
-			}
+			})
 		}
 		return div
 	}
@@ -312,7 +312,7 @@ class Options {
 		return select
 	}
 	addFileInput(label, onSubmit) {
-		const FI = new FileInput(label, onSubmit, this, {})
+		const FI = new FileInput(label, onSubmit, this)
 		this.options.push(FI)
 		return FI
 	}
@@ -379,12 +379,12 @@ class Options {
 			div.append(button)
 			this.haschanged = true
 			this.owner.changed(div)
-			button.onclick = () => {
+			button.addEventListener("click", () => {
 				// eslint-disable-next-line no-use-before-define
 				if (this.owner instanceof Buttons) this.owner.save()
 				div.remove()
 				this.submit()
-			}
+			})
 		}
 	}
 	submit() {
@@ -418,10 +418,10 @@ class Buttons {
 			const button = document.createElement("button")
 			button.classList.add("SettingsButton")
 			button.textContent = thing[0]
-			button.onclick = () => {
+			button.addEventListener("click", () => {
 				this.generateHTMLArea(thing[1], htmlarea)
 				if (this.warndiv) this.warndiv.remove()
-			}
+			})
 			buttonTable.append(button)
 		}
 
@@ -508,9 +508,9 @@ class Settings extends Buttons {
 		exit.textContent = "✖"
 		exit.classList.add("exitsettings")
 		background.append(exit)
-		exit.onclick = () => {
+		exit.addEventListener("click", () => {
 			this.hide()
-		}
+		})
 		document.body.append(background)
 		this.html = background
 		background.showModal()

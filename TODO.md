@@ -5,7 +5,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Meaning
 | --- | ---
 | ❌ | Not implemented but planned
-| 🟨 | Partly implemented
+| ⚙️ | Partly implemented: Settings only
+| 🗨️ | Partly implemented: Functionality/Displaying only
 | ✅ | Implemented
 | ⛔ | Not planned or impossible due to missing information
 
@@ -22,7 +23,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | banner | string┃null
 | ❌ | new_password | string
 | ❌ | email | string
-| ❌ | discriminator | string
+| 🗨️ | discriminator | string
 
 ## User profile
 
@@ -43,18 +44,18 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
 | ❌ | status | string - one of: dnd┃idle┃invisible┃online
-| ❌ | afk_timeout | integer
+| ⛔ | afk_timeout | integer | Where is this used?
 | ⛔ | allow_accessibility_detection | boolean | What's this for?
-| ❌ | animate_emoji | boolean
-| ❌ | animate_stickers | integer
+| 🗨️ | animate_emoji | boolean
+| ❌ | animate_stickers | integer | 0 = enabled, 1 = only on focus, 2 = disabled
 | ⛔ | contact_sync_enabled | boolean | Not possible in Web
-| ❌ | convert_emoticons | boolean
+| 🗨️ | convert_emoticons | boolean
 | ❌ | custom_status | object - one of: 1: object: emoji_id: string, emoji_name: string, expires_at: integer, text: string; 2: null
 | ⛔ | default_guilds_restricted | boolean | What's this for?
 | ⛔ | detect_platform_accounts | boolean | What's this for?
 | ❌ | developer_mode | boolean
 | ⛔ | disable_games_tab | boolean | No use in SB
-| ❌ | enable_tts_command | boolean
+| 🗨️ | enable_tts_command | boolean
 | ❌ | explicit_content_filter | integer
 | ⛔ | friend_discovery_flags | integer | What's this for?
 | ⛔ | friend_source_flags | object - all*: boolean | What's this for?
@@ -66,13 +67,13 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | locale | string
 | ❌ | message_display_compact | boolean
 | ⛔ | native_phone_integration_enabled | boolean | What's this for?
-| ❌ | render_embeds | boolean
-| ❌ | render_reactions | boolean
+| 🗨️ | render_embeds | boolean
+| 🗨️ | render_reactions | boolean
 | ⛔ | restricted_guilds | [string] | What's this for?
 | ⛔ | show_current_game | boolean | Not possible in Web
 | ⛔ | stream_notifications_enabled | boolean | What's this for?
 | ✅ | theme | string - one of: dark┃light
-| ❌ | timezone_offset | integer
+| ⛔ | timezone_offset | integer | Where is this used?
 | ❌ | view_nsfw_guilds | boolean
 
 ## Guild settings

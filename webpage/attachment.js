@@ -22,10 +22,10 @@ class Attachment {
 		if (this.content_type.startsWith("image/")) {
 			const img = document.createElement("img")
 			img.classList.add("messageimg")
-			img.onclick = function() {
+			img.addEventListener("click", () => {
 				const full = new Dialog(["img", src, ["fit"]])
 				full.show()
-			}
+			})
 			img.crossOrigin = "anonymous"
 			img.src = src
 			img.alt = this.description || this.title || "Image: " + this.filename
@@ -62,10 +62,10 @@ class Attachment {
 		const controls = document.createElement("div")
 		const garbage = document.createElement("button")
 		garbage.textContent = "🗑"
-		garbage.onclick = () => {
+		garbage.addEventListener("click", () => {
 			div.remove()
 			files.splice(files.indexOf(file), 1)
-		}
+		})
 		controls.classList.add("controls")
 		div.append(controls)
 		controls.append(garbage)

@@ -54,9 +54,8 @@ app.get("/getupdates", async (req, res) => {
 
 app.use("/", (req, res) => {
 	const reqPath = req.path.replace(/[^\w.-]/g, "")
-	if (reqPath.length == 0) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
 
-	if (reqPath.startsWith("channels") || reqPath.startsWith("invite")) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
+	if (reqPath.length == 0 || reqPath.startsWith("channels") || reqPath.startsWith("invite")) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
 	if (reqPath == "login") return res.sendFile(path.join(__dirname, "webpage", "login.html"))
 	if (reqPath == "register") return res.sendFile(path.join(__dirname, "webpage", "register.html"))
 
@@ -78,9 +77,10 @@ app.use("/", (req, res) => {
 		return res.sendFile(path.join(__dirname, "webpage", "icons", reqPath.replace("icons", "")), {
 			maxAge: 1000 * 60 * 60 * 24
 		})
-	if (/^connections[a-z]{1,30}callback$/.test(reqPath)) return res.sendFile(path.join(__dirname, "webpage", "connections.html"))
+	if (/^connections[\w-]{1,64}callback$/.test(reqPath)) return res.sendFile(path.join(__dirname, "webpage", "connections.html"))
 })
 
 const PORT = process.env.PORT || 25512
-app.listen(PORT)
-console.log("Started Jank Client on port " + PORT + "!")
+app.listen(PORT, () => {
+	console.log("Started Jank Client on port " + PORT + "!")
+})
