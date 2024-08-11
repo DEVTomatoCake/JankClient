@@ -243,15 +243,22 @@ document.getElementById("messagecontainer").addEventListener("scroll", () => {
 })
 
 if (screen.width <= 600) {
+	const collapse = () => {
+		document.getElementById("mobileback").removeAttribute("hidden")
+
+		document.getElementById("channels").parentElement.classList.add("collapse")
+		document.getElementById("servers").parentElement.classList.add("collapse")
+	}
+	collapse()
+
 	document.getElementById("channelw").addEventListener("click", () => {
-		document.getElementById("channels").parentNode.classList.add("collapse")
-		document.getElementById("servertd").classList.add("collapse")
-		document.getElementById("servers").classList.add("collapse")
+		collapse()
 	})
-	document.getElementById("mobileback").textContent = "#"
+
 	document.getElementById("mobileback").addEventListener("click", () => {
-		document.getElementById("channels").parentNode.classList.remove("collapse")
-		document.getElementById("servertd").classList.remove("collapse")
-		document.getElementById("servers").classList.remove("collapse")
+		document.getElementById("mobileback").setAttribute("hidden", "")
+
+		document.getElementById("channels").parentElement.classList.remove("collapse")
+		document.getElementById("servers").parentElement.classList.remove("collapse")
 	})
 }

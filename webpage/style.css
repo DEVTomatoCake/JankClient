@@ -202,12 +202,6 @@ body {
 	height: auto;
 }
 
-.collapse {
-	overflow: hidden;
-	width: 0 !important;
-	max-width: 0 !important;
-}
-
 dialog {
 	min-width: 30%;
 	min-height: 40%;
@@ -437,7 +431,7 @@ p {
 }
 
 #channels {
-	--top-height: 37px;
+	--top-height: 39px;
 	background: var(--channels-bg);
 	position: absolute;
 	top: var(--top-height);
@@ -798,11 +792,11 @@ textarea {
 	border-color: var(--server-border);
 	border-width: .1cm;
 	border-style: solid;
-	height: 34px;
+	height: 33px;
+	flex-shrink: 0;
 	display: flex;
-	flex-direction: column;
-	justify-content: space-evenly;
 	width: 100%;
+	align-items: center;
 }
 
 .channeleffects {
@@ -902,11 +896,6 @@ textarea {
 	font-weight: 600;
 }
 
-.servernamediv {
-	width: 100%;
-	max-width: 100%;
-}
-
 button, input::file-selector-button {
 	transition: background-color .1s ease-in-out;
 	background: var(--message-bg-hover);
@@ -914,9 +903,9 @@ button, input::file-selector-button {
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
-	font-size: .45cm;
+	font-size: 17px;
 	cursor: pointer;
-	border-width: 0 0 .03in 0;
+	border-width: 0 0 1px 0;
 	border-radius: .03in;
 	margin: .02in .05in;
 	box-shadow: 0 0 .03in var(--black);
@@ -1179,8 +1168,12 @@ span {
 	display: flex;
 }
 
+.collapse {
+	display: none !important;
+}
+
 #mobileback {
-	font-size: .3in;
+	font-size: 26px;
 	font-weight: bold;
 	padding: .025in;
 	background-color: #06003f96;
@@ -1193,6 +1186,7 @@ span {
 	border: solid;
 	border-color: var(--black);
 	border-width: .04in;
+	z-index: 7;
 }
 
 .bot {
@@ -1318,8 +1312,8 @@ span {
 }
 
 #discovery-guild-content {
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr 1fr;
+	display: flex;
+	flex-wrap: wrap;
 }
 
 .discovery-guild {
@@ -1416,7 +1410,7 @@ video {
 }
 
 .flexgrow {
-	flex-grow:1;
+	flex-grow: 1;
 }
 
 .profile {
@@ -1713,7 +1707,7 @@ textarea:focus-visible,
 }
 
 .dontgrow {
-	flex-grow:0;
+	flex-grow: 0;
 	width: 1.6in;
 	text-align: center;
 }
@@ -1837,7 +1831,7 @@ form div {
 }
 
 .Buttons {
-	background:var(--primary-bg);
+	background: var(--primary-bg);
 	position: relative;
 	height: 100%;
 	display: flex;
@@ -1846,11 +1840,18 @@ form div {
 }
 
 .dontshrink {
-	flex-shrink:0;
+	flex-shrink: 0;
 }
 
 small.edited {
 	font-size: 12px;
 	color: var(--timestamp-color);
 	user-select: none;
+}
+
+@media only screen and (max-width: 700px) {
+	#client-logo {
+		width: 75vw;
+		height: 75vw;
+	}
 }
