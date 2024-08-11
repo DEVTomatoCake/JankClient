@@ -47,7 +47,7 @@ class User {
 				this.bio = new MarkDown(userjson[thing], this.localuser)
 				continue
 			}
-			if (thing === "id") {
+			if (thing == "id") {
 				this.snowflake = new SnowFlake(userjson[thing], this)
 				continue
 			}
@@ -98,7 +98,7 @@ class User {
 	getpfpsrc() {
 		if (this.hypotheticalpfp) return this.avatar
 
-		if (this.avatar === null) return instance.cdn + "/embed/avatars/3.png"
+		if (this.avatar === null) return instance.cdn + "/embed/avatars/" + ((this.id >>> 22) % 6) + ".png?size=64"
 		return instance.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png?size=64"
 	}
 	buildprofile(x, y, type = "author") {

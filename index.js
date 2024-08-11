@@ -56,22 +56,29 @@ app.use("/", (req, res) => {
 	const reqPath = req.path.replace(/[^\w.-]/g, "")
 	if (reqPath.length == 0) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
 
-	if (fs.existsSync(path.join(__dirname, "webpage", reqPath))) res.sendFile(path.join(__dirname, "webpage", reqPath))
-	else if (fs.existsSync(path.join(__dirname, "webpage", "font", reqPath.replace("font", "")))) {
-		res.sendFile(path.join(__dirname, "webpage", "font", reqPath.replace("font", "")), {
+	if (reqPath.startsWith("channels") || reqPath.startsWith("invite")) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
+	if (reqPath == "login") return res.sendFile(path.join(__dirname, "webpage", "login.html"))
+	if (reqPath == "register") return res.sendFile(path.join(__dirname, "webpage", "register.html"))
+
+	if (!/^[\w-]+\.\w+$/.test(reqPath)) {
+		res.status(400).send("Invalid path!")
+		return console.warn("Invalid path requested: " + reqPath + " | " + req.originalUrl)
+	}
+
+	if (fs.existsSync(path.join(__dirname, "webpage", reqPath))) return res.sendFile(path.join(__dirname, "webpage", reqPath))
+	if (fs.existsSync(path.join(__dirname, "webpage", "font", reqPath.replace("font", ""))))
+		return res.sendFile(path.join(__dirname, "webpage", "font", reqPath.replace("font", "")), {
 			maxAge: 1000 * 60 * 60 * 24 * 90
 		})
-	} else if (fs.existsSync(path.join(__dirname, "webpage", "icons", "bootstrap", reqPath.replace("iconsbootstrap", "")))) {
-		res.sendFile(path.join(__dirname, "webpage", "icons", "bootstrap", reqPath.replace("iconsbootstrap", "")), {
+	if (fs.existsSync(path.join(__dirname, "webpage", "icons", "bootstrap", reqPath.replace("iconsbootstrap", ""))))
+		return res.sendFile(path.join(__dirname, "webpage", "icons", "bootstrap", reqPath.replace("iconsbootstrap", "")), {
 			maxAge: 1000 * 60 * 60 * 24
 		})
-	} else if (fs.existsSync(path.join(__dirname, "webpage", "icons", reqPath.replace("icons", "")))) {
-		res.sendFile(path.join(__dirname, "webpage", "icons", reqPath.replace("icons", "")), {
+	if (fs.existsSync(path.join(__dirname, "webpage", "icons", reqPath.replace("icons", ""))))
+		return res.sendFile(path.join(__dirname, "webpage", "icons", reqPath.replace("icons", "")), {
 			maxAge: 1000 * 60 * 60 * 24
 		})
-	} else if (fs.existsSync(path.join(__dirname, "webpage", reqPath + ".html"))) res.sendFile(path.join(__dirname, "webpage", reqPath + ".html"))
-	else if (/^connections[a-z]{1,30}callback$/.test(reqPath)) res.sendFile(path.join(__dirname, "webpage", "connections.html"))
-	else res.sendFile(path.join(__dirname, "webpage", "index.html"))
+	if (/^connections[a-z]{1,30}callback$/.test(reqPath)) return res.sendFile(path.join(__dirname, "webpage", "connections.html"))
 })
 
 const PORT = process.env.PORT || 25512

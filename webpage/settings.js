@@ -474,7 +474,7 @@ class RoleList extends Buttons {
 	}
 	handleString(str) {
 		this.curid = str
-		const perm = this.permissions.find(_ => _[0].id === str)[1]
+		const perm = this.permissions.find(p => p[0].id == str)[1]
 		this.permission.deny = perm.deny
 		this.permission.allow = perm.allow
 		this.options.name = SnowFlake.getSnowFlakeFromID(str, Role).getObject().name

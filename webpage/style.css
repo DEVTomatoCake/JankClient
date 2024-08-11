@@ -360,6 +360,7 @@ small.subtext {
 	vertical-align: top;
 	overflow: auto;
 	flex-shrink: 0;
+	width: 56px;
 }
 
 #servers {
@@ -1146,7 +1147,7 @@ span {
 	background: var(--profile-bg);
 	display: inline-block;
 	cursor: pointer;
-	box-shadow: 0 -.5in 1in color-mix(in srgb, var(--shadow) 42%, transparent);
+	box-shadow: 0 -.2in .8in color-mix(in srgb, var(--shadow) 60%, transparent);
 	width: 240px;
 	z-index: 3;
 	position: absolute;

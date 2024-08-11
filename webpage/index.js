@@ -77,6 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 				users.currentuser = thing.uid
 				localStorage.setItem("userinfos", JSON.stringify(users))
 				thisuser.initwebsocket().then(() => {
+					if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 					thisuser.loaduser()
 					thisuser.init()
 					document.getElementById("loading").classList.add("doneloading")

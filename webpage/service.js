@@ -69,10 +69,12 @@ self.addEventListener("fetch", event => {
 
 			const responseFromCache = await cache.match(isindexhtml(event.request.url) ? "/index" : event.request)
 			if (responseFromCache && (
-				url.pathname == "/manifest.json" || url.pathname == "/logo.svg" ||
-				url.pathname.startsWith("/icons/") || url.pathname.startsWith("/font/")
+				url.pathname == "/emoji.bin" ||
+				url.pathname == "/favicon.ico" || url.pathname == "/logo.svg" || url.pathname == "/logo.webp" ||
+				url.pathname == "/manifest.json" ||
+				url.pathname.startsWith("/font/") || url.pathname.startsWith("/icons/")
 			)) return responseFromCache
-			else if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/index" : event.request.url))
+			if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/index" : url.pathname))
 
 			const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index" : event.request)
 			cache.put(isindexhtml(event.request.url) ? "/index" : event.request, responseFromNetwork.clone())

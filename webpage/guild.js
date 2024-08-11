@@ -168,8 +168,8 @@ class Guild {
 				break
 			}
 		}
-		if (!html) return
 
+		if (!html) return
 		if (read) html.children[0].classList.remove("notiunread")
 		else html.children[0].classList.add("notiunread")
 	}
@@ -376,17 +376,7 @@ class Guild {
 		noti.classList.add("unread")
 		divy.append(noti)
 		this.localuser.guildhtml.set(this.id, divy)
-		if (this.properties.icon === null) {
-			const div = document.createElement("div")
-			div.textContent = this.properties.name.split(" ").map(e => e[0]).join("")
-			div.classList.add("blankserver", "servericon")
-			divy.appendChild(div)
-			div.onclick = () => {
-				this.loadGuild()
-				this.loadChannel()
-			}
-			Guild.contextmenu.bind(div, this)
-		} else {
+		if (this.properties.icon) {
 			const img = document.createElement("img")
 			img.classList.add("pfp", "servericon")
 			img.crossOrigin = "anonymous"
@@ -394,11 +384,21 @@ class Guild {
 			img.alt = "Server: " + this.properties.name
 			divy.appendChild(img)
 
-			img.onclick = () => {
+			img.addEventListener("click", () => {
 				this.loadGuild()
 				this.loadChannel()
-			}
+			})
 			Guild.contextmenu.bind(img, this)
+		} else {
+			const div = document.createElement("div")
+			div.textContent = this.properties.name.replace(/'s /g, " ").replace(/\w+/g, word => word[0]).replace(/\s/g, "")
+			div.classList.add("blankserver", "servericon")
+			divy.appendChild(div)
+			div.addEventListener("click", () => {
+				this.loadGuild()
+				this.loadChannel()
+			})
+			Guild.contextmenu.bind(div, this)
 		}
 		return divy
 	}
