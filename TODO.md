@@ -5,14 +5,17 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Meaning
 | --- | ---
 | ❌ | Not implemented but planned
+| 🟨 | Partly implemented
 | ⚙️ | Partly implemented: Settings only
 | 🗨️ | Partly implemented: Functionality/Displaying only
 | ✅ | Implemented
 | ⛔ | Not planned or impossible due to missing information
 
-## User data
+## Global user
 
-`/users/@me/`
+### User data
+
+`PATCH /users/@me/`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -25,9 +28,9 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | email | string
 | 🗨️ | discriminator | string
 
-## User profile
+### User profile
 
-`/users/{id}/profile/`
+`PATCH /users/{id}/profile/`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -37,9 +40,9 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | pronouns | string
 | ❌ | theme_colors | [integer, integer]
 
-## User settings
+### User settings
 
-`/users/@me/settings/`
+`PATCH /users/@me/settings/`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -76,9 +79,29 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ⛔ | timezone_offset | integer | Where is this used?
 | ❌ | view_nsfw_guilds | boolean
 
-## Guild settings
+### Connections
 
-`/users/@me/guilds/{guild_id}/settings/`
+`PATCH /users/@me/connections/{connection_name}/{connection_id}/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | visibility | boolean
+| ❌ | show_activity | boolean
+| ❌ | metadata_visibility | boolean
+
+### User notes
+
+`PUT /users/@me/notes/{id}`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | note* | string
+
+## Per-guild user
+
+### Guild user settings
+
+`PATCH /users/@me/guilds/{guild_id}/settings/`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -94,9 +117,9 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | hide_muted_channels | boolean
 | ⛔ | notify_highlights | number | What's this for?
 
-## Guild member settings
+### Guild member profile
 
-`/guilds/{guild_id}/profile/{member_id}`
+`PATCH /guilds/{guild_id}/profile/{member_id}`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -105,3 +128,229 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | bio | string
 | ❌ | pronouns | string
 | ❌ | theme_colors | [integer, integer]
+
+### Guild member nickname edit
+
+`PATCH /guilds/{guild_id}/members/{member_id}/nick/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | nick* | string
+
+## Guild moderation
+
+### Create ban
+
+`PUT /guilds/{guild_id}/bans/{user_id}`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+delete_message_seconds
+string
+delete_message_days
+string
+reason
+string
+
+### Add role
+
+`PUT /guilds/{guild_id}/members/{member_id}/roles/{role_id}/`
+
+## Guild
+
+### Guild settings
+
+`PATCH /guilds/{guild_id}/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | name | string
+| ❌ | banner | string┃null
+| ❌ | splash | string┃null
+| ❌ | description | string
+| ❌ | features | [string]
+| ❌ | verification_level | integer
+| ❌ | default_message_notifications | integer
+| ❌ | system_channel_flags | integer
+| ❌ | explicit_content_filter | integer
+| ❌ | public_updates_channel_id | string
+| ❌ | afk_timeout | integer
+| ❌ | afk_channel_id | string
+| ❌ | preferred_locale | string
+| ❌ | premium_progress_bar_enabled | boolean
+| ❌ | discovery_splash | string
+| ❌ | icon | string┃null
+| ❌ | region | string
+| ❌ | guild_template_code | string
+| ❌ | system_channel_id | string
+| ❌ | rules_channel_id | string
+
+### Widget
+
+`PATCH /guilds/{guild_id}/widget/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | enabled* | boolean
+| ❌ | channel_id* | string
+
+### Welcome screen
+
+`PATCH /guilds/{guild_id}/welcome-screen/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | welcome_channels | array of object: channel_id*: string, description*: string, emoji_id: string, emoji_name: string
+| ❌ | enabled | boolean
+| ❌ | description | string
+
+### Role positions
+
+`PATCH /guilds/{guild_id}/roles/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | id* | string
+| ❌ | position* | integer
+
+### Channel positions
+
+`PATCH /guilds/{guild_id}/channels/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | id* | string
+| ❌ | position | integer
+| ❌ | lock_permissions | boolean
+| ❌ | parent_id | string
+
+### Vanity URL
+
+`PATCH /guilds/{guild_id}/vanity-url/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | code | string
+
+### Guild template
+
+`PATCH /guilds/{guild_id}/templates/{code}`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | name* | string
+| ❌ | description | string
+
+## Guild emojis
+
+### Guild emoji create
+
+`POST /guilds/{guild_id}/emojis/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | name | string
+| ❌ | image* | string
+| ❌ | require_colons | boolean┃null
+| ❌ | roles | [string]
+
+### Guild emoji edit
+
+`PATCH /guilds/{guild_id}/emojis/{emoji_id}`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | name | string
+| ❌ | roles | [string]
+
+### Guild emoji delete
+
+`DELETE /guilds/{guild_id}/emojis/{emoji_id}`
+
+## Guild stickers
+
+### Guild sticker create
+
+`POST /guilds/{guild_id}/stickers/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | name* | string: Constraints: 2 to 30 chars
+| ❌ | description | string: Constraints: Max 100 chars
+| ❌ | tags * | string: Constraints: Max 200 chars
+
+### Guild sticker edit
+
+`PATCH /guilds/{guild_id}/stickers/{sticker_id}`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | name* | string: Constraints: 2 to 30 chars
+| ❌ | description | string: Constraints: Max 100 chars
+| ❌ | tags* | string
+
+### Guild sticker delete
+
+`DELETE /guilds/{guild_id}/stickers/{sticker_id}`
+
+## Channel
+
+### Channel settings
+
+`PATCH /channels/{channel_id}/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ✅ | name | string: Constraints: Max 100 chars
+| ❌ | type | number: Allowed: 0┃1┃10┃11┃12┃13┃14┃15┃2┃255┃3┃33┃34┃35┃4┃5┃6┃64┃7┃8┃9
+| ✅ | topic | string
+| ❌ | icon | string┃null
+| ❌ | bitrate | integer
+| ❌ | user_limit | integer
+| ❌ | rate_limit_per_user | integer
+| ⛔ | position | integer | Handled by the position endpoint
+| 🟨 | permission_overwrites | array of object: id*: string, type*: number (Allowed: 0┃1┃2), allow*: string, deny*: string
+| ⛔ | parent_id | string | Handled by the position endpoint
+| ✅ | nsfw | boolean
+| ❌ | rtc_region | string
+| ❌ | default_auto_archive_duration | integer
+| ❌ | default_reaction_emoji | string┃null
+| ❌ | flags | integer
+| ❌ | default_thread_rate_limit_per_user | integer
+| ❌ | video_quality_mode | integer
+
+## Application
+
+### Application settings
+
+`PATCH /applications/{id}/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ✅ | description | string
+| ✅ | icon | string
+| ❌ | interactions_endpoint_url | string
+| ❌ | max_participants | integer┃null
+| ✅ | name | string
+| ✅ | privacy_policy_url | string
+| ❌ | role_connections_verification_url | string
+| ❌ | tags | [string]
+| ✅ | terms_of_service_url | string
+| ✅ | bot_public | boolean
+| ✅ | bot_require_code_grant | boolean
+| ❌ | flags | integer
+
+### Bot settings
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ✅ | avatar | string
+| ✅ | username | string
+
+## Message
+
+### Pin message
+
+`PUT /channels/{channel_id}/pins/{message_id}`
+
+`DELETE /channels/{channel_id}/pins/{message_id}`
