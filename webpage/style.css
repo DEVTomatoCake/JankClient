@@ -160,8 +160,7 @@
 	--mention-bg: #ccd2f3;
 
 	--server-border: color-mix(in srgb, #c2c2ce 80%, var(--accent-color));
-	--server-bg: color-mix(in srgb, #bfbfcf 80%, var(--accent-color));
-	--server-bg: #c0c0d4;
+	--server-bg: color-mix(in srgb, #c0c0d4 80%, var(--accent-color));
 	--server-name-bg: #a3a3b5;
 	--discovery-bg: #c8c8d4;
 
@@ -369,10 +368,6 @@ small.subtext {
 
 #servers {
 	vertical-align: top;
-	height: calc(100dvh - .07in);
-	margin: 0.05in .05in .02in .05in;
-	width: .5in;
-	max-width: .5in;
 }
 
 #servers::-webkit-scrollbar {
@@ -443,7 +438,7 @@ p {
 }
 
 #channels {
-	--top-height: 39px;
+	--top-height: 53px;
 	background: var(--channels-bg);
 	position: absolute;
 	top: var(--top-height);
@@ -452,6 +447,7 @@ p {
 	overflow-x: hidden;
 	overflow-y: auto;
 	user-select: none;
+	padding-top: 7px;
 }
 
 #channels-td {
@@ -798,11 +794,10 @@ textarea {
 	width: 100%;
 	align-items: center;
 	box-shadow: 0 0 .1in .01in var(--black);
-	z-index: 2;
 }
 
 #servername, #channelname {
-	padding-left: 3px;
+	padding-left: 5px;
 	text-overflow: ellipsis;
 	overflow-x: hidden;
 	white-space: nowrap;
@@ -1157,7 +1152,7 @@ span {
 .accountSwitcher {
 	background: var(--profile-bg);
 	cursor: pointer;
-	box-shadow: .00in -.5in 4in .5in color-mix(in srgb, var(--shadow) 42%, transparent);
+	box-shadow: 0 -.5in 4in .5in color-mix(in srgb, var(--shadow) 42%, transparent);
 	border-radius: .1in;
 	width: 80vw;
 	display: flex;
@@ -1196,11 +1191,6 @@ span {
 	word-break: normal;
 	white-space: nowrap;
 	font-size: .125in;
-}
-
-.channelnamediv {
-	width: 100%;
-	border-left: solid .01in var(--black);
 }
 
 #channelname {

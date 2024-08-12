@@ -128,7 +128,7 @@ class Channel {
 
 		for (const thing of member.roles) {
 			if (this.permission_overwrites.has(thing.id)) {
-				const perm = this.permission_overwrites.get(thing.id).hasPermission(name)
+				const perm = this.permission_overwrites.get(thing.id).getPermission(name)
 				if (perm) return perm == 1
 			}
 			if (thing.permissions.hasPermission(name)) return true
@@ -606,12 +606,12 @@ class Channel {
 		document.getElementById("messages").prepend(built)
 	}
 	async buildmessages() {
-        this.infinitefocus = false
-        this.tryfocusinfinite()
-    }
-    infinitefocus = false
-    async tryfocusinfinite() {
-        if (this.infinitefocus) return
+		this.infinitefocus = false
+		this.tryfocusinfinite()
+	}
+	infinitefocus = false
+	async tryfocusinfinite() {
+		if (this.infinitefocus) return
 
 		const messages = document.getElementById("channelw")
 		messages.innerHTML = ""
@@ -619,14 +619,14 @@ class Channel {
 		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) id = this.lastreadmessageid
 		else if (this.lastmessage && this.lastmessage.snowflake) id = this.goBackIds(this.lastmessage.snowflake, 50)
 
-        if (!id) {
-            const title = document.createElement("h2")
-            title.textContent = "No messages appear to be here, be the first to say something!"
-            title.classList.add("titlespace")
-            messages.append(title)
-            return
-        }
-        messages.innerHTML = ""
+		if (!id) {
+			const title = document.createElement("h2")
+			title.textContent = "No messages appear to be here, be the first to say something!"
+			title.classList.add("titlespace")
+			messages.append(title)
+			return
+		}
+		messages.innerHTML = ""
 
 		messages.append(await this.infinite.getDiv(id.id))
 		this.infinite.updatestuff()
@@ -636,8 +636,8 @@ class Channel {
 			})
 			this.infinite.focus(id.id, false) //if someone could figure out how to make this work correctly without this, that's be great :P
 		})
-        this.infinite.focus(id.id, false)
-        this.infinitefocus = true
+		this.infinite.focus(id.id, false)
+		this.infinitefocus = true
 	}
 	goBackIds(id, back, returnIfNotExistent = true) {
 		while (back != 0) {
@@ -652,24 +652,24 @@ class Channel {
 		}
 		return id
 	}
-    findClosest(snowflake) {
-        if (!this.lastmessage)
-            return
-        let flake = this.lastmessage.snowflake
-        if (!snowflake) {
-            return
-        }
+	findClosest(snowflake) {
+		if (!this.lastmessage)
+			return
+		let flake = this.lastmessage.snowflake
+		if (!snowflake) {
+			return
+		}
 
-        const time = snowflake.getUnixTime()
-        let flaketime = flake.getUnixTime()
-        while (flake && time > flaketime) {
-            flake = this.idToNext.get(flake)
-            if (!flake) return
+		const time = snowflake.getUnixTime()
+		let flaketime = flake.getUnixTime()
+		while (flake && time > flaketime) {
+			flake = this.idToNext.get(flake)
+			if (!flake) return
 
-            flaketime = flake.getUnixTime()
-        }
-        return flake
-    }
+			flaketime = flake.getUnixTime()
+		}
+		return flake
+	}
 	updateChannel(json) {
 		this.type = json.type
 		this.name = json.name
@@ -755,7 +755,7 @@ class Channel {
 
 		this.guild.unreads()
 		if (this === this.localuser.channelfocus) {
-            if (!this.infinitefocus) this.tryfocusinfinate()
+			if (!this.infinitefocus) this.tryfocusinfinate()
 			this.infinite.addedBottom()
 		}
 

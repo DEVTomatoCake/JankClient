@@ -418,7 +418,7 @@ class Message {
 			const count = document.createElement("span")
 			count.textContent = thing.count
 			count.classList.add("reactionCount")
-            reactdiv.append(count)
+			reactionContainer.appendChild(count)
 
 			let emoji
 			if (thing.emoji.id) {
@@ -428,8 +428,9 @@ class Message {
 				emoji = document.createElement("p")
 				emoji.textContent = thing.emoji.name
 			}
+			reactionContainer.appendChild(emoji)
 
-			reactdiv.append(reactionContainer)
+			reactdiv.appendChild(reactionContainer)
 			reactionContainer.addEventListener("click", () => {
 				this.reactionToggle(thing.emoji.name)
 			})

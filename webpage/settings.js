@@ -24,7 +24,7 @@ class PermissionToggle {
 	generateCheckbox() {
 		const div = document.createElement("div")
 		div.classList.add("tritoggle")
-		const state = this.permissions.hasPermission(this.rolejson.name)
+		const state = this.permissions.getPermission(this.rolejson.name)
 
 		const on = document.createElement("input")
 		on.type = "radio"
@@ -388,9 +388,8 @@ class Options {
 		}
 	}
 	submit() {
-		for (const thing of this.options) {
-			thing.submit()
-		}
+		this.haschanged = false
+		for (const thing of this.options) thing.submit()
 	}
 }
 
