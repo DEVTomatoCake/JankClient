@@ -417,22 +417,17 @@ class MarkDown {
 				}
 
 				if (found) {
-					const parts = build.join("").match(/^<(a)?:\w+:(\d{10,30})>$/)
+                    const buildjoin = build.join("")
+                    const parts = buildjoin.match(/^<(a)?:\w+:(\d{10,30})>$/)
 					if (parts && parts[2]) {
 						appendcurrent()
 						i = j
 
 						const isEmojiOnly = txt.join("").trim() == build.join("").trim()
 
-						const emojiElem = document.createElement("img")
-						emojiElem.classList.add("md-emoji")
-						emojiElem.width = isEmojiOnly ? 48 : 22
-						emojiElem.height = isEmojiOnly ? 48 : 22
-						emojiElem.crossOrigin = "anonymous"
-						emojiElem.src = instance.cdn + "/emojis/" + parts[2] + "." + (parts[1] && this.owner.localuser.settings.animate_emoji ? "gif" : "png") + "?size=32"
-						emojiElem.alt = ""
-						emojiElem.loading = "lazy"
-						span.appendChild(emojiElem)
+                        const owner = (this.owner instanceof Channel) ? this.owner.guild : this.owner
+                        const emoji = new Emoji({ name: buildjoin, id: parts[2], animated: Boolean(parts[1]) }, owner)
+                        span.appendChild(emoji.getHTML(isEmojiOnly))
 
 						continue
 					}

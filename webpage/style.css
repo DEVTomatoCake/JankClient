@@ -55,9 +55,9 @@
 	--typing-bg: #161616;
 	--timestamp-color: #a2a2a2;
 	--code-bg: color-mix(in srgb, #121212 95%, var(--accent-color));
-	--user-info-bg: color-mix(in srgb,#383838 85%, var(--accent-color));
-	--user-dock-bg: color-mix(in srgb,#111111 90%, var(--accent-color));
-	--blank-bg: #1b1b1b;
+	--user-info-bg: color-mix(in srgb, #383838 85%, var(--accent-color));
+	--user-dock-bg: color-mix(in srgb, #111111 90%, var(--accent-color));
+	--blank-bg: #323232;
 	--light-border: #929292;
 	--settings-hover: color-mix(in srgb, #000000 95%, var(--accent-color));
 	--quote-bg: #7a798e;
@@ -74,8 +74,8 @@
 	--button-bg: color-mix(in srgb, #303030 80%, var(--accent-color));
 	--button-hover: #282832;
 
-	--channels-bg: color-mix(in srgb,#3f3f3f 75%, var(--accent-color));
-	--channel-hover: color-mix(in srgb, #2c2c2c 70%, var(--accent-color));
+	--channels-bg: color-mix(in srgb,#2a2a2a 90%, var(--accent-color));
+	--channel-hover: color-mix(in srgb, #121212 70%, var(--accent-color));
 	--channel-active: #4e4e55;
 
 	--profile-bg: color-mix(in srgb, #232323 90%, var(--accent-color));
@@ -86,6 +86,8 @@
 
 	--server-border: color-mix(in srgb, #000000 80%, var(--accent-color));
 	--server-bg: color-mix(in srgb, #2a2a2a 80%, var(--accent-color));
+	--server-name-bg: color-mix(in srgb, #232323 90%, var(--accent-color));
+	--server-list: color-mix(in srgb, #1d1d1d 90%, var(--accent-color));
 	--discovery-bg: #37373b;
 
 	--reply-border: #585a68;
@@ -159,6 +161,8 @@
 
 	--server-border: color-mix(in srgb, #c2c2ce 80%, var(--accent-color));
 	--server-bg: color-mix(in srgb, #bfbfcf 80%, var(--accent-color));
+	--server-bg: #c0c0d4;
+	--server-name-bg: #a3a3b5;
 	--discovery-bg: #c8c8d4;
 
 	--reply-border: #b1b2bd;
@@ -355,12 +359,20 @@ small.subtext {
 	overflow: auto;
 	flex-shrink: 0;
 	width: 56px;
+	background: var(--server-list);
+	overflow-y: scroll;
+	scrollbar-width: none;
+}
+#neunence::-webkit-scrollbar, #neunence::-webkit-scrollbar-button {
+	display: none;
 }
 
 #servers {
 	vertical-align: top;
-	height: 100dvh;
-	overflow-x: hidden;
+	height: calc(100dvh - .07in);
+	margin: 0.05in .05in .02in .05in;
+	width: .5in;
+	max-width: .5in;
 }
 
 #servers::-webkit-scrollbar {
@@ -778,6 +790,17 @@ textarea {
 	background: var(--channel-hover);
 }
 
+.servertd {
+	background: var(--server-bg);
+	height: .55in;
+	flex-shrink: 0;
+	display: flex;
+	width: 100%;
+	align-items: center;
+	box-shadow: 0 0 .1in .01in var(--black);
+	z-index: 2;
+}
+
 #servername, #channelname {
 	padding-left: 3px;
 	text-overflow: ellipsis;
@@ -787,27 +810,22 @@ textarea {
 	font-size: 17px;
 }
 
-.servertd {
-	background: var(--server-bg);
-	border-color: var(--server-border);
-	border-width: .1cm;
-	border-style: solid;
-	height: 33px;
-	flex-shrink: 0;
-	display: flex;
-	width: 100%;
-	align-items: center;
-}
-
 .channeleffects {
 	cursor: pointer;
 	user-select: none;
 	flex-direction: row;
 	align-self: stretch;
-	width: 100%;
+	width: calc(100% - .07in);
 	display: flex;
 	align-items: center;
-	padding: .025in 0;
+	border-radius: .03in;
+	padding: .04in;
+	box-sizing: border-box;
+	margin-top: .03in;
+	margin-left: .05in;
+	margin-right: .02in;
+	box-shadow: color-mix(in srgb, var(--black), transparent 50%) 0 0 .03in;
+	transition: background-color .2s;
 }
 .channeleffects:hover, .channeleffects:focus {
 	background: var(--channel-hover);
@@ -1040,6 +1058,9 @@ span {
 	transition: transform .2s;
 	vertical-align: middle;
 	display: flex;
+	justify-content: flex-start;
+	align-content: center;
+	flex-direction: row;
 }
 
 #loading.doneloading {
@@ -1053,6 +1074,8 @@ span {
 	transform: translate(-50%, -50%);
 	display: flex;
 	flex-direction: column;
+	align-content: center;
+	align-items: center;
 }
 
 #centerdiv > h1, #centerdiv > h2 {
@@ -1133,20 +1156,32 @@ span {
 
 .accountSwitcher {
 	background: var(--profile-bg);
-	display: inline-block;
 	cursor: pointer;
-	box-shadow: 0 -.2in .8in color-mix(in srgb, var(--shadow) 60%, transparent);
-	width: 240px;
-	z-index: 3;
+	box-shadow: .00in -.5in 4in .5in color-mix(in srgb, var(--shadow) 42%, transparent);
+	border-radius: .1in;
+	width: 80vw;
+	display: flex;
+	flex-direction: column;
+	padding: .1in;
 	position: absolute;
-	bottom: 60px;
-	left: 56px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	max-height: 80vh;
+	overflow: auto;
+	border:solid var(--black) .035in;
+	z-index: 102;
 }
-.accountSwitcher tr {
+
+.switchtable {
 	transition: background-color .3s;
 	background: var(--profile-bg);
 	cursor: pointer;
 }
+.switchtable:hover {
+	background:var(--profile-info-bg);
+}
+
 .accountSwitcher tr:hover, .accountSwitcher tr:focus {
 	background: var(--profile-info-bg);
 }
@@ -1161,6 +1196,11 @@ span {
 	word-break: normal;
 	white-space: nowrap;
 	font-size: .125in;
+}
+
+.channelnamediv {
+	width: 100%;
+	border-left: solid .01in var(--black);
 }
 
 #channelname {
@@ -1854,4 +1894,37 @@ small.edited {
 		width: 75vw;
 		height: 75vw;
 	}
+}
+
+.switchtable {
+	flex-grow: 1;
+	flex-shrink: 0;
+	padding: .05in;
+	border-radius: .1in;
+	margin-bottom: .05in;
+	background: var(--message-bg-hover);
+	border: solid var(--black) .03in;
+	box-shadow: .01in .01in .05in var(--black);
+	align-items: center;
+}
+.userinfo {
+	margin-left: .1in;
+	height: fit-content;
+}
+#switchaccounts {
+	text-decoration: underline;
+	cursor: pointer;
+	transition: text-shadow .2s;
+}
+#switchaccounts:hover {
+	text-shadow: var(--primary-text) 0 0 .03in;
+}
+
+#servertd {
+	z-index: 5;
+	background: var(--server-name-bg);
+}
+
+.titlespace {
+	padding: .1in 0 0 .1in;
 }

@@ -415,26 +415,18 @@ class Message {
 			reactionContainer.classList.add("reaction")
 			if (thing.me) reactionContainer.classList.add("meReacted")
 
+			const count = document.createElement("span")
+			count.textContent = thing.count
+			count.classList.add("reactionCount")
+            reactdiv.append(count)
+
+			let emoji
 			if (thing.emoji.id) {
-				const text = document.createElement("span")
-				text.textContent = thing.count
-				text.classList.add("reactionCount")
-
-				const img = document.createElement("img")
-				img.crossOrigin = "anonymous"
-				img.src = instance.cdn + "/emojis/" + thing.emoji.id + ".png?size=32"
-				img.width = 16
-				img.height = 16
-				img.alt = ""
-				reactionContainer.appendChild(img)
+				const emo = new Emoji(thing.emoji, this.guild)
+				emoji = emo.getHTML(false)
 			} else {
-				const text = document.createElement("span")
-				text.classList.add("reactionCount")
-				text.textContent = thing.count
-
-				text.appendChild(MarkDown.renderTwemoji(thing.emoji.name, 16))
-
-				reactionContainer.appendChild(text)
+				emoji = document.createElement("p")
+				emoji.textContent = thing.emoji.name
 			}
 
 			reactdiv.append(reactionContainer)

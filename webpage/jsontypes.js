@@ -56,7 +56,7 @@
  * @property {number} d.read_state.version
  * @property {Object} d.user_guild_settings
  * @property {{
-				channel_overrides: unknown[],//will have to find example
+				channel_overrides: unknown[], //will have to find example
 				message_notifications: number,
 				flags: number,
 				hide_muted_channels: boolean,
@@ -274,8 +274,9 @@
  * @property {{
 		count: number,
 		emoji: {
-			id: string,
-			name: string
+            name: string,
+            id?: string,
+            animated?: boolean
 		},
 		me: boolean
 	}[]} reactions

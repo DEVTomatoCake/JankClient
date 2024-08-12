@@ -11,6 +11,8 @@ while (chars.length < 256) chars += chars
 // eslint-disable-next-line no-unused-vars
 class LocalUser {
 	constructor(userinfo) {
+		if (userinfo == -1) return
+
 		this.token = userinfo.token
 		this.userinfo = userinfo
 		this.serverurls = this.userinfo.serverurls
@@ -79,11 +81,12 @@ class LocalUser {
 		this.outoffocus()
 		this.guilds = []
 		this.guildids = new Map()
-		this.ws.close(1000)
+		if (this.ws) this.ws.close(1000)
 		SnowFlake.clear()
 		User.clear()
 	}
 	lastSequence = null
+	swapped = false
 	async initwebsocket() {
 		let returny = null
 		const promise = new Promise(resolve => {
@@ -181,6 +184,7 @@ class LocalUser {
 				document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (errorBackoff * 2.8)) + "</b> seconds..."
 
 				setTimeout(() => {
+					if (this.swapped) return
 					document.getElementById("load-desc").textContent = "Retrying..."
 
 					this.initwebsocket().then(() => {
@@ -219,9 +223,14 @@ class LocalUser {
 					break
 				case "MESSAGE_REACTION_ADD":
 					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
+						json.d.guild_id ??= "@me"
 						const messageReactionAdd = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
 						const guild = SnowFlake.getSnowFlakeFromID(json.d.guild_id, Guild).getObject()
-						messageReactionAdd.giveReaction(json.d.emoji, new Member(json.d.member, guild))
+
+						let thing
+						if (json.d.member) thing = new Member(json.d.member, guild)
+						else thing = { id: json.d.user_id }
+						messageReactionAdd.giveReaction(json.d.emoji, thing)
 					}
 					break
 				case "MESSAGE_REACTION_REMOVE":
@@ -279,8 +288,9 @@ class LocalUser {
 			}, Math.round(json.d.heartbeat_interval * Math.random()))
 		} else if (json.op == 11) {
 			this.heartbeatTimeout = setTimeout(() => {
-				if (connectionSucceed == 0) connectionSucceed = Date.now()
+				if (!this.ws) return
 
+				if (connectionSucceed == 0) connectionSucceed = Date.now()
 				this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
 			}, this.heartbeatInterval)
 		}

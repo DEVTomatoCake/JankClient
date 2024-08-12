@@ -116,7 +116,8 @@ class Group extends Channel {
 		return false
 	}
 	hasPermission() {
-		return true
+        const perm = new Permissions("248896")
+        return Boolean(perm.getPermission(name))
 	}
 }
 

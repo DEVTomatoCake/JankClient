@@ -3,15 +3,83 @@
 const users = getBulkUsers()
 if (!users.currentuser) location.href = "/login"
 console.log(users)
-let instance = users.users[users.currentuser].serverurls
+const instance = users.users[users.currentuser].serverurls
 
-let thisuser = new LocalUser(users.users[users.currentuser])
-thisuser.initwebsocket().then(() => {
-	thisuser.loaduser()
-	thisuser.init()
-	document.getElementById("loading").classList.add("doneloading")
-	document.getElementById("loading").classList.remove("loading")
-})
+
+let thisuser
+try {
+	thisuser = new LocalUser(users.users[users.currentuser])
+	thisuser.initwebsocket().then(() => {
+		thisuser.loaduser()
+		thisuser.init()
+		document.getElementById("loading").classList.add("doneloading")
+		document.getElementById("loading").classList.remove("loading")
+	})
+} catch {
+	document.getElementById("load-desc").textContent = "Account unable to start"
+	thisuser = new LocalUser(-1)
+}
+
+const showAccountSwitcher = () => {
+	const table = document.createElement("div")
+	for (const thing of Object.values(users.users)) {
+		const userinfo = document.createElement("div")
+		userinfo.classList.add("flexltr", "switchtable")
+
+		const pfp = document.createElement("img")
+		pfp.classList.add("pfp")
+		pfp.crossOrigin = "anonymous"
+		pfp.src = thing.pfpsrc
+		pfp.loading = "lazy"
+		userinfo.append(pfp)
+
+		const user = document.createElement("div")
+		user.classList.add("userinfo")
+		user.append(thing.username)
+		user.append(document.createElement("br"))
+
+		const span = document.createElement("span")
+		span.textContent = new URL(instance.wellknown).hostname
+		user.append(span)
+		userinfo.append(user)
+
+		span.classList.add("serverURL")
+		table.append(userinfo)
+
+		userinfo.addEventListener("click", () => {
+			thisuser.unload()
+			thisuser.swapped = true
+			document.getElementById("loading").classList.remove("doneloading")
+			document.getElementById("loading").classList.add("loading")
+			thisuser = new LocalUser(thing)
+			users.currentuser = thing.uid
+			localStorage.setItem("userinfos", JSON.stringify(users))
+			thisuser.initwebsocket().then(() => {
+				thisuser.loaduser()
+				thisuser.init()
+				document.getElementById("loading").classList.add("doneloading")
+				document.getElementById("loading").classList.remove("loading")
+			})
+			userinfo.remove()
+		})
+	}
+
+	const td = document.createElement("div")
+	td.classList.add("switchtable")
+	td.append("Switch accounts ⇌")
+	td.addEventListener("click", () => {
+		location.href = "/login"
+	})
+	table.append(td)
+
+	table.classList.add("accountSwitcher")
+	if (Contextmenu.currentmenu != "") {
+		Contextmenu.currentmenu.remove()
+	}
+	Contextmenu.currentmenu = table
+	console.log(table)
+	document.body.append(table)
+}
 
 const userSettings = () => {
 	thisuser.showusersettings()
@@ -29,77 +97,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 	menu.bind(document.getElementById("channels"))
 
 	const userinfo = document.getElementById("userinfo")
-	const userdock = document.getElementById("userdock")
 	userinfo.addEventListener("click", event => {
-		const table = document.createElement("table")
-		table.classList.add("accountSwitcher")
-
-		for (const thing of Object.values(users.users)) {
-			const tr = document.createElement("tr")
-			const td = document.createElement("td")
-
-			const userinfoTable = document.createElement("table")
-			userinfoTable.classList.add("switchtable")
-
-			const row = document.createElement("tr")
-			const pfpcell = document.createElement("td")
-			row.append(pfpcell)
-			userinfoTable.append(row)
-			td.append(userinfoTable)
-
-			const pfp = document.createElement("img")
-			pfp.crossOrigin = "anonymous"
-			pfp.src = thing.pfpsrc
-			pfp.alt = ""
-			pfp.classList.add("pfp")
-			pfpcell.append(pfp)
-
-			const usertd = document.createElement("td")
-			row.append(usertd)
-			const user = document.createElement("div")
-			user.append(thing.username)
-			user.append(document.createElement("br"))
-
-			const span = document.createElement("span")
-			span.classList.add("serverURL")
-			span.textContent = new URL(thing.serverurls.wellknown).hostname
-			user.append(span)
-			usertd.append(user)
-
-			tr.append(td)
-			table.append(tr)
-			tr.addEventListener("click", () => {
-				thisuser.unload()
-				document.getElementById("loading").classList.remove("doneloading")
-				document.getElementById("loading").classList.add("loading")
-				thisuser = new LocalUser(thing)
-				instance = thing.serverurls
-				users.currentuser = thing.uid
-				localStorage.setItem("userinfos", JSON.stringify(users))
-				thisuser.initwebsocket().then(() => {
-					Contextmenu.currentmenu.remove()
-
-					thisuser.loaduser()
-					thisuser.init()
-					document.getElementById("loading").classList.add("doneloading")
-					document.getElementById("loading").classList.remove("loading")
-				})
-			})
-		}
-
-		const tr = document.createElement("tr")
-		const td = document.createElement("td")
-		td.append("Switch accounts ⇌")
-		td.addEventListener("click", () => {
-			location.href = "/login"
-		})
-		tr.append(td)
-		table.append(tr)
-
-		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
-		Contextmenu.currentmenu = table
-		userdock.before(table)
 		event.stopImmediatePropagation()
+		showAccountSwitcher()
+	})
+	const switchaccounts = document.getElementById("switchaccounts")
+	switchaccounts.addEventListener("click", event => {
+		event.stopImmediatePropagation()
+		showAccountSwitcher()
 	})
 
 	Array.from(document.getElementsByClassName("theme-icon"))

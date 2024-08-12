@@ -495,6 +495,7 @@ class Channel {
 	async getHTML() {
 		const id = ++Channel.genid
 		if (this.owner != this.localuser.lookingguild) this.owner.loadGuild()
+		if (this.localuser.channelfocus) this.localuser.channelfocus.infinite.delete()
 
 		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) this.localuser.channelfocus.myhtml.classList.remove("viewChannel")
 		this.myhtml.classList.add("viewChannel")
@@ -502,15 +503,16 @@ class Channel {
 		this.owner.prevchannel = this
 		this.localuser.channelfocus = this
 		const prom = this.infinite.delete()
+
+		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
+		document.getElementById("channelname").textContent = "#" + this.name
+
 		await this.putmessages()
 		await prom
 		if (id != Channel.genid) return
 
 		this.makereplybox()
 		await this.buildmessages()
-
-		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
-		document.getElementById("channelname").textContent = "#" + this.name
 
 		if (this.canMessage) document.getElementById("typebox").contentEditable = true
 		else document.getElementById("typebox").contentEditable = false
@@ -604,47 +606,70 @@ class Channel {
 		document.getElementById("messages").prepend(built)
 	}
 	async buildmessages() {
+        this.infinitefocus = false
+        this.tryfocusinfinite()
+    }
+    infinitefocus = false
+    async tryfocusinfinite() {
+        if (this.infinitefocus) return
+
 		const messages = document.getElementById("channelw")
 		messages.innerHTML = ""
 		let id
 		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) id = this.lastreadmessageid
-		else if (this.lastmessage) id = this.goBackIds(this.lastmessage.snowflake, 50)
+		else if (this.lastmessage && this.lastmessage.snowflake) id = this.goBackIds(this.lastmessage.snowflake, 50)
 
-		if (!id) {
-			const emptyContainer = document.createElement("div")
-
-			const emptyTitle = document.createElement("h1")
-			emptyTitle.textContent = "No messages in this channel"
-			emptyContainer.appendChild(emptyTitle)
-
-			const emptyText = document.createElement("p")
-			emptyText.textContent = "This channel is empty. Start the conversation!"
-			emptyContainer.appendChild(emptyText)
-
-			messages.append(emptyContainer)
-
-			return console.warn("Missing id for building messages on " + this.name + " in " + this.guild.name)
-		}
+        if (!id) {
+            const title = document.createElement("h2")
+            title.textContent = "No messages appear to be here, be the first to say something!"
+            title.classList.add("titlespace")
+            messages.append(title)
+            return
+        }
+        messages.innerHTML = ""
 
 		messages.append(await this.infinite.getDiv(id.id))
 		this.infinite.updatestuff()
 		this.infinite.watchForChange().then(async () => {
 			await new Promise(resolve => {
-				setTimeout(resolve, 100)
+				setTimeout(resolve, 0)
 			})
 			this.infinite.focus(id.id, false) //if someone could figure out how to make this work correctly without this, that's be great :P
 		})
+        this.infinite.focus(id.id, false)
+        this.infinitefocus = true
 	}
-	goBackIds(id, back) {
+	goBackIds(id, back, returnIfNotExistent = true) {
 		while (back != 0) {
 			const nextid = this.idToPrev.get(id)
 			if (nextid) {
 				id = nextid
 				back--
-			} else break
+			} else {
+				if (returnIfNotExistent) break
+				return
+			}
 		}
 		return id
 	}
+    findClosest(snowflake) {
+        if (!this.lastmessage)
+            return
+        let flake = this.lastmessage.snowflake
+        if (!snowflake) {
+            return
+        }
+
+        const time = snowflake.getUnixTime()
+        let flaketime = flake.getUnixTime()
+        while (flake && time > flaketime) {
+            flake = this.idToNext.get(flake)
+            if (!flake) return
+
+            flaketime = flake.getUnixTime()
+        }
+        return flake
+    }
 	updateChannel(json) {
 		this.type = json.type
 		this.name = json.name
@@ -729,7 +754,10 @@ class Channel {
 		} else if (this.myhtml) this.myhtml.classList.add("cunread")
 
 		this.guild.unreads()
-		if (this === this.localuser.channelfocus) this.infinite.addedBottom()
+		if (this === this.localuser.channelfocus) {
+            if (!this.infinitefocus) this.tryfocusinfinate()
+			this.infinite.addedBottom()
+		}
 
 		if (messagez.author === this.localuser.user) return
 		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
