@@ -21,7 +21,7 @@ try {
 }
 
 const showAccountSwitcher = () => {
-	const table = document.createElement("div")
+	const container = document.createElement("div")
 	for (const thing of Object.values(users.users)) {
 		const userinfo = document.createElement("div")
 		userinfo.classList.add("flexltr", "switchtable")
@@ -44,7 +44,7 @@ const showAccountSwitcher = () => {
 		userinfo.append(user)
 
 		span.classList.add("serverURL")
-		table.append(userinfo)
+		container.append(userinfo)
 
 		userinfo.addEventListener("click", () => {
 			thisuser.unload()
@@ -70,15 +70,13 @@ const showAccountSwitcher = () => {
 	td.addEventListener("click", () => {
 		location.href = "/login"
 	})
-	table.append(td)
+	container.append(td)
 
-	table.classList.add("accountSwitcher")
-	if (Contextmenu.currentmenu != "") {
-		Contextmenu.currentmenu.remove()
-	}
-	Contextmenu.currentmenu = table
-	console.log(table)
-	document.body.append(table)
+	container.classList.add("accountSwitcher")
+	if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
+
+	Contextmenu.currentmenu = container
+	document.body.append(container)
 }
 
 const userSettings = () => {

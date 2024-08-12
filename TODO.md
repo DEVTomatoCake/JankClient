@@ -97,6 +97,14 @@ List of properties which should be editable somewhere, and handled if necessary 
 | --- | --- | --- | ---
 | ❌ | note* | string
 
+### Disable account
+
+`POST /users/@me/disable/`
+
+### Delete account
+
+`POST /users/@me/delete/`
+
 ## Per-guild user
 
 ### Guild user settings
@@ -145,12 +153,18 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-delete_message_seconds
-string
-delete_message_days
-string
-reason
-string
+| ❌ | delete_message_seconds | string
+| ❌ | delete_message_days | string
+| ❌ | reason | string
+
+### Bulk ban
+
+`POST /guilds/{guild_id}/bulk-ban/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | user_ids* | [string]
+| ❌ | delete_message_seconds | integer
 
 ### Add role
 
@@ -233,6 +247,8 @@ string
 | ❌ | code | string
 
 ### Guild template
+
+`POST /guilds/{guild_id}/templates/`
 
 `PATCH /guilds/{guild_id}/templates/{code}`
 
@@ -321,7 +337,16 @@ string
 
 ## Application
 
-### Application settings
+### Application create
+
+`POST /applications/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | name* | string
+| ❌ | team_id | string or integer
+
+### Application edit
 
 `PATCH /applications/{id}/`
 
@@ -340,6 +365,10 @@ string
 | ✅ | bot_require_code_grant | boolean
 | ❌ | flags | integer
 
+### Application delete
+
+`POST /applications/{id}/delete`
+
 ### Bot settings
 
 | Status | Field | Type | Notes
@@ -349,8 +378,19 @@ string
 
 ## Message
 
-### Pin message
+### (Un)Pin message
 
 `PUT /channels/{channel_id}/pins/{message_id}`
 
 `DELETE /channels/{channel_id}/pins/{message_id}`
+
+## Webhook
+
+### Webhook create
+
+`POST /channels/{channel_id}/webhooks/`
+
+| Status | Field | Type | Notes
+| --- | --- | --- | ---
+| ❌ | name* | string: Constraints: Max 80 chars
+| ❌ | avatar | string
