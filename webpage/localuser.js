@@ -612,11 +612,11 @@ class LocalUser {
 			})
 		}
 	}
-	updateProfile(data) {
+	updateProfile(json) {
 		fetch(instance.api + "/users/@me/profile", {
 			method: "PATCH",
 			headers: this.headers,
-			body: JSON.stringify(data)
+			body: JSON.stringify(json)
 		})
 	}
 	updateSettings(settings = {}) {
@@ -650,8 +650,8 @@ class LocalUser {
 		const userOptions = settings.addButton("User Settings", { ltr: true })
 		const hypotheticalProfile = document.createElement("div")
 		let file = null
-		let newpronouns = null
-		let newbio = null
+		let newpronouns
+		let newbio
 		const hypouser = this.user.clone()
 
 		const regen = () => {
@@ -678,7 +678,10 @@ class LocalUser {
 		})
 
 		const pronounbox = settingsLeft.addTextInput("Pronouns", () => {
-			if (newpronouns) this.updateProfile({pronouns: newpronouns})
+			if (newpronouns || newbio) this.updateProfile({
+				pronouns: newpronouns,
+				bio: newbio
+			})
 		}, { initText: this.user.pronouns })
 		pronounbox.watchForChange(value => {
 			hypouser.pronouns = value
@@ -686,9 +689,7 @@ class LocalUser {
 			regen()
 		})
 
-		const bioBox = settingsLeft.addMDInput("Bio:", () => {
-			if (newbio) this.updateProfile({bio: newbio})
-		}, { initText: this.user.bio.rawString })
+		const bioBox = settingsLeft.addMDInput("Bio:", () => {}, { initText: this.user.bio.rawString })
 		bioBox.watchForChange(value => {
 			newbio = value
 			hypouser.bio = new MarkDown(value, this)

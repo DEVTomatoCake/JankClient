@@ -1427,13 +1427,17 @@ video {
 	gap: .04in;
 	flex-grow: 0;
 	flex-shrink: 0;
+	display: flex;
+	align-items: center;
 }
+
 .setting {
 	background: var(--user-info-bg);
 	padding: .075in;
 	border-radius: .075in;
 	box-shadow: 0 0 .1in var(--message-bg-hover);
 }
+
 .settingsname {
 	font-size: .25in;
 	font-weight: bold;
@@ -1921,4 +1925,11 @@ small.edited {
 
 .titlespace {
 	padding: .1in 0 0 .1in;
+}
+
+.SettingsButton {
+	width: 95%;
+	box-sizing: border-box;
+	margin: 0;
+	margin-bottom: .03in;
 }
