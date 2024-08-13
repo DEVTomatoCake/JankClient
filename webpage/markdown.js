@@ -534,7 +534,7 @@ class MarkDown {
 			MarkDown.toCodePoint(emoji.length == 3 && emoji.charAt(1) == "\uFE0F" ? emoji.charAt(0) + emoji.charAt(2) : emoji) + ".png"
 		img.width = size
 		img.height = size
-		img.alt = "Emoji: " + Object.keys(emojis)[Object.values(emojis).findIndex(e => e == emoji)]
+		img.alt = "Emoji: " + (Object.keys(emojis)[Object.values(emojis).findIndex(e => e == emoji)] || emoji)
 
 		let firstFail = true
 		img.addEventListener("error", () => {

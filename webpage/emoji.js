@@ -1,4 +1,11 @@
 class Emoji {
+	constructor(json, owner) {
+		this.name = json.name
+		this.id = json.id
+		this.animated = json.animated
+		this.owner = owner
+	}
+
 	get guild() {
 		if (this.owner instanceof Guild) return this.owner
 	}
@@ -9,20 +16,16 @@ class Emoji {
 	get info() {
 		return this.owner.info
 	}
-	constructor(json, owner) {
-		this.name = json.name
-		this.id = json.id
-		this.animated = json.animated
-		this.owner = owner
-	}
+
 	getHTML(bigemoji = false) {
 		const emojiElem = document.createElement("img")
 		emojiElem.classList.add("md-emoji")
-		emojiElem.classList.add(bigemoji ? "bigemoji" : "smallemoji")
 		emojiElem.crossOrigin = "anonymous"
-		emojiElem.src = this.info.cdn + "/emojis/" + this.id + "." + (this.animated ? "gif" : "png") + "?size=32"
+		emojiElem.src = instance.cdn + "/emojis/" + this.id + "." + (this.animated ? "gif" : "png") + "?size=32"
 		emojiElem.alt = this.name
 		emojiElem.loading = "lazy"
+		emojiElem.width = bigemoji ? 48 : 22
+		emojiElem.height = bigemoji ? 48 : 22
 		return emojiElem
 	}
 
@@ -37,7 +40,7 @@ class Emoji {
 		}
 		const read8 = () => {
 			const int = view.getUint8(i)
-			i += 1
+			i++
 			return int
 		}
 		const readStringNo = length => {
@@ -111,11 +114,12 @@ class Emoji {
 
 		const body = document.createElement("div")
 		body.classList.add("emojiBody")
+
 		let isFirst = true
 		for (const thing of Emoji.emojis) {
 			const select = document.createElement("div")
-			select.textContent = thing.emojis[0].emoji
 			select.classList.add("emojiSelect")
+			select.append(MarkDown.renderTwemoji(thing.emojis[0].emoji, 26))
 			selection.append(select)
 
 			const clickEvent = () => {
@@ -141,6 +145,7 @@ class Emoji {
 				isFirst = false
 			}
 		}
+
 		menu.append(selection)
 		menu.append(body)
 		return promise

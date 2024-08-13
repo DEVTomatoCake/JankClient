@@ -424,7 +424,7 @@ class Message {
 				const emo = new Emoji(thing.emoji, this.guild)
 				const emoji = emo.getHTML(false)
 				reactionContainer.appendChild(emoji)
-			} else reactionContainer.appendChild(MarkDown.renderTwemoji(this.emoji.name))
+			} else reactionContainer.appendChild(MarkDown.renderTwemoji(thing.emoji.name))
 
 			reactdiv.appendChild(reactionContainer)
 			reactionContainer.addEventListener("click", () => {

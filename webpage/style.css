@@ -828,13 +828,13 @@ textarea {
 	flex-direction: column;
 }
 .dm-container .pfp {
-	padding: 5px;
+	margin-right: 5px;
 	width: 32px;
 	height: 32px;
 }
 
-.dm-container div {
-	padding: 5px;
+.dm-container > .channeleffects {
+	padding: 7px;
 }
 
 .messageimg {
