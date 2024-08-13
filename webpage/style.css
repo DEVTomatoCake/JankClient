@@ -493,8 +493,8 @@ input {
 	color: var(--primary-text);
 	padding: 8px 3px;
 	width: 97.5%;
-	border-color: var(--settings-hover);
-	border-width: 0 0 .04in 0;
+	box-shadow: inset 0 0 .04in #000;
+	border-width: 0;
 	border-radius: .05in;
 }
 input[type="color"] {
@@ -795,7 +795,7 @@ textarea {
 	display: flex;
 	width: 100%;
 	align-items: center;
-	box-shadow: 0 0 .1in .01in var(--black);
+	border-bottom: solid .03in color-mix(in srgb, var(--black) 30%, transparent);
 }
 
 #servername, #channelname {
@@ -866,37 +866,6 @@ textarea {
 	flex-grow: 0;
 }
 
-#user-actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: .05in;
-}
-
-#user-actions h2 {
-	cursor: pointer;
-	user-select: none;
-	border-radius: .3in;
-	transition: color .5s;
-	text-align: center;
-	overflow: visible;
-	width: .2in;
-	height: .2in;
-	padding: .02in;
-	margin: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-#user-actions h2:hover, #user-actions h2:focus {
-	background: var(--settings-hover);
-	color: var(--timestamp-color);
-}
-
-#user-actions img {
-	width: 100%;
-	height: auto;
-}
-
 #userinfo {
 	background: var(--user-info-bg);
 	border-radius: .1in;
@@ -941,7 +910,9 @@ button:hover, button:focus {
 
 input[type="file"] {
 	background-color: transparent;
+	box-shadow: none;
 }
+
 select {
 	transition: background-color .1s ease-in-out;
 	background: var(--message-bg-hover);
@@ -1422,13 +1393,14 @@ video {
 
 .settingbuttons {
 	padding-top: .075in;
-	width: 1.75in;
-	border-right: solid var(--message-bg-hover);
+	width: 2in;
+	border-right: solid .02in var(--message-bg-hover);
 	gap: .04in;
 	flex-grow: 0;
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
+	background: var(--channels-bg);
 }
 
 .setting {
@@ -1471,25 +1443,30 @@ video {
 
 .flexspace {
 	gap: .1in;
+	padding: .05in;
 }
+
 .titlediv {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 }
+
 .settingstitle {
 	font-weight: 900;
 	font-size: .25in;
-	border-bottom: solid var(--message-bg-hover);
+	border-bottom: .03in solid var(--message-bg-hover);
 	background: var(--primary-bg);
-	padding: .02in .1in;
+	padding: .06in .2in;
+	background: var(--server-bg);
 }
+
 .exitsettings {
 	position: absolute;
 	top: .05in;
 	right: .05in;
-	background: var(--channel-hover);
-	width: .3in;
+	background: transparent;
+	width: .35in;
 	height: .3in;
 	display: flex;
 	border-radius: 1in;
@@ -1497,7 +1474,13 @@ video {
 	align-items: center;
 	font-size: .2in;
 	cursor: pointer;
-	border: solid .04in var(--black);
+	border: solid .015in var(--black);
+	transition: background-color .2s;
+	box-shadow: inset 0 0 .04in var(--black);
+}
+
+.exitsettings:hover {
+	background: var(--profile-bg);
 }
 
 .tritoggle {
@@ -1808,6 +1791,7 @@ form div {
 	justify-content: space-evenly;
 	border: solid var(--black) .03in;
 	flex-shrink: 0;
+	align-items: center;
 }
 .emojiSelect img {
 	align-self: center;
@@ -1826,7 +1810,7 @@ form div {
 	display: flex;
 	flex-wrap: wrap;
 	flex-direction: row;
-	align-content: stretch;
+	align-content: flex-start;
 	justify-content: space-evenly;
 	overflow-y: scroll;
 	box-sizing: border-box;
@@ -1932,9 +1916,34 @@ small.edited {
 	box-sizing: border-box;
 	margin: 0;
 	margin-bottom: .03in;
+	padding: .075in;
+	border-radius: .075in;
+	border: solid .03in #000;
+	height: .4in;
+}
+
+#user-actions {
+	display: flex;
+	flex-wrap: wrap;
+	width: fit-content;
+	margin-right: .01in;
+	border-radius: .3in;
+	cursor: pointer;
+}
+#user-actions:hover, #user-actions:focus {
+	background: var(--settings-hover);
+}
+
+#settings {
+	width: .225in;
+	margin: .05in;
 }
 
 .emojiSelect > .emoji-server {
 	width: 32px;
 	height: 32px;
+}
+
+.emojirow {
+	flex-grow:0;
 }

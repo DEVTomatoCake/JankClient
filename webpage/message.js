@@ -158,7 +158,8 @@ class Message {
 				break
 			}
 		}
-		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + (emoji.id || encodeURIComponent(emoji)) + "/@me", {
+		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" +
+			(encodeURIComponent(typeof emoji == "string" ? emoji : (emoji.name + ":" + emoji.id))) + "/@me", {
 			method: remove ? "DELETE" : "PUT",
 			headers: this.headers
 		})
@@ -418,9 +419,7 @@ class Message {
 			count.classList.add("reactionCount")
 			reactionContainer.appendChild(count)
 
-			if (thing.emoji.id || /\d{17,21}/.test(thing.emoji.name)) {
-				if (/\d{17,21}/.test(thing.emoji.name)) thing.emoji.id = thing.emoji.name
-
+			if (thing.emoji.id) {
 				const emo = new Emoji(thing.emoji, this.guild)
 				const emoji = emo.getHTML(false)
 				reactionContainer.appendChild(emoji)
@@ -478,18 +477,6 @@ class Message {
 		this.div = div
 		this.messageevents(div, del)
 		return this.generateMessage(premessage)
-	}
-	react(emoji = "") {
-		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + emoji + "/@me", {
-			method: "PUT",
-			headers: this.headers
-		})
-	}
-	unreact(emoji = "") {
-		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + emoji + "/@me", {
-			method: "DELETE",
-			headers: this.headers
-		})
 	}
 }
 

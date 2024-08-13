@@ -96,21 +96,13 @@ class Emoji {
 		menu.style.top = y + "px"
 		menu.style.left = x + "px"
 
-		setTimeout(() => {
-			if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
-
-			document.body.append(menu)
-			Contextmenu.currentmenu = menu
-			Contextmenu.keepOnScreen(menu)
-		}, 10)
-
 		const title = document.createElement("h2")
 		title.textContent = Emoji.emojis[0].name
 		title.classList.add("emojiTitle")
 		menu.append(title)
 
 		const selection = document.createElement("div")
-		selection.classList.add("flexltr", "dontshrink")
+		selection.classList.add("flexltr", "dontshrink", "emojirow")
 
 		const body = document.createElement("div")
 		body.classList.add("emojiBody")
@@ -193,6 +185,14 @@ class Emoji {
 				isFirst = false
 			}
 		}
+
+		setTimeout(() => {
+			if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
+
+			document.body.append(menu)
+			Contextmenu.currentmenu = menu
+			Contextmenu.keepOnScreen(menu)
+		}, 10)
 
 		menu.append(selection)
 		menu.append(body)
