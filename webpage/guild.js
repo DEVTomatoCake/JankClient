@@ -22,6 +22,11 @@ class Guild {
 			console.log(json)
 
 			const inviteCreateError = document.createElement("span")
+			if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(instance.api).origin + "/invite/" + json.code
+			else {
+				inviteCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
+				console.error("Unable to create invite", json)
+			}
 
 			const full = new Dialog(["vdiv",
 				["html", inviteCreateError],
@@ -34,8 +39,9 @@ class Guild {
 							headers: this.headers
 						})
 						json = await res.json()
+						console.log(json)
 
-						if (res.ok) inviteCreateError.textContent = "Invite created: " + location.protocol + "//" + location.host + "/invite/" + json.code
+						if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(instance.api).origin + "/invite/" + json.code
 						else {
 							inviteCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
 							console.error("Unable to create invite", json)
