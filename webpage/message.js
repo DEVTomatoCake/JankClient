@@ -50,7 +50,7 @@ class Message {
 		}, null, owner => owner.localuser.settings.developerMode)
 
 		Message.contextmenu.addsubmenu("Add reaction", function(e) {
-			Emoji.emojiPicker(e.x, e.y).then(emoji => {
+			Emoji.emojiPicker(e.x, e.y, this.localuser).then(emoji => {
 				this.reactionToggle(emoji)
 			})
 		})
@@ -151,19 +151,17 @@ class Message {
 		return this.snowflake.id
 	}
 	reactionToggle(emoji) {
-		if (typeof emoji == "string") {
-			let remove = false
-			for (const thing of this.reactions) {
-				if (thing.emoji.name == emoji) {
-					remove = thing.me
-					break
-				}
+		let remove = false
+		for (const thing of this.reactions) {
+			if (thing.emoji.name == emoji) {
+				remove = thing.me
+				break
 			}
-			fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + encodeURIComponent(emoji) + "/@me", {
-				method: remove ? "DELETE" : "PUT",
-				headers: this.headers
-			})
 		}
+		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + (emoji.id || encodeURIComponent(emoji)) + "/@me", {
+			method: remove ? "DELETE" : "PUT",
+			headers: this.headers
+		})
 	}
 	messageevents(obj, del = Message.del) {
 		const func = Message.contextmenu.bind(obj, this)
@@ -420,7 +418,9 @@ class Message {
 			count.classList.add("reactionCount")
 			reactionContainer.appendChild(count)
 
-			if (thing.emoji.id) {
+			if (thing.emoji.id || /\d{17,21}/.test(thing.emoji.name)) {
+				if (/\d{17,21}/.test(thing.emoji.name)) thing.emoji.id = thing.emoji.name
+
 				const emo = new Emoji(thing.emoji, this.guild)
 				const emoji = emo.getHTML(false)
 				reactionContainer.appendChild(emoji)

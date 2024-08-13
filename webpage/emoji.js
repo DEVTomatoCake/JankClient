@@ -86,7 +86,7 @@ class Emoji {
 			Emoji.decodeEmojiList(e)
 		})
 	}
-	static async emojiPicker(x, y) {
+	static async emojiPicker(x, y, localuser) {
 		let resolve
 		const promise = new Promise(r => {
 			resolve = r
@@ -116,6 +116,54 @@ class Emoji {
 		body.classList.add("emojiBody")
 
 		let isFirst = true
+		localuser.guilds.filter(guild => guild.id != "@me" && guild.emojis.length > 0).forEach(guild => {
+			const select = document.createElement("div")
+			select.classList.add("emojiSelect")
+
+			if (guild.properties.icon) {
+				const img = document.createElement("img")
+				img.classList.add("pfp", "servericon", "emoji-server")
+				img.crossOrigin = "anonymous"
+				img.src = instance.cdn + "/icons/" + guild.properties.id + "/" + guild.properties.icon + ".png?size=48"
+				img.alt = "Server: " + guild.properties.name
+				select.appendChild(img)
+			} else {
+				const div = document.createElement("span")
+				div.textContent = guild.properties.name.replace(/'s /g, " ").replace(/\w+/g, word => word[0]).replace(/\s/g, "")
+				select.append(div)
+			}
+
+			selection.append(select)
+
+			const clickEvent = () => {
+				title.textContent = guild.name
+				body.innerHTML = ""
+				for (const emojit of guild.emojis) {
+					const emojiElem = document.createElement("div")
+					emojiElem.classList.add("emojiSelect")
+
+					const emojiClass = new Emoji({
+						id: emojit.id,
+						name: emojit.name,
+						animated: emojit.animated
+					})
+					emojiElem.append(emojiClass.getHTML())
+					body.append(emojiElem)
+
+					emojiElem.addEventListener("click", () => {
+						resolve(emojiClass)
+						Contextmenu.currentmenu.remove()
+					})
+				}
+			}
+
+			select.addEventListener("click", clickEvent)
+			if (isFirst) {
+				clickEvent()
+				isFirst = false
+			}
+		})
+
 		for (const thing of Emoji.emojis) {
 			const select = document.createElement("div")
 			select.classList.add("emojiSelect")

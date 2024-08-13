@@ -1933,3 +1933,8 @@ small.edited {
 	margin: 0;
 	margin-bottom: .03in;
 }
+
+.emojiSelect > .emoji-server {
+	width: 32px;
+	height: 32px;
+}

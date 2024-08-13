@@ -91,6 +91,7 @@ class Guild {
 		this.properties = json.properties
 		this.roles = []
 		this.roleids = new Map()
+		this.emojis = json.emojis
 		this.prevchannel = void 0
 		this.message_notifications = 0
 
