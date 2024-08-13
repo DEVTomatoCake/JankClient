@@ -3,7 +3,7 @@
 const users = getBulkUsers()
 if (!users.currentuser) location.href = "/login"
 console.log(users)
-const instance = users.users[users.currentuser].serverurls
+let instance = users.users[users.currentuser].serverurls
 
 
 let thisuser
@@ -39,7 +39,7 @@ const showAccountSwitcher = () => {
 		user.append(document.createElement("br"))
 
 		const span = document.createElement("span")
-		span.textContent = new URL(instance.wellknown).hostname
+		span.textContent = new URL(thing.serverurls.wellknown).hostname
 		user.append(span)
 		userinfo.append(user)
 
@@ -52,8 +52,10 @@ const showAccountSwitcher = () => {
 			document.getElementById("loading").classList.remove("doneloading")
 			document.getElementById("loading").classList.add("loading")
 			thisuser = new LocalUser(thing)
+			instance = thing.serverurls
 			users.currentuser = thing.uid
 			localStorage.setItem("userinfos", JSON.stringify(users))
+
 			thisuser.initwebsocket().then(() => {
 				thisuser.loaduser()
 				thisuser.init()
