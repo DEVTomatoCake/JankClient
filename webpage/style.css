@@ -442,12 +442,13 @@ p {
 	background: var(--channels-bg);
 	position: absolute;
 	top: var(--top-height);
-	height: calc(100dvh - 54px - var(--top-height));
+	height: calc(100dvh - 75px - var(--top-height));
 	width: 2.5in;
 	overflow-x: hidden;
 	overflow-y: auto;
 	user-select: none;
 	padding-top: 7px;
+	padding-bottom: 7px;
 }
 
 #channels-td {
@@ -897,11 +898,10 @@ textarea {
 }
 
 #userinfo {
-	position: relative;
 	background: var(--user-info-bg);
 	border-radius: .1in;
 	cursor: pointer;
-	flex-shrink: 0;
+	flex-grow: 0;
 	padding: .03in;
 }
 
@@ -1517,6 +1517,7 @@ video {
 	flex-direction: column;
 	overflow: hidden;
 	justify-content: space-between;
+	min-height: 100vh;
 }
 
 .messageflex {
