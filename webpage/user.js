@@ -5,7 +5,8 @@ class User {
 	static setUpContextMenu() {
 		this.contextmenu.addbutton("Copy user id", function() {
 			navigator.clipboard.writeText(this.id)
-		})
+		}, null, owner => owner.localuser.settings.developerMode)
+
 		this.contextmenu.addbutton("Message user", function() {
 			fetch(instance.api + "/users/@me/channels", {
 				method: "POST",

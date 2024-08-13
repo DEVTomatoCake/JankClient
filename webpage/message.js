@@ -47,7 +47,7 @@ class Message {
 
 		Message.contextmenu.addbutton("Copy message id", function() {
 			navigator.clipboard.writeText(this.id)
-		})
+		}, null, owner => owner.localuser.settings.developerMode)
 
 		Message.contextmenu.addsubmenu("Add reaction", function(e) {
 			Emoji.emojiPicker(e.x, e.y).then(emoji => {
@@ -420,15 +420,11 @@ class Message {
 			count.classList.add("reactionCount")
 			reactionContainer.appendChild(count)
 
-			let emoji
 			if (thing.emoji.id) {
 				const emo = new Emoji(thing.emoji, this.guild)
-				emoji = emo.getHTML(false)
-			} else {
-				emoji = document.createElement("p")
-				emoji.textContent = thing.emoji.name
-			}
-			reactionContainer.appendChild(emoji)
+				const emoji = emo.getHTML(false)
+				reactionContainer.appendChild(emoji)
+			} else reactionContainer.appendChild(MarkDown.renderTwemoji(this.emoji.name))
 
 			reactdiv.appendChild(reactionContainer)
 			reactionContainer.addEventListener("click", () => {

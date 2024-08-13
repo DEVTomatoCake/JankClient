@@ -812,16 +812,11 @@ textarea {
 	user-select: none;
 	flex-direction: row;
 	align-self: stretch;
-	width: calc(100% - .07in);
 	display: flex;
 	align-items: center;
-	border-radius: .03in;
-	padding: .04in;
+	border-radius: 6px;
 	box-sizing: border-box;
-	margin-top: .03in;
-	margin-left: .05in;
-	margin-right: .02in;
-	box-shadow: color-mix(in srgb, var(--black), transparent 50%) 0 0 .03in;
+	margin: 3px 10px;
 	transition: background-color .2s;
 }
 .channeleffects:hover, .channeleffects:focus {
@@ -836,6 +831,10 @@ textarea {
 	padding: 5px;
 	width: 32px;
 	height: 32px;
+}
+
+.dm-container div {
+	padding: 5px;
 }
 
 .messageimg {

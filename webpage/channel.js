@@ -7,7 +7,7 @@ class Channel {
 	static setupcontextmenu() {
 		this.contextmenu.addbutton("Copy channel id", function() {
 			navigator.clipboard.writeText(this.id)
-		})
+		}, null, owner => owner.localuser.settings.developerMode)
 
 		this.contextmenu.addbutton("Mark as read", function() {
 			this.readbottom()
@@ -506,6 +506,11 @@ class Channel {
 
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "#" + this.name
+
+		if (this.topic) {
+			document.getElementById("channelTopic").textContent = this.topic
+			document.getElementById("channelTopic").removeAttribute("hidden")
+		} else document.getElementById("channelTopic").setAttribute("hidden", "")
 
 		await this.putmessages()
 		await prom

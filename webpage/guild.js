@@ -5,7 +5,7 @@ class Guild {
 	static setupcontextmenu() {
 		Guild.contextmenu.addbutton("Copy guild id", function() {
 			navigator.clipboard.writeText(this.id)
-		})
+		}, null, owner => owner.localuser.settings.developerMode)
 
 		Guild.contextmenu.addbutton("Mark as read", function() {
 			this.markAsRead()
