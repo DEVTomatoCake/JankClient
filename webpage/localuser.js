@@ -612,22 +612,11 @@ class LocalUser {
 			})
 		}
 	}
-	updatepronouns(pronouns) {
+	updateProfile(data) {
 		fetch(instance.api + "/users/@me/profile", {
 			method: "PATCH",
 			headers: this.headers,
-			body: JSON.stringify({
-				pronouns
-			})
-		})
-	}
-	updatebio(bio) {
-		fetch(instance.api + "/users/@me/profile", {
-			method: "PATCH",
-			headers: this.headers,
-			body: JSON.stringify({
-				bio
-			})
+			body: JSON.stringify(data)
 		})
 	}
 	updateSettings(settings = {}) {
@@ -689,7 +678,7 @@ class LocalUser {
 		})
 
 		const pronounbox = settingsLeft.addTextInput("Pronouns", () => {
-			if (newpronouns) this.updatepronouns(newpronouns)
+			if (newpronouns) this.updateProfile({pronouns: newpronouns})
 		}, { initText: this.user.pronouns })
 		pronounbox.watchForChange(value => {
 			hypouser.pronouns = value
@@ -698,7 +687,7 @@ class LocalUser {
 		})
 
 		const bioBox = settingsLeft.addMDInput("Bio:", () => {
-			if (newbio) this.updatebio(newbio)
+			if (newbio) this.updateProfile({bio: newbio})
 		}, { initText: this.user.bio.rawString })
 		bioBox.watchForChange(value => {
 			newbio = value
