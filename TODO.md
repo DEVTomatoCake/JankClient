@@ -233,10 +233,10 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ❌ | id* | string
-| ❌ | position | integer
+| ✅ | id* | string
+| ✅ | position | integer
 | ❌ | lock_permissions | boolean
-| ❌ | parent_id | string
+| ✅ | parent_id | string
 
 ### Vanity URL
 
@@ -324,7 +324,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | bitrate | integer
 | ❌ | user_limit | integer
 | ❌ | rate_limit_per_user | integer
-| ⛔ | position | integer | Handled by the position endpoint
+| ✅ | position | integer | Handled by the `positions` endpoint
 | 🟨 | permission_overwrites | array of object: id*: string, type*: number (Allowed: 0┃1┃2), allow*: string, deny*: string
 | ⛔ | parent_id | string | Handled by the position endpoint
 | ✅ | nsfw | boolean
@@ -343,7 +343,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ❌ | name* | string
+| ✅ | name* | string
 | ❌ | team_id | string or integer
 
 ### Application edit
@@ -368,13 +368,6 @@ List of properties which should be editable somewhere, and handled if necessary 
 ### Application delete
 
 `POST /applications/{id}/delete`
-
-### Bot settings
-
-| Status | Field | Type | Notes
-| --- | --- | --- | ---
-| ✅ | avatar | string
-| ✅ | username | string
 
 ## Message
 
