@@ -132,38 +132,63 @@ class LocalUser {
 		}
 
 		let build = ""
+		const textdecode = new TextDecoder()
+
+		const decode = async () => {
+			while (true) {
+				const read = await r.read()
+				const data = textdecode.decode(read.value)
+
+				build += data
+				try {
+					const temp = JSON.parse(build)
+					build = ""
+					if (temp.op == 0 && temp.t == "READY") returny()
+					this.handleEvent(temp)
+				} catch {}
+			}
+		}
+		decode()
+
+		let order = new Promise(res => {
+			res()
+		})
 		this.ws.addEventListener("message", async event => {
+			const temp2 = order
+			let res
+			order = new Promise(resolve => {
+				res = resolve
+			})
+			await temp2
 			let temp
-			if (event.data instanceof Blob) {
-				const buff = await event.data.arrayBuffer()
-				const array = new Uint8Array(buff)
-				const temparr = new Uint8Array(array.length + arr.length)
-				temparr.set(arr, 0)
-				temparr.set(array, arr.length)
-				arr = temparr
-				const len = array.length
-				if (!(array[len - 1] == 255 && array[len - 2] == 255 && array[len - 3] == 0 && array[len - 4] == 0)) return
 
-				w.write(arr.buffer)
-				arr = new Uint8Array()
+			try {
+				if (event.data instanceof Blob) {
+					const buff = await event.data.arrayBuffer()
+					const array = new Uint8Array(buff)
+					const temparr = new Uint8Array(array.length + arr.length)
+					temparr.set(arr, 0)
+					temparr.set(array, arr.length)
+					arr = temparr
+					const len = array.length
+					if (!(array[len - 1] == 255 && array[len - 2] == 255 && array[len - 3] == 0 && array[len - 4] == 0)) {
+						res()
+						return
+					}
 
-				while (true) {
-					const read = await r.read()
-					const data = new TextDecoder().decode(read.value)
-					if (data == "") break
+					w.write(arr.buffer)
+					arr = new Uint8Array()
+					res()
+					return
+				} else temp = JSON.parse(event.data)
 
-					build += data
-					try {
-						temp = JSON.parse(build)
-						build = ""
-						if (temp.op == 0 && temp.t == "READY") returny()
-						this.handleEvent(temp)
-					} catch {}
-				}
-			} else temp = JSON.parse(event.data)
+				if (temp.op == 0 && temp.t == "READY") returny()
+				this.handleEvent(temp)
+			} catch (e) {
+				console.error(e)
+			}
 
-			if (temp.op == 0 && temp.t == "READY") returny()
-			this.handleEvent(temp)
+			res()
 		})
 
 		this.ws.addEventListener("close", event => {
@@ -1054,9 +1079,8 @@ class LocalUser {
 		chunk.members ??= []
 		const arr = this.noncebuild.get(chunk.nonce)
 		arr[0] = arr[0].concat(chunk.members)
-		if (chunk.not_found) {
-			arr[1] = chunk.not_found
-		}
+		if (chunk.not_found) arr[1] = chunk.not_found
+
 		arr[2].push(chunk.chunk_index)
 		if (arr[2].length == chunk.chunk_count) {
 			this.noncebuild.delete(chunk.nonce)
@@ -1103,7 +1127,6 @@ class LocalUser {
 						user_ids: build,
 						guild_id: guildid,
 						limit: 100,
-						//presences: true,
 						nonce
 					}
 				}))

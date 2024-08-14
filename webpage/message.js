@@ -279,8 +279,8 @@ class Message {
 				let pfpparent2 = pfpparent.all
 				pfpparent2 ??= pfpparent
 				const old = new Date(pfpparent2.timestamp).getTime() / 1000
-				const newt = new Date(this.timestamp).getTime() / 1000
-				current = (newt - old) > 600
+				const next = new Date(this.timestamp).getTime() / 1000
+				current = (next - old) > 600
 			}
 
 			const combine = premessage?.author?.snowflake != this.author.snowflake || current || this.message_reference
@@ -329,14 +329,14 @@ class Message {
 			div.txt = messaged
 			const messagedwrap = document.createElement("div")
 			messagedwrap.classList.add("flexttb")
-			messagedwrap.appendChild(messaged)
 			if (this.edited_timestamp) {
 				const edited = document.createElement("small")
 				edited.classList.add("edited")
 				edited.textContent = "(edited)"
 				edited.title = "Edited " + formatTime(new Date(this.edited_timestamp))
-				messagedwrap.appendChild(edited)
+				messaged.appendChild(edited)
 			}
+			messagedwrap.appendChild(messaged)
 			texttxt.appendChild(messagedwrap)
 
 			build.appendChild(text)

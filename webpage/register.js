@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	document.getElementById("register").addEventListener("submit", registertry)
 
 	let TOSa = document.getElementById("TOSa")
-	checkthis.info.alt = async () => {
+	checkInstance.alt = async () => {
 		const apiurl = new URL(JSON.parse(localStorage.getItem("instanceEndpoints")).api)
 		const tosPage = (await (await fetch(apiurl.toString() + "/ping")).json()).this.info.tosPage
 		if (tosPage) {

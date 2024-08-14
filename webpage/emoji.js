@@ -116,7 +116,7 @@ class Emoji {
 				const img = document.createElement("img")
 				img.classList.add("pfp", "servericon", "emoji-server")
 				img.crossOrigin = "anonymous"
-				img.src = this.info.cdn + "/icons/" + guild.properties.id + "/" + guild.properties.icon + ".png?size=48"
+				img.src = localuser.info.cdn + "/icons/" + guild.properties.id + "/" + guild.properties.icon + ".png?size=48"
 				img.alt = "Server: " + guild.properties.name
 				select.appendChild(img)
 			} else {
@@ -138,7 +138,7 @@ class Emoji {
 						id: emojit.id,
 						name: emojit.name,
 						animated: emojit.animated
-					})
+					}, localuser)
 					emojiElem.append(emojiClass.getHTML())
 					body.append(emojiElem)
 

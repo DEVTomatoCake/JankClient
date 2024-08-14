@@ -520,10 +520,8 @@ div {
 	box-sizing: border-box;
 	color: var(--primary-text);
 	background: var(--textarea-bg);
-	box-sizing: border-box;
 	display: flex;
 	flex-direction: row;
-	flex-wrap: nowrap;
 	align-items: stretch;
 	margin: 0 .1in .15in .1in;
 	box-shadow: 0 .01in .05in #000;
@@ -595,8 +593,8 @@ hr {
 #typing {
 	display: flex;
 	position: absolute;
-	bottom: 23px;
-	right: 12px;
+	bottom: 32px;
+	right: 20px;
 	background: var(--typing-bg);
 	width: fit-content;
 	transform: translateY(-100%);
@@ -1882,6 +1880,7 @@ small.edited {
 	font-size: 12px;
 	color: var(--timestamp-color);
 	user-select: none;
+	margin-left: 5px;
 }
 
 @media only screen and (max-width: 700px) {

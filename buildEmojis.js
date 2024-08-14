@@ -50,7 +50,7 @@ const br = new Uint8Array(buffer)
 for (const thing in ar) {
 	ar[thing] = br[thing]
 }
-console.log(i,ar)
+console.log(i, ar)
 
 const decodeEmojiList = bufferDecode => {
 	const viewDecode = new DataView(bufferDecode, 0)
@@ -69,7 +69,7 @@ const decodeEmojiList = bufferDecode => {
 	const readStringNo = length => {
 		const array = new Uint8Array(length)
 
-		for (let k = 0;k < length;k++) {
+		for (let k = 0; k < length; k++) {
 			array[k] = read8()
 		}
 		return new TextDecoder("utf8").decode(array.buffer)

@@ -4,7 +4,6 @@ const users = getBulkUsers()
 if (!users.currentuser) location.href = "/login"
 console.log(users)
 
-
 let thisuser
 try {
 	thisuser = new LocalUser(users.users[users.currentuser])

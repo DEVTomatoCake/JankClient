@@ -337,7 +337,6 @@ class Channel {
 	}
 	coatDropDiv(div, container = false) {
 		div.addEventListener("dragenter", event => {
-			console.log("enter")
 			event.preventDefault()
 		})
 

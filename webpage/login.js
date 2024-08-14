@@ -204,7 +204,7 @@ const checkInstance = async () => {
 		verify.textContent = "Checking Instance"
 		localStorage.setItem("instanceEndpoints", JSON.stringify(await setInstance(instancein.value)))
 		verify.textContent = "Instance is all good"
-		if (checkthis.info.alt) checkthis.info.alt()
+		if (checkInstance.alt) checkInstance.alt()
 
 		setTimeout(() => {
 			verify.textContent = ""
