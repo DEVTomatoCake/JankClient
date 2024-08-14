@@ -91,7 +91,7 @@ class Member {
 		}
 
 		guild.localuser.resolvemember(id.id, guild.id).then(console.log)
-		const fetchPromise = fetch(this.info.api + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
+		const fetchPromise = fetch(guild.info.api + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
 			headers: guild.headers
 		})
 		fetchPromise.catch(console.warn)
