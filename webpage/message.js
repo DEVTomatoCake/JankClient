@@ -158,7 +158,7 @@ class Message {
 				break
 			}
 		}
-		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" +
+		fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" +
 			(encodeURIComponent(typeof emoji == "string" ? emoji : (emoji.name + ":" + emoji.id))) + "/@me", {
 			method: remove ? "DELETE" : "PUT",
 			headers: this.headers
@@ -186,14 +186,14 @@ class Message {
 		return build
 	}
 	async edit(content) {
-		return await fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
+		return await fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify({content})
 		})
 	}
 	delete() {
-		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
+		fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
 			method: "DELETE",
 			headers: this.headers
 		})

@@ -40,7 +40,6 @@ const global = {
 
 	thisuser: "writable",
 	messagelist: "writable",
-	instance: "writeable",
 	setTheme: "writeable",
 	checkInstance: "writeable",
 	editchannel: "writeable",

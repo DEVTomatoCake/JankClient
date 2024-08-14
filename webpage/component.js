@@ -39,7 +39,7 @@ class Component {
 
 			if (elem) {
 				elem.addEventListener("click", async () => {
-					const res = await fetch(instance.api + "/interactions", {
+					const res = await fetch(this.info.api + "/interactions", {
 						method: "POST",
 						headers: this.headers,
 						body: JSON.stringify({
@@ -76,7 +76,7 @@ class Component {
 			if (component.emoji.id) {
 				const img = document.createElement("img")
 				img.crossOrigin = "anonymous"
-				img.src = instance.cdn + "/emojis/" + component.emoji.id + ".png?size=32"
+				img.src = this.info.cdn + "/emojis/" + component.emoji.id + ".png?size=32"
 				img.width = 32
 				img.height = 32
 				img.alt = ""
@@ -135,7 +135,7 @@ class Component {
 					if (option.emoji.id) {
 						const img = document.createElement("img")
 						img.crossOrigin = "anonymous"
-						img.src = instance.cdn + "/emojis/" + option.emoji.id + ".png?size=32"
+						img.src = this.info.cdn + "/emojis/" + option.emoji.id + ".png?size=32"
 						img.width = 32
 						img.height = 32
 						img.alt = ""

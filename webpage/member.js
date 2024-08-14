@@ -9,7 +9,7 @@ class Member {
 		}, null, owner => owner.localuser.settings.developerMode)
 
 		this.contextmenu.addbutton("Message user", function() {
-			fetch(instance.api + "/users/@me/channels", {
+			fetch(this.info.api + "/users/@me/channels", {
 				method: "POST",
 				headers: this.localuser.headers,
 				body: JSON.stringify({
@@ -91,7 +91,7 @@ class Member {
 		}
 
 		guild.localuser.resolvemember(id.id, guild.id).then(console.log)
-		const fetchPromise = fetch(instance.api + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
+		const fetchPromise = fetch(this.info.api + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
 			headers: guild.headers
 		})
 		fetchPromise.catch(console.warn)

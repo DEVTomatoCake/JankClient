@@ -3,7 +3,6 @@
 const users = getBulkUsers()
 if (!users.currentuser) location.href = "/login"
 console.log(users)
-let instance = users.users[users.currentuser].serverurls
 
 
 let thisuser
@@ -52,7 +51,6 @@ const showAccountSwitcher = () => {
 			document.getElementById("loading").classList.remove("doneloading")
 			document.getElementById("loading").classList.add("loading")
 			thisuser = new LocalUser(thing)
-			instance = thing.serverurls
 			users.currentuser = thing.uid
 			localStorage.setItem("userinfos", JSON.stringify(users))
 
@@ -121,7 +119,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const sub = await registration.pushManager.getSubscription()
 			if (sub) return sub
 
-			const res = await fetch(instance.api + "/notifications/webpush/vapidKey")
+			const res = await fetch(this.info.api + "/notifications/webpush/vapidKey")
 			if (!res.ok) throw new Error("Failed to get VAPID key: " + res.status + " " + res.statusText)
 
 			return registration.pushManager.subscribe({
@@ -130,7 +128,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			})
 		})
 
-		await fetch(instance.api + "/notifications/webpush/subscribe", {
+		await fetch(this.info.api + "/notifications/webpush/subscribe", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -144,7 +142,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // eslint-disable-next-line no-unused-vars
 const requestTestNotif = async () => {
-	fetch(instance.api + "/notifications/webpush/testNotification", {
+	fetch(this.info.api + "/notifications/webpush/testNotification", {
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: users.users[users.currentuser].token

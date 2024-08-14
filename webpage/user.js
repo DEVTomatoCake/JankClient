@@ -8,7 +8,7 @@ class User {
 		}, null, owner => owner.localuser.settings.developerMode)
 
 		this.contextmenu.addbutton("Message user", function() {
-			fetch(instance.api + "/users/@me/channels", {
+			fetch(this.info.api + "/users/@me/channels", {
 				method: "POST",
 				headers: this.localuser.headers,
 				body: JSON.stringify({
@@ -99,8 +99,8 @@ class User {
 	getpfpsrc() {
 		if (this.hypotheticalpfp) return this.avatar
 
-		if (this.avatar === null) return instance.cdn + "/embed/avatars/" + ((this.id >>> 22) % 6) + ".png?size=64"
-		return instance.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png?size=64"
+		if (this.avatar === null) return this.info.cdn + "/embed/avatars/" + ((this.id >>> 22) % 6) + ".png?size=64"
+		return this.info.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png?size=64"
 	}
 	buildprofile(x, y, type = "author") {
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
@@ -171,7 +171,7 @@ class User {
 		User.contextmenu.bind(html, this)
 	}
 	static async resolve(id, localuser) {
-		const res = await fetch(instance.api + "/users/" + id + "/profile", {
+		const res = await fetch(this.info.api + "/users/" + id + "/profile", {
 			headers: localuser.headers
 		})
 		return new User(await res.json(), localuser)

@@ -21,7 +21,7 @@ class Emoji {
 		const emojiElem = document.createElement("img")
 		emojiElem.classList.add("md-emoji")
 		emojiElem.crossOrigin = "anonymous"
-		emojiElem.src = instance.cdn + "/emojis/" + this.id + "." + (this.animated ? "gif" : "png") + "?size=32"
+		emojiElem.src = this.info.cdn + "/emojis/" + this.id + "." + (this.animated ? "gif" : "png") + "?size=32"
 		emojiElem.alt = this.name
 		emojiElem.loading = "lazy"
 		emojiElem.width = bigemoji ? 48 : 22
@@ -116,7 +116,7 @@ class Emoji {
 				const img = document.createElement("img")
 				img.classList.add("pfp", "servericon", "emoji-server")
 				img.crossOrigin = "anonymous"
-				img.src = instance.cdn + "/icons/" + guild.properties.id + "/" + guild.properties.icon + ".png?size=48"
+				img.src = this.info.cdn + "/icons/" + guild.properties.id + "/" + guild.properties.icon + ".png?size=48"
 				img.alt = "Server: " + guild.properties.name
 				select.appendChild(img)
 			} else {

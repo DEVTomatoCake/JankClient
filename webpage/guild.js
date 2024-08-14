@@ -14,7 +14,7 @@ class Guild {
 		Guild.contextmenu.addbutton("Create Invite", async function() {
 			if (Object.keys(this.channelids).length == 0) return alert("No channels to create invite for")
 
-			let res = await fetch(instance.api + "/channels/" + (this.prevchannel ? this.prevchannel.id : Object.keys(this.channelids)[0]) + "/invites", {
+			let res = await fetch(this.info.api + "/channels/" + (this.prevchannel ? this.prevchannel.id : Object.keys(this.channelids)[0]) + "/invites", {
 				method: "POST",
 				headers: this.headers
 			})
@@ -22,7 +22,7 @@ class Guild {
 			console.log(json)
 
 			const inviteCreateError = document.createElement("span")
-			if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(instance.api).origin + "/invite/" + json.code
+			if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(this.info.api).origin + "/invite/" + json.code
 			else {
 				inviteCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
 				console.error("Unable to create invite", json)
@@ -34,14 +34,14 @@ class Guild {
 					"",
 					"Create invite",
 					async () => {
-						res = await fetch(instance.api + "/channels/" + (this.prevchannel ? this.prevchannel.id : Object.keys(this.channelids)[0]) + "/invites", {
+						res = await fetch(this.info.api + "/channels/" + (this.prevchannel ? this.prevchannel.id : Object.keys(this.channelids)[0]) + "/invites", {
 							method: "POST",
 							headers: this.headers
 						})
 						json = await res.json()
 						console.log(json)
 
-						if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(instance.api).origin + "/invite/" + json.code
+						if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(this.info.api).origin + "/invite/" + json.code
 						else {
 							inviteCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
 							console.error("Unable to create invite", json)
@@ -144,7 +144,7 @@ class Guild {
 		}
 		if (build.length == 0) return
 
-		fetch(instance.api + "/guilds/" + this.id + "/channels", {
+		fetch(this.info.api + "/guilds/" + this.id + "/channels", {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(build)
@@ -201,7 +201,7 @@ class Guild {
 			}
 		}
 		this.unreads()
-		fetch(instance.api + "/read-states/ack-bulk", {
+		fetch(this.info.api + "/read-states/ack-bulk", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify(build)
@@ -296,7 +296,7 @@ class Guild {
 		if (indexy != -1) this.headchannels.splice(indexy, 1)
 	}
 	createChannel(name, type) {
-		fetch(instance.api + "/guilds/" + this.id + "/channels", {
+		fetch(this.info.api + "/guilds/" + this.id + "/channels", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({ name, type })
@@ -317,7 +317,7 @@ class Guild {
 				noti
 			],
 			["button", "", "submit", () => {
-				fetch(instance.api + "/users/@me/guilds/settings", {
+				fetch(this.info.api + "/users/@me/guilds/settings", {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({
@@ -361,7 +361,7 @@ class Guild {
 		full.show()
 	}
 	async leave() {
-		return fetch(instance.api + "/users/@me/guilds/" + this.id, {
+		return fetch(this.info.api + "/users/@me/guilds/" + this.id, {
 			method: "DELETE",
 			headers: this.headers
 		})
@@ -377,7 +377,7 @@ class Guild {
 			const img = document.createElement("img")
 			img.classList.add("pfp", "servericon")
 			img.crossOrigin = "anonymous"
-			img.src = instance.cdn + "/icons/" + this.properties.id + "/" + this.properties.icon + ".png?size=48"
+			img.src = this.info.cdn + "/icons/" + this.properties.id + "/" + this.properties.icon + ".png?size=48"
 			img.alt = "Server: " + this.properties.name
 			divy.appendChild(img)
 
@@ -436,13 +436,13 @@ class Guild {
 		full.show()
 	}
 	async delete() {
-		return fetch(instance.api + "/guilds/" + this.id + "/delete", {
+		return fetch(this.info.api + "/guilds/" + this.id + "/delete", {
 			method: "POST",
 			headers: this.headers
 		})
 	}
 	async createRole(name) {
-		const fetched = await fetch(instance.api + "/guilds/" + this.id + "roles", {
+		const fetched = await fetch(this.info.api + "/guilds/" + this.id + "roles", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({
@@ -461,7 +461,7 @@ class Guild {
 		const role = this.roleids[id]
 		role.permissions.allow = perms.allow
 
-		await fetch(instance.api + "/guilds/" + this.id + "/roles/" + this.id, {
+		await fetch(this.info.api + "/guilds/" + this.id + "/roles/" + this.id, {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify({

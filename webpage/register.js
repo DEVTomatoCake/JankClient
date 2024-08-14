@@ -95,9 +95,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	document.getElementById("register").addEventListener("submit", registertry)
 
 	let TOSa = document.getElementById("TOSa")
-	checkInstance.alt = async () => {
+	checkthis.info.alt = async () => {
 		const apiurl = new URL(JSON.parse(localStorage.getItem("instanceEndpoints")).api)
-		const tosPage = (await (await fetch(apiurl.toString() + "/ping")).json()).instance.tosPage
+		const tosPage = (await (await fetch(apiurl.toString() + "/ping")).json()).this.info.tosPage
 		if (tosPage) {
 			document.getElementById("TOSbox").innerHTML = "I agree to the <a id=\"TOSa\" target=\"_blank\" rel=\"noopener\">Terms of Service</a>:"
 			TOSa = document.getElementById("TOSa")

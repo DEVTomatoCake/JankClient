@@ -326,7 +326,7 @@ class Channel {
 	readbottom() {
 		if (!this.hasunreads) return
 
-		fetch(instance.api + "/channels/" + this.id + "/messages/" + this.lastmessageid + "/ack", {
+		fetch(this.info.api + "/channels/" + this.id + "/messages/" + this.lastmessageid + "/ack", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({})
@@ -385,7 +385,7 @@ class Channel {
 		return div
 	}
 	createChannel(name, type) {
-		fetch(instance.api + "/guilds/" + this.guild.id + "/channels", {
+		fetch(this.info.api + "/guilds/" + this.guild.id + "/channels", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({
@@ -415,7 +415,7 @@ class Channel {
 						nsfw = event.target.checked
 					}],
 					["button", "", "submit", () => {
-						fetch(instance.api + "/channels/" + thisid, {
+						fetch(this.info.api + "/channels/" + thisid, {
 							method: "PATCH",
 							headers: this.headers,
 							body: JSON.stringify({
@@ -437,7 +437,7 @@ class Channel {
 		full.show()
 	}
 	deleteChannel() {
-		if (confirm("Do you really want to delete the channel \"" + this.name + "\"?")) fetch(instance.api + "/channels/" + this.id, {
+		if (confirm("Do you really want to delete the channel \"" + this.name + "\"?")) fetch(this.info.api + "/channels/" + this.id, {
 			method: "DELETE",
 			headers: this.headers
 		})
@@ -474,7 +474,7 @@ class Channel {
 		const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
 		if (snowflake.getObject()) return snowflake.getObject()
 
-		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, {
+		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, {
 			headers: this.headers
 		})
 
@@ -525,7 +525,7 @@ class Channel {
 	async putmessages() {
 		if (this.allthewayup) return
 
-		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=100", {
+		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100", {
 			headers: this.headers
 		})
 
@@ -554,7 +554,7 @@ class Channel {
 	async grabBefore(id) {
 		if (this.topid && this.topid.id == id) return
 
-		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
+		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -585,7 +585,7 @@ class Channel {
 	async grabAfter(id) {
 		if (this.lastmessage.id == id) return
 
-		await fetch(instance.api + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
+		await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
 			headers: this.headers
 		}).then(j => j.json()).then(json => {
 			let previd = SnowFlake.getSnowFlakeFromID(id, Message)
@@ -697,7 +697,7 @@ class Channel {
 		if (this.typing > Date.now()) return
 
 		this.typing = Date.now() + 6000
-		fetch(instance.api + "/channels/" + this.id + "/typing", {
+		fetch(this.info.api + "/channels/" + this.id + "/typing", {
 			method: "POST",
 			headers: this.headers
 		})
@@ -722,7 +722,7 @@ class Channel {
 		}
 		if (replyjson) body.message_reference = replyjson
 
-		if (attachments.length == 0) return await fetch(instance.api + "/channels/" + this.id + "/messages", {
+		if (attachments.length == 0) return await fetch(this.info.api + "/channels/" + this.id + "/messages", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify(body)
@@ -735,7 +735,7 @@ class Channel {
 			formData.append("files[" + i + "]", attachments[i])
 		}
 
-		return await fetch(instance.api + "/channels/" + this.id + "/messages", {
+		return await fetch(this.info.api + "/channels/" + this.id + "/messages", {
 			method: "POST",
 			headers: {
 				Authorization: this.headers.Authorization
@@ -804,7 +804,7 @@ class Channel {
 		}
 	}
 	async addRoleToPerms(role) {
-		await fetch(instance.api + "/channels/" + this.id + "/permissions/" + role.id, {
+		await fetch(this.info.api + "/channels/" + this.id + "/permissions/" + role.id, {
 			method: "PUT",
 			headers: this.headers,
 			body: JSON.stringify({
@@ -822,7 +822,7 @@ class Channel {
 		const permission = this.permission_overwrites.get(id)
 		permission.allow = perms.allow
 		permission.deny = perms.deny
-		await fetch(instance.api + "/channels/" + this.id + "/permissions/" + id, {
+		await fetch(this.info.api + "/channels/" + this.id + "/permissions/" + id, {
 			method: "PUT",
 			headers: this.headers,
 			body: JSON.stringify({

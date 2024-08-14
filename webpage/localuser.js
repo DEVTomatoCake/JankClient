@@ -16,6 +16,7 @@ class LocalUser {
 		this.token = userinfo.token
 		this.userinfo = userinfo
 		this.serverurls = this.userinfo.serverurls
+		this.info = this.serverurls
 		this.initialized = false
 		this.headers = {
 			"Content-Type": "application/json; charset=UTF-8",
@@ -92,7 +93,7 @@ class LocalUser {
 		const promise = new Promise(resolve => {
 			returny = resolve
 		})
-		this.ws = new WebSocket(instance.gateway + "/?v=9&encoding=json" + (supportsCompression ? "&compress=zlib-stream" : ""))
+		this.ws = new WebSocket(this.info.gateway + "/?v=9&encoding=json" + (supportsCompression ? "&compress=zlib-stream" : ""))
 
 		this.ws.addEventListener("open", () => {
 			console.log("WebSocket connected")
@@ -443,7 +444,7 @@ class LocalUser {
 							if (inviteurl.includes("/")) parsed = inviteurl.split("/")[inviteurl.split("/").length - 1]
 							else parsed = inviteurl
 
-							const res = await fetch(instance.api + "/invites/" + parsed, {
+							const res = await fetch(this.info.api + "/invites/" + parsed, {
 								method: "POST",
 								headers: this.headers
 							})
@@ -470,7 +471,7 @@ class LocalUser {
 						"",
 						"Submit",
 						async () => {
-							const res = await fetch(instance.api + "/guilds", {
+							const res = await fetch(this.info.api + "/guilds", {
 								method: "POST",
 								headers: this.headers,
 								body: JSON.stringify({
@@ -496,13 +497,13 @@ class LocalUser {
 		const full = new Dialog(["html", container])
 		full.show()
 
-		const categoryRes = await fetch(instance.api + "/discovery/categories", {
+		const categoryRes = await fetch(this.info.api + "/discovery/categories", {
 			headers: this.headers
 		})
 		if (!categoryRes.ok) return container.textContent = "An error occurred (response code " + categoryRes.status + ")"
 		const categories = await categoryRes.json()
 
-		const res = await fetch(instance.api + "/discoverable-guilds?limit=50", {
+		const res = await fetch(this.info.api + "/discoverable-guilds?limit=50", {
 			headers: this.headers
 		})
 		if (!res.ok) return container.textContent = "An error occurred (response code " + res.status + ")"
@@ -525,7 +526,7 @@ class LocalUser {
 				const banner = document.createElement("img")
 				banner.classList.add("banner")
 				banner.crossOrigin = "anonymous"
-				banner.src = instance.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256"
+				banner.src = this.info.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256"
 				banner.alt = ""
 				banner.loading = "lazy"
 				content.appendChild(banner)
@@ -537,7 +538,7 @@ class LocalUser {
 			const img = document.createElement("img")
 			img.classList.add("pfp", "servericon")
 			img.crossOrigin = "anonymous"
-			img.src = instance.cdn + "/" + (guild.icon ? ("icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "embed/avatars/" + ((guild.id >>> 22) % 6) + ".png")
+			img.src = this.info.cdn + "/" + (guild.icon ? ("icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "embed/avatars/" + ((guild.id >>> 22) % 6) + ".png")
 			img.alt = ""
 			img.loading = "lazy"
 			nameContainer.appendChild(img)
@@ -558,7 +559,7 @@ class LocalUser {
 			}
 
 			content.addEventListener("click", async () => {
-				const joinRes = await fetch(instance.api + "/guilds/" + guild.id + "/members/@me", {
+				const joinRes = await fetch(this.info.api + "/guilds/" + guild.id + "/members/@me", {
 					method: "PUT",
 					headers: this.headers
 				})
@@ -603,7 +604,7 @@ class LocalUser {
 		const reader = new FileReader()
 		reader.readAsDataURL(file)
 		reader.onload = () => {
-			fetch(instance.api + "/users/@me", {
+			fetch(this.info.api + "/users/@me", {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -613,14 +614,14 @@ class LocalUser {
 		}
 	}
 	updateProfile(json) {
-		fetch(instance.api + "/users/@me/profile", {
+		fetch(this.info.api + "/users/@me/profile", {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(json)
 		})
 	}
 	updateSettings(settings = {}) {
-		fetch(instance.api + "/users/@me/settings", {
+		fetch(this.info.api + "/users/@me/settings", {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(settings)
@@ -727,7 +728,7 @@ class LocalUser {
 		const security = settings.addButton("Account Security")
 		if (this.mfa_enabled) {
 			security.addTextInput("Disable MFA, TOTP code:", value => {
-				fetch(instance.api + "/users/@me/mfa/totp/disable", {
+				fetch(this.info.api + "/users/@me/mfa/totp/disable", {
 					method: "POST",
 					headers: this.headers,
 					body: JSON.stringify({
@@ -763,7 +764,7 @@ class LocalUser {
 						code = this.value
 					}],
 					["button", "", "Enable MFA", () => {
-						fetch(instance.api + "/users/@me/mfa/totp/enable", {
+						fetch(this.info.api + "/users/@me/mfa/totp/enable", {
 							method: "POST",
 							headers: this.headers,
 							body: JSON.stringify({
@@ -789,7 +790,7 @@ class LocalUser {
 		const connectionContainer = document.createElement("div")
 		connectionContainer.id = "connection-container"
 
-		fetch(instance.api + "/connections", {
+		fetch(this.info.api + "/connections", {
 			headers: this.headers
 		}).then(r => r.json()).then(json => {
 			Object.keys(json).sort(key => json[key].enabled ? -1 : 1).forEach(key => {
@@ -800,7 +801,7 @@ class LocalUser {
 
 				if (connection.enabled) {
 					container.addEventListener("click", async () => {
-						const connectionRes = await fetch(instance.api + "/connections/" + key + "/authorize", {
+						const connectionRes = await fetch(this.info.api + "/connections/" + key + "/authorize", {
 							headers: this.headers
 						})
 						const connectionJSON = await connectionRes.json()
@@ -825,7 +826,7 @@ class LocalUser {
 		devPortal.addButtonInput("", "Create application", async () => {
 			if (appName.trim().length == 0) return alert("Please enter a name for the application.")
 
-			const res = await fetch(instance.api + "/applications", {
+			const res = await fetch(this.info.api + "/applications", {
 				method: "POST",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -838,7 +839,7 @@ class LocalUser {
 
 		const appListContainer = document.createElement("div")
 		appListContainer.id = "app-list-container"
-		fetch(instance.api + "/applications", {
+		fetch(this.info.api + "/applications", {
 			headers: this.headers
 		}).then(r => r.json()).then(json => {
 			json.forEach(application => {
@@ -847,7 +848,7 @@ class LocalUser {
 				if (application.cover_image || application.icon) {
 					const cover = document.createElement("img")
 					cover.crossOrigin = "anonymous"
-					cover.src = instance.cdn + "/app-icons/" + application.id + "/" + (application.cover_image || application.icon) + ".png?size=256"
+					cover.src = this.info.cdn + "/app-icons/" + application.id + "/" + (application.cover_image || application.icon) + ".png?size=256"
 					cover.alt = ""
 					cover.loading = "lazy"
 					container.appendChild(cover)
@@ -868,7 +869,7 @@ class LocalUser {
 		settings.show()
 	}
 	async manageApplication(appId) {
-		const res = await fetch(instance.api + "/applications/" + appId, {
+		const res = await fetch(this.info.api + "/applications/" + appId, {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -887,7 +888,7 @@ class LocalUser {
 						fields.description = event.target.value
 					}],
 					["vdiv",
-						json.icon ? ["img", instance.cdn + "/app-icons/" + appId + "/" + json.icon + ".png?size=256", [128, 128]] : ["text", "No icon"],
+						json.icon ? ["img", this.info.cdn + "/app-icons/" + appId + "/" + json.icon + ".png?size=256", [128, 128]] : ["text", "No icon"],
 						["fileupload", "Application icon:", event => {
 							const reader = new FileReader()
 							reader.readAsDataURL(event.target.files[0])
@@ -918,7 +919,7 @@ class LocalUser {
 						"",
 						"Save changes",
 						async () => {
-							const updateRes = await fetch(instance.api + "/applications/" + appId, {
+							const updateRes = await fetch(this.info.api + "/applications/" + appId, {
 								method: "PATCH",
 								headers: this.headers,
 								body: JSON.stringify(fields)
@@ -937,7 +938,7 @@ class LocalUser {
 							if (!json.bot) {
 								if (!confirm("Are you sure you want to add a bot to this application? There's no going back.")) return
 
-								const updateRes = await fetch(instance.api + "/applications/" + appId + "/bot", {
+								const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
 									method: "POST",
 									headers: this.headers
 								})
@@ -955,7 +956,7 @@ class LocalUser {
 		appDialog.show()
 	}
 	async manageBot(appId) {
-		const res = await fetch(instance.api + "/applications/" + appId, {
+		const res = await fetch(this.info.api + "/applications/" + appId, {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -963,7 +964,7 @@ class LocalUser {
 
 		const fields = {
 			username: json.bot.username,
-			avatar: json.bot.avatar ? (instance.cdn + "/app-icons/" + appId + "/" + json.bot.avatar + ".png?size=256") : ""
+			avatar: json.bot.avatar ? (this.info.cdn + "/app-icons/" + appId + "/" + json.bot.avatar + ".png?size=256") : ""
 		}
 		const botDialog = new Dialog(
 			["vdiv",
@@ -990,7 +991,7 @@ class LocalUser {
 						"",
 						"Save changes",
 						async () => {
-							const updateRes = await fetch(instance.api + "/applications/" + appId + "/bot", {
+							const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
 								method: "PATCH",
 								headers: this.headers,
 								body: JSON.stringify(fields)
@@ -1008,7 +1009,7 @@ class LocalUser {
 						async () => {
 							if (!confirm("Are you sure you want to reset the token? Your bot will stop working until you update it.")) return
 
-							const updateRes = await fetch(instance.api + "/applications/" + appId + "/bot/reset", {
+							const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot/reset", {
 								method: "POST",
 								headers: this.headers
 							})
