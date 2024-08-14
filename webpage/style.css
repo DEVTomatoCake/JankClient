@@ -593,16 +593,17 @@ hr {
 #typing {
 	display: flex;
 	position: absolute;
-	bottom: 32px;
+	bottom: 29px;
 	right: 20px;
 	background: var(--typing-bg);
 	width: fit-content;
 	transform: translateY(-100%);
-	border-radius: 5px 5px 0 0;
-	padding: 4px;
+	border-radius: 7px 7px 0 0;
+	padding: 5px 7px;
 	transition: transform .5s ease, opacity .1s ease;
 	opacity: 1;
 	z-index: -1;
+	align-items: baseline;
 }
 
 #typediv {
@@ -613,49 +614,86 @@ hr {
 }
 
 .loading-indicator {
-	font-size: 24px;
 	display: flex;
-	gap: 0;
+	gap: 2px;
+}
+
+.dot-container {
+	width: 7px;
+	height: 7px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .dot {
-	animation: fade 1s infinite;
-	line-height: 14px;
+	background: var(--primary-text);
+	border-radius: 50%;
+	opacity: .2;
+	width: 6px;
+	height: 6px;
 }
 
-.dot:nth-child(1) {
-	animation-delay: 0s;
+.dot-container:nth-child(1) .dot {
+	animation: fade1 1s infinite;
+}
+.dot-container:nth-child(2) .dot {
+	animation: fade2 1s infinite;
+}
+.dot-container:nth-child(3) .dot {
+	animation: fade3 1s infinite;
 }
 
-.dot:nth-child(2) {
-	animation-delay: .33s;
+@keyframes fade1 {
+	0%, 100% {
+		opacity: .2;
+		width: 6px;
+		height: 6px;
+	}
+
+	15%, 50% {
+		opacity: 1;
+		width: 7px;
+		height: 7px;
+	}
 }
 
-.dot:nth-child(3) {
-	animation-delay: .66s;
+@keyframes fade2 {
+	0%, 100% {
+		opacity: .2;
+		width: 6px;
+		height: 6px;
+	}
+
+	35%, 75% {
+		opacity: 1;
+		width: 7px;
+		height: 7px;
+	}
 }
 
-#typing p {
+@keyframes fade3 {
+	0%, 100% {
+		opacity: .2;
+		width: 6px;
+		height: 6px;
+	}
+
+	50%, 85% {
+		opacity: 1;
+		width: 7px;
+		height: 7px;
+	}
+}
+
+#typingtext {
 	margin: 0;
 	padding-right: 5px;
 }
 
 #typing.hidden {
 	transform: translateY(0%);
-	/* Move down out of view */
 	opacity: 0;
-	/* Fade out */
-}
-
-@keyframes fade {
-	0%,
-	100% {
-		opacity: .2;
-	}
-
-	50% {
-		opacity: 1;
-	}
 }
 
 .lightbr {
