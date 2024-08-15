@@ -304,7 +304,6 @@ class Message {
 				const username = document.createElement("span")
 				username.classList.add("username")
 				this.author.contextMenuBind(username, this.guild)
-				this.author.profileclick(username)
 
 				username.textContent = this.author.username
 				const userwrap = document.createElement("div")
@@ -384,7 +383,6 @@ class Message {
 			const username = document.createElement("span")
 			username.textContent = this.author.username
 			this.author.contextMenuBind(username, this.guild)
-			this.author.profileclick(username)
 			texttxt.appendChild(username)
 			username.classList.add("username")
 

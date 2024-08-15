@@ -24,6 +24,8 @@ class LocalUser {
 		}
 	}
 
+	noteCache = new Map()
+
 	gottenReady(ready) {
 		this.initialized = true
 		this.ready = ready
@@ -272,6 +274,9 @@ class LocalUser {
 						const user = SnowFlake.getSnowFlakeFromID(json.d.id, User).getObject()
 						if (user) user.userupdate(json.d)
 					}
+					break
+				case "USER_NOTE_UPDATE":
+					this.noteCache.set(json.d.id, json.d.note)
 					break
 				case "CHANNEL_UPDATE":
 					if (this.initialized) this.updateChannel(json.d)

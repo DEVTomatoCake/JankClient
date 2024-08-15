@@ -103,7 +103,6 @@ class User {
 		if (this.avatar === null) return this.info.cdn + "/embed/avatars/" + ((this.id >>> 22) % 6) + ".png?size=64"
 		return this.info.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png?size=64"
 	}
-	noteCache = new Map()
 	async buildprofile(x, y, type = "author") {
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
@@ -152,7 +151,7 @@ class User {
 		const noteInput = document.createElement("input")
 		noteInput.placeholder = "Add a note"
 
-		if (this.noteCache.has(this.id)) noteInput.value = this.noteCache.get(this.id)
+		if (this.localuser.noteCache.has(this.id)) noteInput.value = this.localuser.noteCache.get(this.id)
 		else {
 			fetch(this.info.api + "/users/@me/notes/" + this.id, {
 				headers: this.localuser.headers
@@ -161,8 +160,8 @@ class User {
 					const noteJSON = await res.json()
 					noteInput.value = noteJSON.note
 
-					this.noteCache.set(this.id, noteJSON.note)
-					setTimeout(() => this.noteCache.delete(this.id), 1000 * 60 * 2)
+					this.localuser.noteCache.set(this.id, noteJSON.note)
+					setTimeout(() => this.localuser.noteCache.delete(this.id), 1000 * 60 * 2)
 				}
 			}).catch(() => {})
 		}
@@ -175,7 +174,7 @@ class User {
 					note: noteInput.value
 				})
 			})
-			this.noteCache.set(this.id, noteInput.value)
+			this.localuser.noteCache.set(this.id, noteInput.value)
 		})
 		userbody.appendChild(noteInput)
 
