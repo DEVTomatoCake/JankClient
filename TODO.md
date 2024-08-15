@@ -11,9 +11,11 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | Implemented
 | ⛔ | Not planned or impossible due to missing information
 
-## Global user
+## Endpoints
 
-### User data
+### Global user
+
+#### User data
 
 `PATCH /users/@me/`
 
@@ -28,7 +30,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | email | string
 | 🗨️ | discriminator | string
 
-### User profile
+#### User profile
 
 `PATCH /users/{id}/profile/`
 
@@ -40,7 +42,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | pronouns | string
 | ❌ | theme_colors | [integer, integer]
 
-### User settings
+#### User settings
 
 `PATCH /users/@me/settings/`
 
@@ -79,7 +81,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ⛔ | timezone_offset | integer | Where is this used?
 | ❌ | view_nsfw_guilds | boolean
 
-### Connections
+#### Connections
 
 `PATCH /users/@me/connections/{connection_name}/{connection_id}/`
 
@@ -89,7 +91,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | show_activity | boolean
 | ❌ | metadata_visibility | boolean
 
-### User notes
+#### User notes
 
 `PUT /users/@me/notes/{id}`
 
@@ -97,17 +99,17 @@ List of properties which should be editable somewhere, and handled if necessary 
 | --- | --- | --- | ---
 | ❌ | note* | string
 
-### Disable account
+#### Disable account
 
 `POST /users/@me/disable/`
 
-### Delete account
+#### Delete account
 
 `POST /users/@me/delete/`
 
-## Per-guild user
+### Per-guild user
 
-### Guild user settings
+#### Guild user settings
 
 `PATCH /users/@me/guilds/{guild_id}/settings/`
 
@@ -125,7 +127,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | hide_muted_channels | boolean
 | ⛔ | notify_highlights | number | What's this for?
 
-### Guild member profile
+#### Guild member profile
 
 `PATCH /guilds/{guild_id}/profile/{member_id}`
 
@@ -137,7 +139,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | pronouns | string
 | ❌ | theme_colors | [integer, integer]
 
-### Guild member nickname edit
+#### Guild member nickname edit
 
 `PATCH /guilds/{guild_id}/members/{member_id}/nick/`
 
@@ -145,9 +147,9 @@ List of properties which should be editable somewhere, and handled if necessary 
 | --- | --- | --- | ---
 | ❌ | nick* | string
 
-## Guild moderation
+### Guild moderation
 
-### Create ban
+#### Create ban
 
 `PUT /guilds/{guild_id}/bans/{user_id}`
 
@@ -157,7 +159,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | delete_message_days | string
 | ❌ | reason | string
 
-### Bulk ban
+#### Bulk ban
 
 `POST /guilds/{guild_id}/bulk-ban/`
 
@@ -166,13 +168,13 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | user_ids* | [string]
 | ❌ | delete_message_seconds | integer
 
-### Add role
+#### Add role
 
 `PUT /guilds/{guild_id}/members/{member_id}/roles/{role_id}/`
 
-## Guild
+### Guild
 
-### Guild settings
+#### Guild settings
 
 `PATCH /guilds/{guild_id}/`
 
@@ -199,7 +201,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | system_channel_id | string
 | ❌ | rules_channel_id | string
 
-### Widget
+#### Widget
 
 `PATCH /guilds/{guild_id}/widget/`
 
@@ -208,7 +210,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | enabled* | boolean
 | ❌ | channel_id* | string
 
-### Welcome screen
+#### Welcome screen
 
 `PATCH /guilds/{guild_id}/welcome-screen/`
 
@@ -218,7 +220,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | enabled | boolean
 | ❌ | description | string
 
-### Role positions
+#### Role positions
 
 `PATCH /guilds/{guild_id}/roles/`
 
@@ -227,7 +229,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | id* | string
 | ❌ | position* | integer
 
-### Channel positions
+#### Channel positions
 
 `PATCH /guilds/{guild_id}/channels/`
 
@@ -238,7 +240,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | lock_permissions | boolean
 | ✅ | parent_id | string
 
-### Vanity URL
+#### Vanity URL
 
 `PATCH /guilds/{guild_id}/vanity-url/`
 
@@ -246,7 +248,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | --- | --- | --- | ---
 | ❌ | code | string
 
-### Guild template
+#### Guild template
 
 `POST /guilds/{guild_id}/templates/`
 
@@ -257,9 +259,9 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | name* | string
 | ❌ | description | string
 
-## Guild emojis
+### Guild emojis
 
-### Guild emoji create
+#### Guild emoji create
 
 `POST /guilds/{guild_id}/emojis/`
 
@@ -270,7 +272,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | require_colons | boolean┃null
 | ❌ | roles | [string]
 
-### Guild emoji edit
+#### Guild emoji edit
 
 `PATCH /guilds/{guild_id}/emojis/{emoji_id}`
 
@@ -279,13 +281,13 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | name | string
 | ❌ | roles | [string]
 
-### Guild emoji delete
+#### Guild emoji delete
 
 `DELETE /guilds/{guild_id}/emojis/{emoji_id}`
 
-## Guild stickers
+### Guild stickers
 
-### Guild sticker create
+#### Guild sticker create
 
 `POST /guilds/{guild_id}/stickers/`
 
@@ -295,7 +297,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | description | string: Constraints: Max 100 chars
 | ❌ | tags * | string: Constraints: Max 200 chars
 
-### Guild sticker edit
+#### Guild sticker edit
 
 `PATCH /guilds/{guild_id}/stickers/{sticker_id}`
 
@@ -305,13 +307,13 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | description | string: Constraints: Max 100 chars
 | ❌ | tags* | string
 
-### Guild sticker delete
+#### Guild sticker delete
 
 `DELETE /guilds/{guild_id}/stickers/{sticker_id}`
 
-## Channel
+### Channel
 
-### Channel settings
+#### Channel settings
 
 `PATCH /channels/{channel_id}/`
 
@@ -335,9 +337,9 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | default_thread_rate_limit_per_user | integer
 | ❌ | video_quality_mode | integer
 
-## Application
+### Application
 
-### Application create
+#### Application create
 
 `POST /applications/`
 
@@ -346,7 +348,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | name* | string
 | ❌ | team_id | string or integer
 
-### Application edit
+#### Application edit
 
 `PATCH /applications/{id}/`
 
@@ -365,21 +367,21 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | bot_require_code_grant | boolean
 | ❌ | flags | integer
 
-### Application delete
+#### Application delete
 
 `POST /applications/{id}/delete`
 
-## Message
+### Message
 
-### (Un)Pin message
+#### (Un)Pin message
 
 `PUT /channels/{channel_id}/pins/{message_id}`
 
 `DELETE /channels/{channel_id}/pins/{message_id}`
 
-## Webhook
+### Webhook
 
-### Webhook create
+#### Webhook create
 
 `POST /channels/{channel_id}/webhooks/`
 
@@ -387,3 +389,46 @@ List of properties which should be editable somewhere, and handled if necessary 
 | --- | --- | --- | ---
 | ❌ | name* | string: Constraints: Max 80 chars
 | ❌ | avatar | string
+
+## Message types
+
+| Status | ID | Type | Deleteable
+| --- | --- | --- | ---
+| ✅ | 0 | DEFAULT | ✅
+| ❌ | 1 | RECIPIENT_ADD | ❌
+| ❌ | 2 | RECIPIENT_REMOVE | ❌
+| ❌ | 3 | CALL | ❌
+| ❌ | 4 | CHANNEL_NAME_CHANGE | ❌
+| ❌ | 5 | CHANNEL_ICON_CHANGE | ❌
+| ❌ | 6 | CHANNEL_PINNED_MESSAGE | ✅
+| ❌ | 7 | USER_JOIN | ✅
+| ❌ | 8 | GUILD_BOOST | ✅
+| ❌ | 9 | GUILD_BOOST_TIER_1 | ✅
+| ❌ | 10 | GUILD_BOOST_TIER_2 | ✅
+| ❌ | 11 | GUILD_BOOST_TIER_3 | ✅
+| ❌ | 12 | CHANNEL_FOLLOW_ADD | ✅
+| ❌ | 14 | GUILD_DISCOVERY_DISQUALIFIED | ✅
+| ❌ | 15 | GUILD_DISCOVERY_REQUALIFIED | ✅
+| ❌ | 16 | GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING | ✅
+| ❌ | 17 | GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING | ✅
+| ❌ | 18 | THREAD_CREATED | ✅
+| ✅ | 19 | REPLY | ✅
+| ❌ | 20 | CHAT_INPUT_COMMAND | ✅
+| ❌ | 21 | THREAD_STARTER_MESSAGE | ❌
+| ❌ | 22 | GUILD_INVITE_REMINDER | ✅
+| ❌ | 23 | CONTEXT_MENU_COMMAND | ✅
+| ❌ | 24 | AUTO_MODERATION_ACTION | ✅*
+| ❌ | 25 | ROLE_SUBSCRIPTION_PURCHASE | ✅
+| ❌ | 26 | INTERACTION_PREMIUM_UPSELL | ✅
+| ❌ | 27 | STAGE_START | ✅
+| ❌ | 28 | STAGE_END | ✅
+| ❌ | 29 | STAGE_SPEAKER | ✅
+| ❌ | 31 | STAGE_TOPIC | ✅
+| ❌ | 32 | GUILD_APPLICATION_PREMIUM_SUBSCRIPTION | ✅
+| ❌ | 36 | GUILD_INCIDENT_ALERT_MODE_ENABLED | ✅
+| ❌ | 37 | GUILD_INCIDENT_ALERT_MODE_DISABLED | ✅
+| ❌ | 38 | GUILD_INCIDENT_REPORT_RAID | ✅
+| ❌ | 39 | GUILD_INCIDENT_REPORT_FALSE_ALARM | ✅
+| ❌ | 44 | PURCHASE_NOTIFICATION | ✅
+
+* Can only be deleted by members with `MANAGE_MESSAGES` permission

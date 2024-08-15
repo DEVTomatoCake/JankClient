@@ -674,9 +674,9 @@ class LocalUser {
 		let newbio
 		const hypouser = this.user.clone()
 
-		const regen = () => {
+		const regen = async () => {
 			hypotheticalProfile.textContent = ""
-			const hypoprofile = hypouser.buildprofile(-1, -1)
+			const hypoprofile = await hypouser.buildprofile(-1, -1)
 			hypotheticalProfile.appendChild(hypoprofile)
 		}
 		regen()

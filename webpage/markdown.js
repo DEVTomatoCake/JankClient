@@ -176,6 +176,7 @@ class MarkDown {
 					if (count == 3) {
 						const pre = document.createElement("pre")
 
+						build = build.replace(/\r/g, "\n")
 						if (build.at(-1) == "\n") build = build.substring(0, build.length - 1)
 						if (txt[i] == "\n") i++
 

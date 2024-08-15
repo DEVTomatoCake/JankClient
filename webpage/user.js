@@ -103,7 +103,8 @@ class User {
 		if (this.avatar === null) return this.info.cdn + "/embed/avatars/" + ((this.id >>> 22) % 6) + ".png?size=64"
 		return this.info.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png?size=64"
 	}
-	buildprofile(x, y, type = "author") {
+	noteCache = new Map()
+	async buildprofile(x, y, type = "author") {
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
 		let nickname, username, discriminator, bio, pronouns
@@ -114,6 +115,18 @@ class User {
 			bio = this.bio
 			discriminator = this.discriminator
 			pronouns = this.pronouns
+		}
+
+		let note = ""
+		if (this.noteCache.has(this.id)) note = this.noteCache.get(this.id)
+		else {
+			const res = await fetch(this.info.api + "/users/@me/notes/" + this.id, {
+				headers: this.localuser.headers
+			})
+			if (res.ok) note = (await res.json()).text
+			console.warn(note)
+			this.noteCache.set(this.id, note)
+			setTimeout(() => this.noteCache.delete(this.id), 1000 * 60 * 5)
 		}
 
 		const div = document.createElement("div")
@@ -144,9 +157,25 @@ class User {
 		pronounshtml.classList.add("pronouns")
 		userbody.appendChild(pronounshtml)
 
-		const rule = document.createElement("hr")
-		userbody.appendChild(rule)
+		userbody.appendChild(document.createElement("hr"))
 		userbody.appendChild(bio.makeHTML())
+
+		userbody.appendChild(document.createElement("hr"))
+		const noteInput = document.createElement("input")
+		if (note) noteInput.value = note
+		else noteInput.placeholder = "Add a note"
+
+		noteInput.addEventListener("change", async () => {
+			await fetch(this.info.api + "/users/@me/notes/" + this.id, {
+				method: "PUT",
+				headers: this.localuser.headers,
+				body: JSON.stringify({
+					note: noteInput.value
+				})
+			})
+			this.noteCache.set(this.id, noteInput.value)
+		})
+		userbody.appendChild(noteInput)
 
 		if (x != -1) {
 			Contextmenu.currentmenu = div
