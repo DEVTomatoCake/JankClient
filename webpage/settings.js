@@ -354,9 +354,14 @@ class Options {
 
 		const container = document.createElement("div")
 		container.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace")
+
+		const spacingContainer = document.createElement("div")
+		spacingContainer.classList.add("settings-space")
 		for (const thing of this.options) {
-			container.append(thing.generateHTML())
+			spacingContainer.append(thing.generateHTML())
 		}
+		container.append(spacingContainer)
+
 		div.append(container)
 		return div
 	}

@@ -117,18 +117,6 @@ class User {
 			pronouns = this.pronouns
 		}
 
-		let note = ""
-		if (this.noteCache.has(this.id)) note = this.noteCache.get(this.id)
-		else {
-			const res = await fetch(this.info.api + "/users/@me/notes/" + this.id, {
-				headers: this.localuser.headers
-			})
-			if (res.ok) note = (await res.json()).text
-			console.warn(note)
-			this.noteCache.set(this.id, note)
-			setTimeout(() => this.noteCache.delete(this.id), 1000 * 60 * 5)
-		}
-
 		const div = document.createElement("div")
 		if (x == -1) div.classList.add("hypoprofile", "flexttb")
 		else {
@@ -160,10 +148,24 @@ class User {
 		userbody.appendChild(document.createElement("hr"))
 		userbody.appendChild(bio.makeHTML())
 
-		userbody.appendChild(document.createElement("hr"))
+		if (bio.txt.length > 0) userbody.appendChild(document.createElement("hr"))
 		const noteInput = document.createElement("input")
-		if (note) noteInput.value = note
-		else noteInput.placeholder = "Add a note"
+		noteInput.placeholder = "Add a note"
+
+		if (this.noteCache.has(this.id)) noteInput.value = this.noteCache.get(this.id)
+		else {
+			fetch(this.info.api + "/users/@me/notes/" + this.id, {
+				headers: this.localuser.headers
+			}).then(async res => {
+				if (res.ok) {
+					const noteJSON = await res.json()
+					noteInput.value = noteJSON.note
+
+					this.noteCache.set(this.id, noteJSON.note)
+					setTimeout(() => this.noteCache.delete(this.id), 1000 * 60 * 2)
+				}
+			}).catch(() => {})
+		}
 
 		noteInput.addEventListener("change", async () => {
 			await fetch(this.info.api + "/users/@me/notes/" + this.id, {
@@ -178,8 +180,10 @@ class User {
 		userbody.appendChild(noteInput)
 
 		if (x != -1) {
-			Contextmenu.currentmenu = div
+			if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
+
 			document.body.appendChild(div)
+			Contextmenu.currentmenu = div
 			Contextmenu.keepOnScreen(div)
 		}
 		return div

@@ -492,7 +492,7 @@ p {
 input {
 	background: var(--message-bg-hover);
 	color: var(--primary-text);
-	padding: 8px 3px;
+	padding: 7px 4px;
 	width: 97.5%;
 	box-shadow: inset 0 0 .04in #000;
 	border-width: 0;
@@ -779,7 +779,8 @@ textarea {
 	width: 3.5in;
 	resize: none;
 	height: 1.5in;
-	border-radius: 3px;
+	border-radius: 5px;
+	padding: 1px 3px;
 }
 
 .channels {
@@ -1460,11 +1461,14 @@ video {
 
 .flexspace {
 	gap: .1in;
-	padding: .05in;
+}
+
+.settings-space {
+	margin: 12px;
+	width: -webkit-fill-available;
 }
 
 .titlediv {
-	height: 100%;
 	display: flex;
 	flex-direction: column;
 }
@@ -1671,7 +1675,6 @@ video {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px;
-	max-width: 700px;
 }
 
 #connection-container div, #app-list-container div {
@@ -1938,6 +1941,9 @@ small.edited {
 	border-radius: .075in;
 	border: solid .03in #000;
 	height: .4in;
+}
+.SettingsButton:active {
+	border-width: .03in;
 }
 
 #user-actions {

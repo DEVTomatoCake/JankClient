@@ -97,7 +97,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ❌ | note* | string
+| ✅ | note* | string
 
 #### Disable account
 

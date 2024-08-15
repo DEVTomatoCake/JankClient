@@ -68,11 +68,11 @@ const setDefaults = () => {
 			currentuser: null,
 			users: {},
 			preferences: {
-				theme: "dark",
+				theme: window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark",
 				notifications: false,
 				notisound: "three"
 			},
-			accent_color: "#242443"
+			accent_color: window.matchMedia("(prefers-color-scheme: light)").matches ? "#f0f0f0" : "#242443"
 		}))
 		return
 	}
