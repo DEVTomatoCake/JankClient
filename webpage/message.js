@@ -79,7 +79,9 @@ class Message {
 		this.guild_id = messagejson.guild_id
 		this.snowflake = new SnowFlake(messagejson.id, this)
 		this.author = User.checkuser(messagejson.author, this.localuser)
-		this.member = messagejson.member ? new Member(messagejson.member, this.guild) : void 0
+		if (messagejson.member) Member.new(messagejson.member, this.guild).then(m => {
+			this.member = m
+		})
 		this.content = new MarkDown(messagejson.content, this.channel)
 		this.tts = messagejson.tts && this.owner.localuser.settings.enable_tts_command
 		this.timestamp = messagejson.timestamp

@@ -52,7 +52,6 @@
 	--icon-color: #fff;
 
 	--message-bg-hover: color-mix(in srgb, #1e1e28 85%, var(--accent-color));
-	--typing-bg: #161616;
 	--timestamp-color: #a2a2a2;
 	--code-bg: color-mix(in srgb, #121212 95%, var(--accent-color));
 	--user-info-bg: color-mix(in srgb, #383838 85%, var(--accent-color));
@@ -127,7 +126,6 @@
 	--icon-color: #000;
 
 	--message-bg-hover: color-mix(in srgb, #dedee2 85%, var(--accent-color));
-	--typing-bg: #dad8d8;
 	--timestamp-color: #5d5d66;
 	--code-bg: color-mix(in srgb, #cbcbcc 95%, var(--accent-color));
 	--user-info-bg: color-mix(in srgb, #b3b1c2 85%, var(--accent-color));
@@ -511,6 +509,12 @@ div {
 	overflow-y: auto;
 	flex-grow:1;
 }
+#typebox:focus {
+	border-color: inherit;
+	box-shadow: none;
+	outline: none !important;
+	outline-offset: 0 !important;
+}
 
 #realbox {
 	padding: .05in;
@@ -523,14 +527,8 @@ div {
 	display: flex;
 	flex-direction: row;
 	align-items: stretch;
-	margin: 0 .1in .15in .1in;
+	margin: 0 .1in .25in .1in;
 	box-shadow: 0 .01in .05in #000;
-}
-#typebox:focus {
-	border-color: inherit;
-	box-shadow: none;
-	outline: none !important;
-    outline-offset: 0 !important;
 }
 
 #typebox[contenteditable=false] {
@@ -593,17 +591,14 @@ hr {
 #typing {
 	display: flex;
 	position: absolute;
-	bottom: 29px;
-	right: 20px;
-	background: var(--typing-bg);
+	bottom: 0;
 	width: fit-content;
-	transform: translateY(-100%);
-	border-radius: 7px 7px 0 0;
-	padding: 5px 7px;
-	transition: transform .5s ease, opacity .1s ease;
+	margin-left: 10px;
+	margin-bottom: 1px;
+	transition: opacity .3s;
 	opacity: 1;
-	z-index: -1;
-	align-items: baseline;
+	padding: 2px 5px;
+	border-radius: 5px;
 }
 
 #typediv {
@@ -616,6 +611,7 @@ hr {
 .loading-indicator {
 	display: flex;
 	gap: 2px;
+	align-items: center;
 }
 
 .dot-container {
@@ -627,68 +623,37 @@ hr {
 }
 
 .dot {
-	background: var(--primary-text);
-	border-radius: 50%;
-	opacity: .2;
+	animation: fade 1s infinite;
 	width: 6px;
 	height: 6px;
+	background: var(--primary-text);
+	border-radius: 1in;
+	margin-right: .03in;
 }
 
-.dot-container:nth-child(1) .dot {
-	animation: fade1 1s infinite;
+.dot:nth-child(1) {
+	animation-delay: 0s;
 }
-.dot-container:nth-child(2) .dot {
-	animation: fade2 1s infinite;
+.dot:nth-child(2) {
+	animation-delay: .33s;
 }
-.dot-container:nth-child(3) .dot {
-	animation: fade3 1s infinite;
+.dot:nth-child(3) {
+	animation-delay: .66s;
 }
 
-@keyframes fade1 {
+@keyframes fade {
 	0%, 100% {
 		opacity: .2;
-		width: 6px;
-		height: 6px;
 	}
 
-	15%, 50% {
+	50% {
 		opacity: 1;
-		width: 7px;
-		height: 7px;
-	}
-}
-
-@keyframes fade2 {
-	0%, 100% {
-		opacity: .2;
-		width: 6px;
-		height: 6px;
-	}
-
-	35%, 75% {
-		opacity: 1;
-		width: 7px;
-		height: 7px;
-	}
-}
-
-@keyframes fade3 {
-	0%, 100% {
-		opacity: .2;
-		width: 6px;
-		height: 6px;
-	}
-
-	50%, 85% {
-		opacity: 1;
-		width: 7px;
-		height: 7px;
 	}
 }
 
 #typingtext {
 	margin: 0;
-	padding-right: 5px;
+	padding-right: .03in;
 }
 
 #typing.hidden {

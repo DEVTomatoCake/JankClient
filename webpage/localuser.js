@@ -67,7 +67,6 @@ class LocalUser {
 
 			this.guildids.get(guild.id).channelids[thing.channel_id].readStateInfo(thing)
 		}
-		this.typing = []
 	}
 	outoffocus() {
 		document.getElementById("servers").innerHTML = ""
@@ -144,7 +143,7 @@ class LocalUser {
 					const temp = JSON.parse(build)
 					build = ""
 					if (temp.op == 0 && temp.t == "READY") returny()
-					this.handleEvent(temp)
+					await this.handleEvent(temp)
 				} catch {}
 			}
 		}
@@ -183,7 +182,7 @@ class LocalUser {
 				} else temp = JSON.parse(event.data)
 
 				if (temp.op == 0 && temp.t == "READY") returny()
-				this.handleEvent(temp)
+				await this.handleEvent(temp)
 			} catch (e) {
 				console.error(e)
 			}
@@ -227,7 +226,7 @@ class LocalUser {
 
 		await promise
 	}
-	handleEvent(json) {
+	async handleEvent(json) {
 		console.log(json)
 
 		if (json.s) this.lastSequence = json.s
@@ -254,7 +253,7 @@ class LocalUser {
 						const guild = SnowFlake.getSnowFlakeFromID(json.d.guild_id, Guild).getObject()
 
 						let thing
-						if (json.d.member) thing = new Member(json.d.member, guild)
+						if (json.d.member) thing = await Member.new(json.d.member, guild)
 						else thing = { id: json.d.user_id }
 						messageReactionAdd.giveReaction(json.d.emoji, thing)
 					}
@@ -606,24 +605,36 @@ class LocalUser {
 			thing.unreads(this.guildhtml.get(thing.id))
 		}
 	}
-	typingStart(typing) {
-		if (this.channelfocus.snowflake == typing.d.channel_id) {
-			const memb = typing.d.member
+	typing = new Map()
+	async typingStart(typing) {
+		if (this.channelfocus.id === typing.d.channel_id) {
+			const guild = SnowFlake.getSnowFlakeFromID(typing.d.guild_id, Guild).getObject()
+			const memb = await Member.new(typing.d.member, guild)
 			if (memb.id == this.user.id) return
 
-			let already = false
-			for (const thing of this.typing) {
-				if (thing[0] == memb.id) {
-					thing[2] = Date.now()
-					already = true
-					break
-				}
-			}
-			if (!already) this.typing.push([memb.id, memb.nick || memb.user.global_name || memb.user.username, Date.now()])
+			this.typing.set(memb, Date.now())
 
 			this.rendertyping()
 			setTimeout(this.rendertyping.bind(this), 5000)
 		}
+	}
+	rendertyping() {
+		const typingUsers = []
+		let showing = false
+		const curtime = Date.now() - 5000
+		for (const member of this.typing.keys()) {
+			if (this.typing.get(member) > curtime) {
+				typingUsers.push(member.nick || member.user.global_name || member.user.username)
+				showing = true
+			} else this.typing.delete(member)
+		}
+
+		if (showing) {
+			document.getElementById("typing").classList.remove("hidden")
+			document.getElementById("typingtext").textContent = typingUsers.length > 1
+				? typingUsers.slice(1).join(", ") + " and " + typingUsers[0] + " are typing"
+				: typingUsers[0] + " is typing"
+		} else document.getElementById("typing").classList.add("hidden")
 	}
 	updatepfp(file) {
 		const reader = new FileReader()
@@ -651,23 +662,6 @@ class LocalUser {
 			headers: this.headers,
 			body: JSON.stringify(settings)
 		})
-	}
-	rendertyping() {
-		const typingUsers = []
-		let showing = false
-		for (const thing of this.typing) {
-			if (thing[2] > Date.now() - 5000) {
-				typingUsers.push(thing[1])
-				showing = true
-			}
-		}
-
-		if (showing) {
-			document.getElementById("typing").classList.remove("hidden")
-			document.getElementById("typingtext").textContent = typingUsers.length > 1
-				? typingUsers.slice(1).join(", ") + " and " + typingUsers[0] + " are typing"
-				: typingUsers[0] + " is typing"
-		} else document.getElementById("typing").classList.add("hidden")
 	}
 	async showusersettings() {
 		const settings = new Settings("Settings")

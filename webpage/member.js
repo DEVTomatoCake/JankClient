@@ -19,26 +19,21 @@ class Member {
 		})
 	}
 
+	roles = []
 	/**
 	 * @param {memberjson|User|{guild_member: memberjson, user: userjson}} memberjson
 	 * @param {Guild} owner
-	 * @param {boolean} error
 	 */
-	constructor(memberjson, owner, error = false) {
-		this.error = error
-		if (!owner) console.error("Guild not included in the creation of a member object")
+	constructor(memberjson, owner) {
+		if (User.userids[memberjson.id]) this.user = User.userids[memberjson.id]
+		else this.user = new User(memberjson.user, owner.localuser)
 
 		this.owner = owner
-		this.headers = this.owner.headers
-		let member = memberjson
-		this.roles = []
-		if (!error && memberjson.guild_member) member = memberjson.guild_member
-
-		for (const thing of Object.keys(member)) {
+		for (const thing of Object.keys(memberjson)) {
 			if (thing == "guild" || thing == "owner") continue
 
 			if (thing == "roles") {
-				for (const strrole of member.roles) {
+				for (const strrole of memberjson.roles) {
 					const role = SnowFlake.getSnowFlakeFromID(strrole, Role).getObject()
 					this.roles.push(role)
 				}
@@ -48,14 +43,7 @@ class Member {
 			this[thing] = memberjson[thing]
 		}
 
-		if (error) this.user = memberjson
-		else {
-			if (SnowFlake.getSnowFlakeFromID(this?.id, User)) {
-				this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject()
-				return
-			}
-			this.user = User.checkuser(member.user, owner.localuser)
-		}
+		if (SnowFlake.getSnowFlakeFromID(this?.id, User)) this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject()
 	}
 	get guild() {
 		return this.owner
@@ -71,45 +59,53 @@ class Member {
 	 * @param {Guild} guild
 	 * @returns {Promise<Member>}
 	 */
-	static async resolve(unknown, guild) {
-		if (!(guild instanceof Guild)) console.error(guild)
-
+	static async new(memberjson, owner) {
 		let user
-		let id
-		if (unknown instanceof User) {
-			user = unknown
-			id = user.snowflake
-		} else if (typeof unknown == "string") id = new SnowFlake(unknown, void 0)
-		else return new Member(unknown, guild)
+		if (User.userids[memberjson.id]) user = User.userids[memberjson.id]
+		else user = new User(memberjson.user, owner.localuser)
 
-		if (!Member.already[guild.id]) Member.already[guild.id] = {}
-		else if (Member.already[guild.id][id]) {
-			const memb = Member.already[guild.id][id]
-
-			if (memb instanceof Promise) return await memb
+		if (user.members.has(owner)) {
+			let memb = user.members.get(owner)
+			if (memb === void 0) {
+				memb = new Member(memberjson, owner)
+				user.members.set(owner, memb)
+				return memb
+			} else if (memb instanceof Promise) return await memb
+			else return memb
+		} else {
+			const memb = new Member(memberjson, owner)
+			user.members.set(owner, memb)
 			return memb
 		}
-
-		guild.localuser.resolvemember(id.id, guild.id)
-		const fetchPromise = fetch(guild.info.api + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
-			headers: guild.headers
-		})
-		fetchPromise.catch(console.warn)
-		const promise = fetchPromise.then(res => res.json()).then(json => {
-			const memb = new Member(json, guild)
-			Member.already[guild.id][id] = memb
-			return memb
-		})
-
-		Member.already[guild.id][id] = promise
-
-		try {
-			return await promise
-		} catch {
-			const memb = new Member(user, guild, true)
-			Member.already[guild.id][id] = memb
-			return memb
+	}
+	static async resolveMember(user, guild) {
+		const maybe = user.members.get(guild)
+		if (!user.members.has(guild)) {
+			const membpromise = guild.localuser.resolvemember(user.id, guild.id)
+			let res
+			const promise = new Promise(r => {
+				res = r
+			})
+			user.members.set(guild, promise)
+			const membjson = await membpromise
+			if (membjson === void 0) {
+				res(void 0)
+				return
+			} else {
+				const member = new Member(membjson, guild)
+				res(member)
+				return member
+			}
 		}
+
+		if (maybe instanceof Promise) return await maybe
+		return maybe
+	}
+	/**
+	 * @todo
+	 */
+	highInfo() {
+		fetch(this.info.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + this.guild.id, { headers: this.guild.headers })
 	}
 	hasRole(ID) {
 		return this.roles.some(role => role.id == ID)
@@ -127,17 +123,7 @@ class Member {
 		return this.guild.properties.owner_id == this.user.id || this.roles.some(role => role.permissions.hasPermission("ADMINISTRATOR"))
 	}
 	contextMenuBind(html) {
-		if (html.tagName == "SPAN") {
-			if (this.error) {
-				const error = document.createElement("span")
-				error.textContent = "!"
-				error.classList.add("membererror")
-				html.after(error)
-				return
-			}
-
-			html.style.color = this.getColor()
-		}
+		if (html.tagName == "SPAN") html.style.color = this.getColor()
 
 		this.profileclick(html)
 		Member.contextmenu.bind(html)

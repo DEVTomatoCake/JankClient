@@ -58,8 +58,9 @@ class User {
 		this.hypotheticalpfp = false
 	}
 	async resolvemember(guild) {
-		return await Member.resolve(this, guild)
+		return await Member.resolveMember(this, guild)
 	}
+	members = new WeakMap()
 	clone() {
 		return new User({
 			username: this.username,
@@ -162,9 +163,16 @@ class User {
 	}
 	contextMenuBind(html, guild) {
 		if (guild && guild.id != "@me") {
-			Member.resolve(this, guild).then(member => {
-				member.contextMenuBind(html)
-			}).catch(() => {})
+			Member.resolveMember(this, guild).then(m => {
+				if (m === void 0) {
+					const error = document.createElement("span")
+					error.textContent = "!"
+					error.classList.add("membererror")
+					html.after(error)
+					return
+				}
+				m.contextMenuBind(html)
+			})
 		}
 
 		this.profileclick(html)

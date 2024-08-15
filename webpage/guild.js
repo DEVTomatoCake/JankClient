@@ -101,7 +101,8 @@ class Guild {
 			this.roleids.set(roleh.snowflake, roleh)
 		}
 
-		Member.resolve(member, this).then(m => this.member = m)
+		if (member instanceof User) Member.resolveMember(member, this).then(m => this.member = m)
+		else Member.new(member, this).then(m => this.member = m)
 
 		for (const thing of json.channels) {
 			const temp = new Channel(thing, this)
