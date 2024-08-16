@@ -399,9 +399,6 @@ class Channel {
 			headers: this.headers,
 			body: JSON.stringify({})
 		})
-		this.lastreadmessageid = this.lastmessageid
-		this.guild.unreads()
-		if (this.myhtml !== null) this.myhtml.classList.remove("cunread")
 	}
 	coatDropDiv(div, container = false) {
 		div.addEventListener("dragenter", event => {

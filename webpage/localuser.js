@@ -245,8 +245,8 @@ class LocalUser {
 					this.gottenReady(json)
 					break
 				case "MESSAGE_UPDATE":
-					const message = SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject()
-					message.giveData(json.d)
+					const messageUpdated = SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject()
+					messageUpdated.giveData(json.d)
 					break
 				case "MESSAGE_REACTION_ADD":
 					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
@@ -259,6 +259,18 @@ class LocalUser {
 						else thing = { id: json.d.user_id }
 						messageReactionAdd.giveReaction(json.d.emoji, thing)
 					}
+					break
+				case "MESSAGE_ACK":
+					const messageAcked = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+
+					messageAcked.channel.lastreadmessageid = json.d.message_id
+					messageAcked.channel.guild.unreads()
+
+					if (messageAcked.channel.myhtml !== null) {
+						if (messageAcked.channel.lastmessageid == json.d.message_id) messageAcked.channel.myhtml.classList.remove("cunread")
+						else messageAcked.channel.myhtml.classList.add("cunread")
+					}
+
 					break
 				case "MESSAGE_REACTION_REMOVE":
 					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {

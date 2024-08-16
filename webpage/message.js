@@ -55,6 +55,14 @@ class Message {
 			})
 		})
 
+		Message.contextmenu.addsubmenu("Mark as unread", function() {
+			fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/ack", {
+				method: "POST",
+				headers: this.headers,
+				body: JSON.stringify({})
+			})
+		})
+
 		Message.contextmenu.addbutton("Edit", function() {
 			this.channel.editing = this
 			const markdown = document.getElementById("typebox").markdown

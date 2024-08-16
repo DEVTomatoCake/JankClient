@@ -484,7 +484,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | APPLICATION_COMMAND_CREATE
 | ❌ | APPLICATION_COMMAND_UPDATE
 | ❌ | APPLICATION_COMMAND_DELETE
-| ❌ | MESSAGE_ACK
+| ✅ | MESSAGE_ACK
 | ❌ | RELATIONSHIP_ADD
 | ❌ | RELATIONSHIP_REMOVE
 | ❌ | SESSIONS_REPLACE

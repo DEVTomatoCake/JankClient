@@ -175,9 +175,10 @@ class Guild {
 			}
 		}
 
-		if (!html) return
-		if (read) html.children[0].classList.remove("notiunread")
-		else html.children[0].classList.add("notiunread")
+		if (html) {
+			if (read) html.children[0].classList.remove("notiunread")
+			else html.children[0].classList.add("notiunread")
+		}
 	}
 	getHTML() {
 		this.sortchannels()
