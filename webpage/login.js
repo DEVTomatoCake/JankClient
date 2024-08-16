@@ -90,6 +90,33 @@ const adduser = user => {
 	info.users[user.uid] = user
 	info.currentuser = user.uid
 	localStorage.setItem("userinfos", JSON.stringify(info))
+	return user
+}
+
+// eslint-disable-next-line no-unused-vars
+const getAPIURLs = async str => {
+	if (str.at(-1) != "/") str += "/"
+
+	let api
+	try {
+		const info = await fetch(`${str}/.well-known/spacebar`).then(x => x.json())
+		api = info.api
+	} catch {
+		return false
+	}
+
+	const url = new URL(api)
+	try {
+		const info = await fetch(`${api}${url.pathname.includes("api") ? "" : "api"}/policies/instance/domains`).then(x => x.json())
+		return {
+			api: info.apiEndpoint,
+			gateway: info.gateway,
+			cdn: info.cdn,
+			wellknown: str
+		}
+	} catch {
+		return false
+	}
 }
 
 const login = async (username, password, captcha) => {
@@ -152,16 +179,22 @@ const login = async (username, password, captcha) => {
 						}).then(r => r.json()).then(response => {
 							if (response.message) alert(response.message)
 							else {
-								adduser({serverurls: info, email: username, token: response.token})
-								location.href = "/channels/@me"
+								adduser({serverurls: info, email: username, token: response.token}).username = username
+
+								const params = new URLSearchParams(location.search)
+								if (params.has("next") && params.get("next").charAt(0) == "/" && params.get("next").charAt(1) != "/") location.href = params.get("next")
+								else location.href = "/channels/@me"
 							}
 						})
 					}]
 				]
 			).show()
 		} else {
-			adduser({serverurls: info, email: username, token: json.token})
-			location.href = "/channels/@me"
+			adduser({serverurls: info, email: username, token: json.token}).username = username
+
+			const params = new URLSearchParams(location.search)
+			if (params.has("next") && params.get("next").charAt(0) == "/" && params.get("next").charAt(1) != "/") location.href = params.get("next")
+			else location.href = "/channels/@me"
 		}
 	}
 }
@@ -255,5 +288,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 			instancein.value = "https://spacebar.chat/"
 		}
 		checkInstance()
+	}
+
+	const switchurl = document.getElementById("switch")
+	if (switchurl) {
+		switchurl.href += location.search
+		const instance = new URLSearchParams(location.search).get("instance")
+		if (instance) {
+			instancein.value = instance
+			checkInstance()
+		}
 	}
 })

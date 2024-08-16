@@ -45,6 +45,8 @@ const global = {
 	editchannel: "writeable",
 	getBulkUsers: "writeable",
 	getBulkInfo: "writeable",
+	adduser: "writeable",
+	getAPIURLs: "writeable",
 
 	hcaptcha: "readable"
 }

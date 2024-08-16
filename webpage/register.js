@@ -62,7 +62,8 @@ const registertry = async event => {
 			capt.append(capty)
 		}
 	} else if (json.token) {
-		localStorage.setItem("userinfos", JSON.stringify({
+		adduser({serverurls: JSON.parse(localStorage.getItem("instanceEndpoints")), email, token: json.token}).username = document.getElementById("uname").value
+		/*localStorage.setItem("userinfos", JSON.stringify({
 			currentuser: email + apiUrl,
 			users: {
 				[email + apiUrl]: {
@@ -78,8 +79,11 @@ const registertry = async event => {
 				notifications: false,
 				notisound: "three"
 			}
-		}))
-		location.href = "/channels/@me"
+		}))*/
+
+		const params = new URLSearchParams(location.search)
+		if (params.has("next") && params.get("next").charAt(0) == "/" && params.get("next").charAt(1) != "/") location.href = params.get("next")
+		else location.href = "/channels/@me"
 	} else {
 		console.log(json)
 		if (json.errors.consent) error(document.getElementById("tos-check"), json.errors.consent._errors[0].message)

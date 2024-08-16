@@ -52,12 +52,83 @@ app.get("/getupdates", async (req, res) => {
 	res.send("" + Math.round(out.mtimeMs))
 })
 
-app.use("/", (req, res) => {
+const needsEmbed = str => {
+	return str == "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)" || str == "Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)"
+}
+
+const getAPIURLs = async str => {
+	if (str.at(-1) != "/") str += "/"
+
+	let api
+	try {
+		const info = await fetch(`${str}/.well-known/spacebar`).then(x => x.json())
+		api = info.api
+	} catch {
+		return false
+	}
+
+	const url = new URL(api)
+	try {
+		const info = await fetch(`${api}${url.pathname.includes("api") ? "" : "api"}/policies/instance/domains`).then(x => x.json())
+		return {
+			api: info.apiEndpoint,
+			gateway: info.gateway,
+			cdn: info.cdn,
+			wellknown: str
+		}
+	} catch {
+		return false
+	}
+}
+
+const encode = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
+
+const inviteres = async (res, reqPath, query) => {
+	try {
+		const code = reqPath.replace("invite", "")
+		let title = ""
+		let description = ""
+		let icon = ""
+		const urls = await getAPIURLs(query.instance)
+		await fetch(urls.api + "/invites/" + code).then(response => response.json()).then(json => {
+			title = json.guild.name
+			description = json.inviter.username + " has invited you to " + json.guild.name + (json.guild.description ? json.guild.description + "\n" : "")
+			if (json.guild.icon) icon = urls.cdn + "/icons/" + json.guild.id + "/" + json.guild.icon + ".png"
+		})
+
+		const html =
+			"<!DOCTYPE html>" +
+			"<html lang=\"en\">" +
+			"<head>" +
+				"<title>" + encode(title) + "</title>" +
+				"<meta content=\"" + encode(title) + "\" property=\"og:title\">" +
+				"<meta content=\"" + encode(description) + "\" property=\"og:description\">" +
+				"<meta content=\"" + encode(icon) + "\" property=\"og:image\">" +
+			"</head>" +
+			"</html>"
+
+		res.type("html")
+		res.send(html)
+		return true
+	} catch (e) {
+		console.error(e)
+	}
+	return false
+}
+
+app.use("/", async (req, res) => {
 	const reqPath = req.path.replace(/[^\w.-]/g, "")
 
-	if (reqPath.length == 0 || reqPath.startsWith("channels") || reqPath.startsWith("invite")) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
+	if (reqPath.length == 0 || reqPath.startsWith("channels")) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
 	if (reqPath == "login") return res.sendFile(path.join(__dirname, "webpage", "login.html"))
 	if (reqPath == "register") return res.sendFile(path.join(__dirname, "webpage", "register.html"))
+	if (/^connections[\w-]{1,64}callback$/.test(reqPath)) return res.sendFile(path.join(__dirname, "webpage", "connections.html"))
+
+	if (req.query.instance && reqPath.startsWith("invite")) {
+		if (needsEmbed(req.get("User-Agent"))) await inviteres(res, reqPath, req.query)
+		else res.sendFile(path.join(__dirname, "webpage", "invite.html"))
+		return
+	}
 
 	if (!/^[\w-]+\.\w+$/.test(reqPath)) {
 		res.status(400).send("Invalid path!")
@@ -77,10 +148,9 @@ app.use("/", (req, res) => {
 		return res.sendFile(path.join(__dirname, "webpage", "icons", reqPath.replace("icons", "")), {
 			maxAge: 1000 * 60 * 60 * 24
 		})
-	if (/^connections[\w-]{1,64}callback$/.test(reqPath)) return res.sendFile(path.join(__dirname, "webpage", "connections.html"))
 })
 
 const PORT = process.env.PORT || 25512
 app.listen(PORT, () => {
-	console.log("Started Jank Client on port " + PORT + "!")
+	console.log("Started Jank Client on http://localhost:" + PORT)
 })

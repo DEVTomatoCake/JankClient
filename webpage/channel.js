@@ -24,6 +24,74 @@ class Channel {
 		this.contextmenu.addbutton("Edit channel", function() {
 			editchannel(this)
 		}, null, owner => owner.isAdmin())
+
+		this.contextmenu.addbutton("Make invite", function() {
+			this.createInvite()
+		}, null, owner => owner.hasPermission("CREATE_INSTANT_INVITE") && owner.type != 4)
+	}
+	createInvite() {
+		const div = document.createElement("div")
+		div.classList.add("invitediv")
+
+		const text = document.createElement("input")
+		text.setAttribute("readonly", "")
+		text.addEventListener("click", () => {
+			text.select()
+		})
+		div.append(text)
+
+		const copycontainer = document.createElement("div")
+		copycontainer.classList.add("copycontainer")
+		const copy = document.createElement("img")
+		copy.src = "/icons/copy.svg"
+		copy.classList.add("copybutton", "svgtheme")
+		copycontainer.append(copy)
+		copycontainer.onclick = () => {
+			navigator.clipboard.writeText(text.value)
+		}
+		div.append(copycontainer)
+
+		let uses = 0
+		let expires = 1800
+		const update = () => {
+			fetch(this.info.api + "/channels/" + this.id + "/invites", {
+				method: "POST",
+				headers: this.headers,
+				body: JSON.stringify({
+					flags: 0,
+					target_type: null,
+					target_user_id: null,
+					max_age: expires + "",
+					max_uses: uses,
+					temporary: uses != 0
+				})
+			}).then(res => res.json()).then(json => {
+				const params = new URLSearchParams()
+				params.set("instance", this.info.wellknown)
+				text.value = location.origin + "/invite/" + json.code + "?" + params.toString()
+			})
+		}
+		update()
+
+		new Dialog(["vdiv",
+			["title",
+				"Invite someone"
+			],
+			["text",
+				"to #" + this.name + " in " + this.guild.properties.name
+			],
+			["select",
+				"Expire after:", ["30 Minutes", "1 Hour", "6 Hours", "12 Hours", "1 Day", "7 Days", "30 Days", "Never"], event => {
+					expires = [60 * 30, 60 * 60, 60 * 60 * 6, 60 * 60 * 12, 60 * 60 * 24, 60 * 60 * 24 * 7, 60 * 60 * 24 * 30, 0][event.srcElement.selectedIndex]
+					update()
+				}, 0],
+			["select",
+				"Max uses:", ["No limit", "1 use", "5 uses", "10 uses", "25 uses", "50 uses", "100 uses"], event => {
+					uses = [0, 1, 5, 10, 25, 50, 100][event.srcElement.selectedIndex]
+					update()
+				}, 0],
+			["html", div]
+		]).show()
 	}
 	generateSettings() {
 		this.sortPerms()
