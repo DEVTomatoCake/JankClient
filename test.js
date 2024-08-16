@@ -9,12 +9,14 @@ const expectEqual = async (t, name = "", input = "", expected = "") => {
 	})
 }
 
+/* eslint-disable no-unused-vars */
 // https://docs.taiko.dev/api/reference/
 const {
 	openBrowser,
 	closeBrowser,
 	goto,
 	write,
+	fileField,
 	timeField,
 	clear,
 	$,
@@ -29,6 +31,7 @@ const {
 	waitFor,
 	dropDown
 } = require("taiko")
+/* eslint-enable no-unused-vars */
 const taiko = require("taiko")
 
 const baseUrl = "https://spacebar.vanillaminigames.net/"
@@ -93,19 +96,6 @@ const main = async () => {
 			})
 		}
 
-		await test("Usage: Chatting", {skip: true}, async t => {
-			await click($("#servers div:nth-child(4)"))
-			await click($("#ch-1260645563867721629"))
-
-			const message = "Test message " + Date.now()
-			await write(message, $("#typebox"))
-			await press("Enter")
-
-			await waitFor(2000)
-			await expectEqual(t, "Send message", await $(".messagecontainer > .flexttb > " +
-				".messagediv:last-child > .message > .flexttb > .commentrow > .flexttb").text(), message)
-		})
-
 		await test("Usage: Settings", {skip: true}, async t => {
 			await click($("#settings"))
 
@@ -123,8 +113,22 @@ const main = async () => {
 			await click($("dialog .close"))
 		})
 
+		await test("Usage: Chatting", {skip: true}, async t => {
+			await click($("#servers div:nth-child(4)"))
+			await click($("#ch-1260645563867721629"))
+
+			const message = "Test message " + Date.now()
+			await write(message, $("#typebox"))
+			await press("Enter")
+
+			await waitFor(2000)
+			await expectEqual(t, "Send message", await $(".messagecontainer > .flexttb > " +
+				".messagediv:last-child > .message > .flexttb > .commentrow > .flexttb").text(), message)
+		})
+
 		await test("Usage: Connections", {skip: true}, async t => {
-			await click($("#connections"))
+			await click($("#settings"))
+			await click($("Connections"))
 			await waitFor(2000)
 
 			await expectEqual(t, "YouTube connection list", await $("#connection-container div").text(), "Youtube")
@@ -139,8 +143,8 @@ const main = async () => {
 		})
 
 		await test("Usage: Developer Portal", async t => {
-			await click($("#dev-portal"))
-
+			await click($("#settings"))
+			await click($("Developer Portal"))
 			await waitFor(2000)
 
 			if (await $("#app-list-container div h2").exists()) {
@@ -173,6 +177,8 @@ const main = async () => {
 
 				await t.test("Create new application")
 			}
+
+			await click($("dialog .close"))
 		})
 	} catch (error) {
 		console.error(error)

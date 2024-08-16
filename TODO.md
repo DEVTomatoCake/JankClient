@@ -435,8 +435,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 ## Gateway events
 
-| Status | Type
-| --- | ---
+| Status | Type | Notes
+| --- | --- | ---
 | ✅ | READY
 | ✅ | CHANNEL_CREATE
 | ✅ | CHANNEL_UPDATE
@@ -461,8 +461,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | GUILD_ROLE_CREATE
 | ❌ | GUILD_ROLE_DELETE
 | ❌ | GUILD_ROLE_UPDATE
-| ❌ | INVITE_CREATE
-| ❌ | INVITE_DELETE
+| ⛔ | INVITE_CREATE | Not needed
+| ⛔ | INVITE_DELETE | Not needed
 | ✅ | MESSAGE_CREATE
 | ✅ | MESSAGE_UPDATE
 | ✅ | MESSAGE_DELETE
