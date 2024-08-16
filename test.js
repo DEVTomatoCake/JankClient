@@ -128,7 +128,7 @@ const main = async () => {
 
 		await test("Usage: Connections", {skip: true}, async t => {
 			await click($("#settings"))
-			await click($("Connections"))
+			await click($(".SettingsButton:nth-child(4)"))
 			await waitFor(2000)
 
 			await expectEqual(t, "YouTube connection list", await $("#connection-container div").text(), "Youtube")
@@ -144,7 +144,7 @@ const main = async () => {
 
 		await test("Usage: Developer Portal", async t => {
 			await click($("#settings"))
-			await click($("Developer Portal"))
+			await click($(".SettingsButton:nth-child(5)"))
 			await waitFor(2000)
 
 			if (await $("#app-list-container div h2").exists()) {

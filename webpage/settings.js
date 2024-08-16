@@ -65,23 +65,29 @@ class PermissionToggle {
 }
 
 class TextInput {
-	constructor(label, onSubmit, owner, { initText = "" } = {}) {
+	constructor(label, onSubmit, owner, { id = Math.random().toString(36).slice(2), initText = "" } = {}) {
 		this.label = label
 		this.textContent = initText
 		this.owner = owner
 		this.onSubmit = onSubmit
+		this.elemId = id
 	}
 	generateHTML() {
 		const div = document.createElement("div")
-		const span = document.createElement("span")
-		span.textContent = this.label
-		div.append(span)
+
+		const label = document.createElement("label")
+		label.for = this.elemId
+		label.textContent = this.label
+		div.append(label)
+
 		const input = document.createElement("input")
+		input.id = this.elemId
 		input.value = this.textContent
 		input.type = "text"
 		input.oninput = this.onChange.bind(this)
 		this.input = new WeakRef(input)
 		div.append(input)
+
 		return div
 	}
 	onChange() {
@@ -100,21 +106,25 @@ class TextInput {
 }
 
 class MDInput {
-	constructor(label, onSubmit, owner, { initText = "" } = {}) {
+	constructor(label, onSubmit, owner, { id = Math.random().toString(36).slice(2), initText = "" } = {}) {
 		this.label = label
 		this.textContent = initText
 		this.owner = owner
 		this.onSubmit = onSubmit
+		this.elemId = id
 	}
 	generateHTML() {
 		const div = document.createElement("div")
 
-		const span = document.createElement("span")
-		span.textContent = this.label
-		div.append(span)
+		const label = document.createElement("label")
+		label.for = this.elemId
+		label.textContent = this.label
+		div.append(label)
+
 		div.append(document.createElement("br"))
 
 		const input = document.createElement("textarea")
+		input.id = this.elemId
 		input.value = this.textContent
 		input.oninput = this.onChange.bind(this)
 		this.input = new WeakRef(input)
@@ -138,19 +148,21 @@ class MDInput {
 }
 
 class SelectInput {
-	constructor(label, onSubmit, options, owner, { defaultIndex = 0 } = {}) {
+	constructor(label, onSubmit, options, owner, { id = Math.random().toString(36).slice(2), defaultIndex = 0 } = {}) {
 		this.label = label
 		this.index = defaultIndex
 		this.owner = owner
 		this.onSubmit = onSubmit
 		this.options = options
+		this.elemId = id
 	}
 	generateHTML() {
 		const div = document.createElement("div")
 
-		const span = document.createElement("span")
-		span.textContent = this.label
-		div.append(span)
+		const label = document.createElement("label")
+		label.for = this.elemId
+		label.textContent = this.label
+		div.append(label)
 
 		const select = document.createElement("select")
 		select.onchange = this.onChange.bind(this)
@@ -181,19 +193,22 @@ class SelectInput {
 }
 
 class FileInput {
-	constructor(label, onSubmit, owner) {
+	constructor(label, onSubmit, owner, { id = Math.random().toString(36).slice(2)} = {}) {
 		this.label = label
 		this.owner = owner
 		this.onSubmit = onSubmit
+		this.elemId = id
 	}
 	generateHTML() {
 		const div = document.createElement("div")
 
-		const span = document.createElement("span")
-		span.textContent = this.label
-		div.append(span)
+		const label = document.createElement("label")
+		label.for = this.elemId
+		label.textContent = this.label
+		div.append(label)
 
 		const input = document.createElement("input")
+		input.id = this.elemId
 		input.type = "file"
 		input.oninput = this.onChange.bind(this)
 		this.input = new WeakRef(input)
@@ -226,20 +241,23 @@ class HtmlArea {
 }
 
 class ButtonInput {
-	constructor(label, textContent, onClick, owner) {
+	constructor(label, textContent, onClick, owner, { id = Math.random().toString(36).slice(2)} = {}) {
 		this.label = label
 		this.owner = owner
 		this.onClick = onClick
 		this.textContent = textContent
+		this.elemId = id
 	}
 	generateHTML() {
 		const div = document.createElement("div")
 
-		const span = document.createElement("span")
-		span.textContent = this.label
-		div.append(span)
+		const label = document.createElement("label")
+		label.for = this.elemId
+		label.textContent = this.label
+		div.append(label)
 
 		const button = document.createElement("button")
+		button.id = this.elemId
 		button.textContent = this.textContent
 		button.onclick = this.onClickEvent.bind(this)
 		div.append(button)
@@ -254,20 +272,23 @@ class ButtonInput {
 }
 
 class ColorInput {
-	constructor(label, onSubmit, owner, { initColor = "" } = {}) {
+	constructor(label, onSubmit, owner, { id = Math.random().toString(36).slice(2), initColor = "" } = {}) {
 		this.label = label
 		this.colorContent = initColor
 		this.owner = owner
 		this.onSubmit = onSubmit
+		this.elemId = id
 	}
 	generateHTML() {
 		const div = document.createElement("div")
 
-		const span = document.createElement("span")
-		span.textContent = this.label
-		div.append(span)
+		const label = document.createElement("label")
+		label.for = this.elemId
+		label.textContent = this.label
+		div.append(label)
 
 		const input = document.createElement("input")
+		input.id = this.elemId
 		input.value = this.colorContent
 		input.type = "color"
 		input.addEventListener("input", this.onChange.bind(this))
