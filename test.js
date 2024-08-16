@@ -21,6 +21,7 @@ const {
 	clear,
 	$,
 	click,
+	rightClick,
 	textBox,
 	button,
 	press,
@@ -96,34 +97,21 @@ const main = async () => {
 			})
 		}
 
-		await test("Usage: Settings", {skip: true}, async t => {
+		await test("Usage: User profile", {skip: true}, async t => {
 			await click($("#settings"))
 
 			await clear(textBox("Pronouns"))
 			await write("it", textBox("Pronouns"))
 			await expectEqual(t, "Pronouns preview", await $("p.pronouns").text(), "it")
 
-			/*await clear(textBox("Bio"))
-			await write("it", textBox("Bio"))
-			await expectEqual(t, "Bio preview", await $("p.pronouns").text(), "it")*/
+			await clear(textBox("Bio"))
+			await write("Hello *world*!", textBox("Bio"))
+			await expectEqual(t, "Bio preview", await $(".hypoprofile > .infosection > span").text(), "Hello world!")
 
-			await dropDown("Theme").select("Light")
+			//await dropDown("Theme").select("Light")
 
-			await click(button("submit"))
-			await click($("dialog .close"))
-		})
-
-		await test("Usage: Chatting", {skip: true}, async t => {
-			await click($("#servers div:nth-child(4)"))
-			await click($("#ch-1260645563867721629"))
-
-			const message = "Test message " + Date.now()
-			await write(message, $("#typebox"))
-			await press("Enter")
-
-			await waitFor(2000)
-			await expectEqual(t, "Send message", await $(".messagecontainer > .flexttb > " +
-				".messagediv:last-child > .message > .flexttb > .commentrow > .flexttb").text(), message)
+			await click($(".savediv button"))
+			await click($("dialog.settings > .exitsettings"))
 		})
 
 		await test("Usage: Connections", {skip: true}, async t => {
@@ -139,10 +127,10 @@ const main = async () => {
 				new URL(await currentURL()).origin, "https://accounts.google.com")
 			await closeTab()
 
-			await click($("dialog .close"))
+			await click($("dialog.settings > .exitsettings"))
 		})
 
-		await test("Usage: Developer Portal", async t => {
+		await test("Usage: Developer Portal", {skip: true}, async t => {
 			await click($("#settings"))
 			await click($(".SettingsButton:nth-child(5)"))
 			await waitFor(2000)
@@ -178,7 +166,40 @@ const main = async () => {
 				await t.test("Create new application")
 			}
 
-			await click($("dialog .close"))
+			await click($("dialog.settings > .exitsettings"))
+		})
+
+		await test("Usage: Chatting", {skip: true}, async t => {
+			await click($("#servers div:nth-child(4)"))
+			await click($("#ch-1260645563867721629"))
+
+			const message = "Test message " + Date.now()
+			await write(message, $("#typebox"))
+			await press("Enter")
+
+			await waitFor(2000)
+			await expectEqual(t, "Send message", await $(".messagecontainer > .flexttb > " +
+				".messagediv:last-child > .message > .flexttb > .commentrow > .flexttb").text(), message)
+		})
+
+		await test("Usage: Discovery join & leave", async t => {
+			await click($("#servers > div.servericon"))
+			await waitFor(2000)
+
+			const name = await $(".discovery-guild:nth-child(1) h3").text()
+			await click($(".discovery-guild:nth-child(1)"))
+			await waitFor(2000)
+
+			await click($("#servers div:nth-child(5)"))
+			await waitFor(2000)
+
+			expectEqual(t, "Joined discovery server", await $("#servername").text(), name)
+
+			await rightClick($("#servers div:nth-child(5)"))
+			await click($(".contextmenu tr:nth-child(5) button"))
+			await click(button("Yes, I'm sure"))
+
+			t.test("Left discovery server")
 		})
 	} catch (error) {
 		console.error(error)

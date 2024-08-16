@@ -65,7 +65,7 @@ class PermissionToggle {
 }
 
 class TextInput {
-	constructor(label, onSubmit, owner, { id = Math.random().toString(36).slice(2), initText = "" } = {}) {
+	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5), initText = "" } = {}) {
 		this.label = label
 		this.textContent = initText
 		this.owner = owner
@@ -76,7 +76,7 @@ class TextInput {
 		const div = document.createElement("div")
 
 		const label = document.createElement("label")
-		label.for = this.elemId
+		label.setAttribute("for", this.elemId)
 		label.textContent = this.label
 		div.append(label)
 
@@ -106,7 +106,7 @@ class TextInput {
 }
 
 class MDInput {
-	constructor(label, onSubmit, owner, { id = Math.random().toString(36).slice(2), initText = "" } = {}) {
+	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5), initText = "" } = {}) {
 		this.label = label
 		this.textContent = initText
 		this.owner = owner
@@ -117,7 +117,7 @@ class MDInput {
 		const div = document.createElement("div")
 
 		const label = document.createElement("label")
-		label.for = this.elemId
+		label.setAttribute("for", this.elemId)
 		label.textContent = this.label
 		div.append(label)
 
@@ -148,7 +148,7 @@ class MDInput {
 }
 
 class SelectInput {
-	constructor(label, onSubmit, options, owner, { id = Math.random().toString(36).slice(2), defaultIndex = 0 } = {}) {
+	constructor(label, onSubmit, options, owner, { id = "random-" + Math.random().toString(36).slice(5), defaultIndex = 0 } = {}) {
 		this.label = label
 		this.index = defaultIndex
 		this.owner = owner
@@ -160,11 +160,12 @@ class SelectInput {
 		const div = document.createElement("div")
 
 		const label = document.createElement("label")
-		label.for = this.elemId
+		label.setAttribute("for", this.elemId)
 		label.textContent = this.label
 		div.append(label)
 
 		const select = document.createElement("select")
+		select.id = this.elemId
 		select.onchange = this.onChange.bind(this)
 		for (const thing of this.options) {
 			const option = document.createElement("option")
@@ -193,7 +194,7 @@ class SelectInput {
 }
 
 class FileInput {
-	constructor(label, onSubmit, owner, { id = Math.random().toString(36).slice(2)} = {}) {
+	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5)} = {}) {
 		this.label = label
 		this.owner = owner
 		this.onSubmit = onSubmit
@@ -203,7 +204,7 @@ class FileInput {
 		const div = document.createElement("div")
 
 		const label = document.createElement("label")
-		label.for = this.elemId
+		label.setAttribute("for", this.elemId)
 		label.textContent = this.label
 		div.append(label)
 
@@ -241,7 +242,7 @@ class HtmlArea {
 }
 
 class ButtonInput {
-	constructor(label, textContent, onClick, owner, { id = Math.random().toString(36).slice(2)} = {}) {
+	constructor(label, textContent, onClick, owner, { id = "random-" + Math.random().toString(36).slice(5)} = {}) {
 		this.label = label
 		this.owner = owner
 		this.onClick = onClick
@@ -252,7 +253,7 @@ class ButtonInput {
 		const div = document.createElement("div")
 
 		const label = document.createElement("label")
-		label.for = this.elemId
+		label.setAttribute("for", this.elemId)
 		label.textContent = this.label
 		div.append(label)
 
@@ -272,7 +273,7 @@ class ButtonInput {
 }
 
 class ColorInput {
-	constructor(label, onSubmit, owner, { id = Math.random().toString(36).slice(2), initColor = "" } = {}) {
+	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5), initColor = "" } = {}) {
 		this.label = label
 		this.colorContent = initColor
 		this.owner = owner
@@ -283,7 +284,7 @@ class ColorInput {
 		const div = document.createElement("div")
 
 		const label = document.createElement("label")
-		label.for = this.elemId
+		label.setAttribute("for", this.elemId)
 		label.textContent = this.label
 		div.append(label)
 
@@ -401,6 +402,7 @@ class Options {
 			div.append(span)
 
 			const button = document.createElement("button")
+			button.type = "button"
 			button.textContent = "Save changes"
 			div.append(button)
 			this.haschanged = true

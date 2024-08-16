@@ -342,21 +342,20 @@ class Guild {
 			],
 			["hdiv",
 				["button",
-				"",
-				"Yes, I'm sure",
-				async () => {
-					await this.leave()
-					full.hide()
-				}
+					"",
+					"Yes, I'm sure",
+					async () => {
+						await this.leave()
+						full.hide()
+					}
 				],
 				["button",
-				"",
-				"Nevermind",
-				() => {
-					full.hide()
-				}
+					"",
+					"Nevermind",
+					() => {
+						full.hide()
+					}
 				]
-
 			]
 		])
 		full.show()
