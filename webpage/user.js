@@ -138,9 +138,11 @@ class User {
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
 		const div = document.createElement("div")
-
 		if (this.accent_color) div.style.setProperty("--accent_color", "#" + this.accent_color.toString(16).padStart(6, "0"))
 		else div.style.setProperty("--accent_color", "transparent")
+
+		const topContainer = document.createElement("div")
+		topContainer.classList.add("profileTop")
 
 		if (this.banner) {
 			const banner = document.createElement("img")
@@ -150,7 +152,7 @@ class User {
 
 			banner.src = src
 			banner.classList.add("banner")
-			div.append(banner)
+			topContainer.appendChild(banner)
 		}
 
 		if (x == -1) {
@@ -163,7 +165,9 @@ class User {
 		}
 
 		const pfp = await this.buildstatuspfp()
-		div.appendChild(pfp)
+		topContainer.appendChild(pfp)
+
+		div.appendChild(topContainer)
 
 		const userbody = document.createElement("div")
 		userbody.classList.add("infosection")
@@ -212,7 +216,6 @@ class User {
 		const noteInput = document.createElement("input")
 		noteInput.placeholder = "Add a note"
 
-		console.warn(this.localuser.noteCache)
 		if (this.localuser.noteCache.has(this.id)) noteInput.value = this.localuser.noteCache.get(this.id)
 		else {
 			fetch(this.info.api + "/users/@me/notes/" + this.id, {

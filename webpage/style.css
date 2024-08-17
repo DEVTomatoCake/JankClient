@@ -308,7 +308,7 @@ code {
 	padding: .3cm;
 	width: 100%;
 	height: calc(100% - .5in - .2cm);
-	margin-top: .1cm;
+	margin-top: 10px;
 	box-sizing: border-box;
 }
 
@@ -2058,12 +2058,16 @@ small.edited {
 
 .banner {
 	position: absolute;
-	z-index: 0;
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: .5in;
+	height: 105px;
+	opacity: .8;
 	object-fit: cover;
+}
+
+.profileTop {
+	height: 105px;
 }
 
 .rolesbox {
