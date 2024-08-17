@@ -8,6 +8,51 @@ const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
 while (chars.length < 256) chars += chars
 
+let fixsvgtheme
+document.addEventListener("DOMContentLoaded", () => {
+	let last
+	const dud = document.createElement("p")
+	dud.classList.add("svgtheme")
+	document.body.append(dud)
+	const css = window.getComputedStyle(dud)
+
+	const fixsvgtheme_ = () => {
+		if (css.color == last) return
+		last = css.color
+
+		const thing = css.color.replace("rgb(", "").replace(")", "").split(",")
+		const r = Number.parseInt(thing[0]) / 255
+		const g = Number.parseInt(thing[1]) / 255
+		const b = Number.parseInt(thing[2]) / 255
+		const max = Math.max(r, g, b)
+		const min = Math.min(r, g, b)
+		const l = (max + min) / 2
+		let s
+		let h
+		if (max == min) {
+			s = 0
+			h = 0
+		} else {
+			if (l <= 0.5) s = (max - min) / (max + min)
+			else s = (max - min) / (2 - max - min)
+
+			if (r == max) h = (g - b) / (max - min)
+			else if (g == max) h = 2 + (b - r) / (max - min)
+			else if (b == max) h = 4 + (r - g) / (max - min)
+		}
+
+		const rot = Math.floor(h * 60) + "deg"
+		const invert = 0.5 - (s / 2) + ""
+		const brightness = Math.floor((l * 200)) + "%"
+		document.documentElement.style.setProperty("--rot", rot)
+		document.documentElement.style.setProperty("--invert", invert)
+		document.documentElement.style.setProperty("--brightness", brightness)
+	}
+	fixsvgtheme = fixsvgtheme_
+	setTimeout(fixsvgtheme_, 100)
+	fixsvgtheme_()
+})
+
 // eslint-disable-next-line no-unused-vars
 class LocalUser {
 	constructor(userinfo) {
@@ -811,6 +856,7 @@ class LocalUser {
 		})
 
 		tas.addColorInput("Accent color:", value => {
+			fixsvgtheme()
 			const userinfos = getBulkInfo()
 			userinfos.accent_color = value
 			localStorage.setItem("userinfos", JSON.stringify(userinfos))
