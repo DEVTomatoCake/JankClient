@@ -1,3 +1,5 @@
+"use strict"
+
 const main = async () => {
 	const connection = location.href.split("/")[4]
 

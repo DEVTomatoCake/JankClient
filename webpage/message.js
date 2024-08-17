@@ -389,10 +389,10 @@ class Message {
 			texttxt.appendChild(messaged)
 
 			const username = document.createElement("span")
+			username.classList.add("username")
 			username.textContent = this.author.username
 			this.author.contextMenuBind(username, this.guild)
 			texttxt.appendChild(username)
-			username.classList.add("username")
 
 			const time = document.createElement("span")
 			time.textContent = formatTime(new Date(this.timestamp))

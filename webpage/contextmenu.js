@@ -29,12 +29,15 @@ class Contextmenu {
 		div.classList.add("contextmenu")
 		for (const button of this.buttons) {
 			if (!button.shown(addinfo)) continue
+
 			const textb = document.createElement("tr")
+
 			const intext = document.createElement("button")
-			intext.disabled = !button.enabled()
-			textb.button = intext
 			intext.classList.add("contextbutton")
 			intext.textContent = button.text
+			intext.disabled = !button.enabled()
+
+			textb.button = intext
 			textb.appendChild(intext)
 
 			if (button.type == "button") intext.onclick = button.onclick.bind(addinfo, obj)

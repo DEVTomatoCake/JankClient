@@ -577,7 +577,8 @@ class Channel {
 		if (this.owner != this.localuser.lookingguild) this.owner.loadGuild()
 		if (this.localuser.channelfocus) this.localuser.channelfocus.infinite.delete()
 
-		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) this.localuser.channelfocus.myhtml.classList.remove("viewChannel")
+		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml)
+			this.localuser.channelfocus.myhtml.classList.remove("viewChannel")
 		this.myhtml.classList.add("viewChannel")
 
 		this.owner.prevchannel = this

@@ -1,3 +1,5 @@
+"use strict"
+
 class Permissions {
 	constructor(allow, deny = "") {
 		this.hasDeny = Boolean(deny)

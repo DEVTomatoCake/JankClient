@@ -443,7 +443,7 @@ class Guild {
 		})
 	}
 	async createRole(name) {
-		const fetched = await fetch(this.info.api + "/guilds/" + this.id + "roles", {
+		const fetched = await fetch(this.info.api + "/guilds/" + this.id + "/roles", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({
@@ -453,6 +453,7 @@ class Guild {
 			})
 		})
 		const json = await fetched.json()
+
 		const role = new Role(json, this)
 		this.roleids.set(role.snowflake, role)
 		this.roles.push(role)

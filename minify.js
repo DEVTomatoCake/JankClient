@@ -1,3 +1,5 @@
+"use strict"
+
 const fsPromises = require("node:fs").promises
 
 const UglifyJS = require("uglify-js")
@@ -26,7 +28,7 @@ const minifyFile = async (inputPath, options = {}) => {
 			[inputPath]: content
 		}, {
 			sourceMap: {
-				root: "https://spacebar.vanillaminigames.net/webpage/",
+				root: "https://spacebar.vanillaminigames.net/",
 				filename,
 				url: filename + ".map"
 			},

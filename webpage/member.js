@@ -82,21 +82,21 @@ class Member {
 		const maybe = user.members.get(guild)
 		if (!user.members.has(guild)) {
 			const membpromise = guild.localuser.resolvemember(user.id, guild.id)
-			let res
-			const promise = new Promise(r => {
-				res = r
+			let resolve
+			const promise = new Promise(res => {
+				resolve = res
 			})
 			user.members.set(guild, promise)
 			const membjson = await membpromise
 			if (membjson === void 0) {
-				res(void 0)
+				resolve(void 0)
 				return
 			} else {
 				const member = new Member(membjson, guild)
 				const map = guild.localuser.presences
 				member.getPresence(map.get(member.id))
 				map.delete(member.id)
-				res(member)
+				resolve(member)
 				return member
 			}
 		}
@@ -111,7 +111,9 @@ class Member {
 	 * @todo
 	 */
 	highInfo() {
-		fetch(this.info.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + this.guild.id, { headers: this.guild.headers })
+		fetch(this.info.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + this.guild.id, {
+			headers: this.guild.headers
+		})
 	}
 	hasRole(ID) {
 		return this.roles.some(role => role.id == ID)
@@ -119,11 +121,7 @@ class Member {
 	getColor() {
 		if (!this.roles) return ""
 
-		for (const r of this.roles) {
-			const color = r.getColor()
-			if (color) return color
-		}
-		return ""
+		return this.roles.find(role => role.getColor())?.getColor() || ""
 	}
 	isAdmin() {
 		return this.guild.properties.owner_id == this.user.id || this.roles.some(role => role.permissions.hasPermission("ADMINISTRATOR"))

@@ -1,3 +1,5 @@
+"use strict"
+
 const users = getBulkUsers()
 const instance = new URLSearchParams(location.search).get("instance")
 const joinable = []

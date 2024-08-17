@@ -1,3 +1,5 @@
+"use strict"
+
 class Emoji {
 	constructor(json, owner) {
 		this.name = json.name
