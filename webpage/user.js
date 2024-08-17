@@ -79,6 +79,17 @@ class User {
 			badge_ids: this.badge_ids
 		}, this.owner)
 	}
+	getPresence(presence) {
+		if (presence) this.setstatus(presence.status)
+		else this.setstatus("offline")
+	}
+	setstatus(status) {
+		this.status = status
+	}
+	async getStatus() {
+		if (this.status) return this.status
+		return "offline"
+	}
 	buildpfp() {
 		const pfp = document.createElement("img")
 		pfp.crossOrigin = "anonymous"
@@ -87,6 +98,26 @@ class User {
 		pfp.classList.add("pfp")
 		pfp.classList.add("userid:" + this.id)
 		return pfp
+	}
+	async buildstatuspfp() {
+		const div = document.createElement("div")
+		div.style.position = "relative"
+		const pfp = this.buildpfp()
+		div.append(pfp)
+		{
+			const status = document.createElement("div")
+			status.classList.add("statusDiv")
+			switch (await this.getStatus()) {
+				case "offline":
+					status.classList.add("offlinestatus")
+					break
+				default:
+					status.classList.add("onlinestatus")
+					break
+			}
+			div.append(status)
+		}
+		return div
 	}
 	userupdate(json) {
 		if (json.avatar != this.avatar) this.changepfp(json.avatar)
@@ -101,56 +132,87 @@ class User {
 		if (this.hypotheticalpfp) return this.avatar
 
 		if (this.avatar === null) return this.info.cdn + "/embed/avatars/" + ((this.id >>> 22) % 6) + ".png?size=64"
-		return this.info.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png?size=64"
+		return this.info.cdn + "/avatars/" + this.id.replace("#clone", "") + "/" + this.avatar + ".png?size=64"
 	}
-	async buildprofile(x, y, type = "author") {
+	async buildprofile(x, y, guild) {
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
-		let nickname, username, discriminator, bio, pronouns
-		if (type == "author") {
-			username = this.username
-			nickname = this.username
+		const div = document.createElement("div")
 
-			bio = this.bio
-			discriminator = this.discriminator
-			pronouns = this.pronouns
+		if (this.accent_color) div.style.setProperty("--accent_color", "#" + this.accent_color.toString(16).padStart(6, "0"))
+		else div.style.setProperty("--accent_color", "transparent")
+
+		if (this.banner) {
+			const banner = document.createElement("img")
+			let src
+			if (this.hypotheticalbanner) src = this.banner
+			else src = this.info.cdn + "/avatars/" + this.id.replace("#clone", "") + "/" + this.banner + ".png"
+
+			banner.src = src
+			banner.classList.add("banner")
+			div.append(banner)
 		}
 
-		const div = document.createElement("div")
-		if (x == -1) div.classList.add("hypoprofile", "flexttb")
-		else {
+		if (x == -1) {
+			div.classList.add("profile", "hypoprofile", "flexttb")
+			this.setstatus("online")
+		} else {
 			div.style.left = x + "px"
 			div.style.top = y + "px"
 			div.classList.add("profile", "flexttb")
 		}
 
-		const pfp = this.buildpfp()
+		const pfp = await this.buildstatuspfp()
 		div.appendChild(pfp)
 
 		const userbody = document.createElement("div")
 		userbody.classList.add("infosection")
-		div.appendChild(userbody)
+
 		const usernamehtml = document.createElement("h2")
-		usernamehtml.textContent = nickname
+		usernamehtml.textContent = this.username
 		userbody.appendChild(usernamehtml)
 
 		const discrimatorhtml = document.createElement("h3")
 		discrimatorhtml.classList.add("tag")
-		discrimatorhtml.textContent = username + "#" + discriminator
+		discrimatorhtml.textContent = this.username + "#" + this.discriminator
 		userbody.appendChild(discrimatorhtml)
 
 		const pronounshtml = document.createElement("p")
-		pronounshtml.textContent = pronouns
+		pronounshtml.textContent = this.pronouns
 		pronounshtml.classList.add("pronouns")
 		userbody.appendChild(pronounshtml)
 
 		userbody.appendChild(document.createElement("hr"))
-		userbody.appendChild(bio.makeHTML())
+		userbody.appendChild(this.bio.makeHTML())
 
-		if (bio.txt.length > 0) userbody.appendChild(document.createElement("hr"))
+		if (guild) await Member.resolveMember(this, guild).then(member => {
+			if (!member) return
+
+			const roles = document.createElement("div")
+			roles.classList.add("rolesbox")
+			for (const role of member.roles) {
+				const roleContainer = document.createElement("div")
+				roleContainer.classList.add("rolediv")
+
+				const color = document.createElement("div")
+				color.style.setProperty("--role-color", "#" + role.color.toString(16).padStart(6, "0"))
+				color.classList.add("colorrolediv")
+				roleContainer.append(color)
+
+				const span = document.createElement("span")
+				span.textContent = role.name
+				roleContainer.append(span)
+
+				roles.append(roleContainer)
+			}
+			userbody.append(roles)
+		})
+
+		if (this.bio.txt.length > 0) userbody.appendChild(document.createElement("hr"))
 		const noteInput = document.createElement("input")
 		noteInput.placeholder = "Add a note"
 
+		console.warn(this.localuser.noteCache)
 		if (this.localuser.noteCache.has(this.id)) noteInput.value = this.localuser.noteCache.get(this.id)
 		else {
 			fetch(this.info.api + "/users/@me/notes/" + this.id, {
@@ -161,8 +223,9 @@ class User {
 					noteInput.value = noteJSON.note
 
 					this.localuser.noteCache.set(this.id, noteJSON.note)
-					setTimeout(() => this.localuser.noteCache.delete(this.id), 1000 * 60 * 2)
-				}
+				} else this.localuser.noteCache.set(this.id, "")
+
+				setTimeout(() => this.localuser.noteCache.delete(this.id), 1000 * 60 * 2)
 			}).catch(() => {})
 		}
 
@@ -171,13 +234,13 @@ class User {
 				method: "PUT",
 				headers: this.localuser.headers,
 				body: JSON.stringify({
-					note: noteInput.value
+					note: noteInput.value.trim()
 				})
 			})
-			this.localuser.noteCache.set(this.id, noteInput.value)
 		})
 		userbody.appendChild(noteInput)
 
+		div.appendChild(userbody)
 		if (x != -1) {
 			if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
@@ -187,27 +250,27 @@ class User {
 		}
 		return div
 	}
-	profileclick(obj, author) {
+	profileclick(obj, guild) {
 		obj.addEventListener("click", event => {
 			event.stopPropagation()
-			this.buildprofile(event.clientX, event.clientY, author)
+			this.buildprofile(event.clientX, event.clientY, guild)
 		})
 	}
-	contextMenuBind(html, guild) {
+	contextMenuBind(html, guild, error = true) {
 		if (guild && guild.id != "@me") {
-			Member.resolveMember(this, guild).then(m => {
-				if (m === void 0) {
-					const error = document.createElement("span")
-					error.textContent = "!"
-					error.classList.add("membererror")
-					html.after(error)
+			Member.resolveMember(this, guild).then(member => {
+				if (member === void 0 && error) {
+					const errorElem = document.createElement("span")
+					errorElem.textContent = "!"
+					errorElem.classList.add("membererror")
+					html.after(errorElem)
 					return
 				}
-				m.contextMenuBind(html)
+				if (member) member.contextMenuBind(html)
 			})
 		}
 
-		this.profileclick(html)
+		this.profileclick(html, guild)
 		User.contextmenu.bind(html, this)
 	}
 	static async resolve(id, localuser) {

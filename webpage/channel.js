@@ -28,6 +28,23 @@ class Channel {
 		this.contextmenu.addbutton("Make invite", function() {
 			this.createInvite()
 		}, null, owner => owner.hasPermission("CREATE_INSTANT_INVITE") && owner.type != 4)
+
+		this.contextmenu.addbutton("Test Lazy Request/opcode 14", function() {
+			this.localuser.ws.send(JSON.stringify({
+				op: 14,
+				d: {
+					guild_id: this.guild.id,
+					channels: {
+						[this.id]: [
+							[
+								0,
+								99
+							]
+						]
+					}
+				}
+			}))
+		}, null)
 	}
 	createInvite() {
 		const div = document.createElement("div")
@@ -124,16 +141,15 @@ class Channel {
 				}
 			}
 		}), (async id => {
-			let res
-			const promise = new Promise(_ => {
-				res = _
+			let resolve
+			const promise = new Promise(res => {
+				resolve = res
 			})
 			const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
-			if (!snowflake.getObject()) {
-				await this.grabAround(id)
-			}
+			if (!snowflake.getObject()) await this.grabAround(id)
+
 			const html = snowflake.getObject().buildhtml(this.messageids.get(this.idToPrev.get(snowflake)), promise)
-			ids.set(id, res)
+			ids.set(id, resolve)
 			return html
 		}), (id => {
 			ids.get(id)()

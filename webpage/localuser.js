@@ -33,6 +33,7 @@ class LocalUser {
 		this.guildids = new Map()
 		this.guildhtml = new Map()
 		this.user = User.checkuser(ready.d.user, this)
+		this.user.setstatus("online")
 		this.mfa_enabled = ready.d.user.mfa_enabled
 		this.userinfo.username = this.user.username
 		this.userinfo.pfpsrc = this.user.getpfpsrc()
@@ -113,7 +114,7 @@ class LocalUser {
 					compress: supportsCompression,
 					presence: {
 						status: "online",
-						since: Date.now(),
+						since: null,
 						activities: [],
 						afk: false
 					}
@@ -666,6 +667,29 @@ class LocalUser {
 			})
 		}
 	}
+	updatebanner(file) {
+		if (file) {
+			const reader = new FileReader()
+			reader.readAsDataURL(file)
+			reader.onload = () => {
+				fetch(this.info.api + "/users/@me", {
+					method: "PATCH",
+					headers: this.headers,
+					body: JSON.stringify({
+						banner: reader.result
+					})
+				})
+			}
+		} else {
+			fetch(this.info.api + "/users/@me", {
+				method: "PATCH",
+				headers: this.headers,
+				body: JSON.stringify({
+					banner: null
+				})
+			})
+		}
+	}
 	updateProfile(json) {
 		fetch(this.info.api + "/users/@me/profile", {
 			method: "PATCH",
@@ -689,6 +713,7 @@ class LocalUser {
 		let file = null
 		let newpronouns
 		let newbio
+		let color = this.user.accent_color ? "#" + this.user.accent_color.toString(16) : "transparent"
 		const hypouser = this.user.clone()
 
 		const regen = async () => {
@@ -705,7 +730,7 @@ class LocalUser {
 			if (file) this.updatepfp(file)
 		})
 		finput.watchForChange(value => {
-			if (value.length) {
+			if (value.length > 0) {
 				file = value[0]
 				const blob = URL.createObjectURL(file)
 				hypouser.avatar = blob
@@ -714,10 +739,33 @@ class LocalUser {
 			}
 		})
 
+		let bfile
+		const binput = settingsLeft.addFileInput("Upload banner:", () => {
+			if (bfile !== void 0) this.updatebanner(bfile)
+		})
+		binput.watchForChange(value => {
+			if (value.length > 0) {
+				bfile = value[0]
+				const blob = URL.createObjectURL(bfile)
+				hypouser.banner = blob
+				hypouser.hypotheticalbanner = true
+				regen()
+			}
+		})
+
+		settingsLeft.addButtonInput("Clear banner", "Clear", () => {
+			bfile = null
+			hypouser.banner = null
+			settingsLeft.changed()
+			regen()
+		})
+		let changed = false
+
 		const pronounbox = settingsLeft.addTextInput("Pronouns", () => {
-			if (newpronouns || newbio) this.updateProfile({
+			if (newpronouns || newbio || changed) this.updateProfile({
 				pronouns: newpronouns,
-				bio: newbio
+				bio: newbio,
+				accent_color: Number.parseInt("0x" + color.substr(1), 16)
 			})
 		}, { initText: this.user.pronouns })
 		pronounbox.watchForChange(value => {
@@ -730,6 +778,14 @@ class LocalUser {
 		bioBox.watchForChange(value => {
 			newbio = value
 			hypouser.bio = new MarkDown(value, this)
+			regen()
+		})
+
+		const colorPicker = settingsLeft.addColorInput("Profile color", () => {}, { initColor: color })
+		colorPicker.watchForChange(value => {
+			color = value
+			hypouser.accent_color = Number.parseInt("0x" + value.substr(1), 16)
+			changed = true
 			regen()
 		})
 
@@ -1072,6 +1128,7 @@ class LocalUser {
 	}
 
 	waitingmembers = new Map()
+	presences = new Map()
 	async resolvemember(id, guildid) {
 		if (!this.waitingmembers.has(guildid)) this.waitingmembers.set(guildid, new Map())
 
@@ -1087,6 +1144,10 @@ class LocalUser {
 	noncemap = new Map()
 	noncebuild = new Map()
 	async gotChunk(chunk) {
+		for (const thing of chunk.presences) {
+			this.presences.set(thing.user.id, thing)
+		}
+
 		chunk.members ??= []
 		const arr = this.noncebuild.get(chunk.nonce)
 		arr[0] = arr[0].concat(chunk.members)
@@ -1095,6 +1156,7 @@ class LocalUser {
 		arr[2].push(chunk.chunk_index)
 		if (arr[2].length == chunk.chunk_count) {
 			this.noncebuild.delete(chunk.nonce)
+
 			const func = this.noncemap.get(chunk.nonce)
 			func([arr[0], arr[1]])
 			this.noncemap.delete(chunk.nonce)
@@ -1138,7 +1200,8 @@ class LocalUser {
 						user_ids: build,
 						guild_id: guildid,
 						limit: 100,
-						nonce
+						nonce,
+						presences: true
 					}
 				}))
 				this.fetchingmembers.set(guildid, true)

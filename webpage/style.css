@@ -1444,19 +1444,15 @@ video {
 	background: var(--profile-bg);
 	border-radius: 10%;
 	padding: .2cm;
-	width: 7cm;
-	height: 8cm;
+	width: 285px;
+	max-height: 70vh;
 	z-index: 5;
 	border: solid, color-mix(in hsl, var(--black), transparent 80%), .03in;
+	box-shadow: inset .03in .35in .2in var(--accent_color);
 }
 
 .hypoprofile {
-	display: inline-block;
-	background: var(--profile-bg);
-	border-radius: 10%;
-	padding: .2cm;
-	width: 7cm;
-	height: 8cm;
+	position: relative;
 }
 
 .flexspace {
@@ -2039,4 +2035,68 @@ small.edited {
 	box-sizing: border-box;
 	box-shadow: .02in 0 .03in var(--black);
 	cursor: pointer;
+}
+
+.statusDiv {
+	position: absolute;
+	bottom: .025in;
+	right: .025in;
+	width: .125in;
+	height: .125in;
+	background: var(--black);
+	border: solid .03in black;
+	box-sizing: border-box;
+	border-radius: .1in;
+}
+
+.onlinestatus {
+	background: var(--green);
+}
+.offlinestatus {
+	background: var(--primary-bg);
+}
+
+.banner {
+	position: absolute;
+	z-index: 0;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: .5in;
+	object-fit: cover;
+}
+
+.rolesbox {
+	margin-top: 5px;
+	display: flex;
+	flex-direction: row;
+	align-content: flex-end;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: flex-end;
+}
+
+.rolediv {
+	font-size: .15in;
+	width: fit-content;
+	background: var(--blank-bg);
+	padding: 3px;
+	border-radius: .05in;
+	border: solid .03in var(--black);
+	display: flex;
+	align-items: center;
+}
+
+.colorrolediv {
+	width: .125in;
+	height: .125in;
+	display: inline-block;
+	background: var(--role-color);
+	margin-right: .04in;
+	border-radius: .1in;
+	border: solid .01in var(--black);
+}
+
+#channelTopic {
+	margin-left: 10px;
 }

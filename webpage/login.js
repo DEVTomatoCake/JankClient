@@ -4,21 +4,23 @@ const getBulkInfo = () => {
 	return JSON.parse(localStorage.getItem("userinfos"))
 }
 
+const handleEndpoint = (url = "", isAPI = false) => {
+	let parsed = new URL(url).toString()
+	if (parsed.endsWith("/")) parsed = parsed.slice(0, -1)
+	if (!/\/v\d+$/.test(parsed) && isAPI) parsed += "/v9"
+	return parsed
+}
+
 class SpecialUser {
 	constructor(json) {
 		if (json instanceof SpecialUser) throw new Error("Input for SpecialUser must not be instance of SpecialUser")
 
-		const instanceURLs = {
-			api: new URL(json.serverurls.api).toString(),
-			cdn: new URL(json.serverurls.cdn).toString(),
-			gateway: new URL(json.serverurls.gateway).toString(),
-			wellknown: new URL(json.serverurls.wellknown).toString()
+		this.serverurls = {
+			api: handleEndpoint(json.serverurls.api, true),
+			cdn: handleEndpoint(json.serverurls.cdn),
+			gateway: handleEndpoint(json.serverurls.gateway),
+			wellknown: handleEndpoint(json.serverurls.wellknown)
 		}
-		Object.keys(instanceURLs).forEach(key => {
-			if (instanceURLs[key].endsWith("/")) instanceURLs[key] = instanceURLs[key].slice(0, -1)
-		})
-		if (!/\/v\d+$/.test(instanceURLs.api)) instanceURLs.api += "/v9"
-		this.serverurls = instanceURLs
 
 		this.email = json.email
 		this.token = json.token
@@ -108,10 +110,10 @@ const getAPIURLs = async str => {
 	try {
 		const info = await fetch(api + "/policies/instance/domains").then(x => x.json())
 		return {
-			api: info.apiEndpoint,
-			gateway: info.gateway,
-			cdn: info.cdn,
-			wellknown: str
+			api: handleEndpoint(info.apiEndpoint, true),
+			gateway: handleEndpoint(info.gateway),
+			cdn: handleEndpoint(info.cdn),
+			wellknown: handleEndpoint(str)
 		}
 	} catch {
 		return false
@@ -202,15 +204,16 @@ const setInstance = async url => {
 	url = new URL(url)
 
 	const attempt = async aurl => {
-		const info = await fetch(aurl.toString() + (aurl.pathname.includes("api") ? "" : "api") + "/policies/instance/domains")
+		const loginURL = handleEndpoint(aurl.toString())
+		const info = await fetch(loginURL + (aurl.pathname.includes("api") ? "" : "api") + "/policies/instance/domains")
 			.then(x => x.json())
 
 		return {
-			api: info.apiEndpoint,
-			gateway: info.gateway,
-			cdn: info.cdn,
-			wellknown: url,
-			login: aurl.toString()
+			api: handleEndpoint(info.apiEndpoint, true),
+			gateway: handleEndpoint(info.gateway),
+			cdn: handleEndpoint(info.cdn),
+			wellknown: handleEndpoint(url),
+			login: loginURL
 		}
 	}
 	try {
