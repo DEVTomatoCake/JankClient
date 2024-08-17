@@ -38,10 +38,10 @@ const minifyFile = async (inputPath, options = {}) => {
 			},
 			toplevel: true,
 			nameCache,
-			//mangle: true,
+			mangle: true,
 			...defaultOptions,
-			...options,
-			mangle: false // temp override to fix re-defined variables
+			...options//,
+			//mangle: false // temp override to fix re-defined variables
 		})
 
 		if (result.error) throw result.error
@@ -108,16 +108,23 @@ const generateJSOptions = (retain = []) => ({
 })
 
 const minify = async () => {
+	await minifyFile("./webpage/attachment.js", generateJSOptions(["Attachment"]))
 	await minifyFile("./webpage/audio.js", generateJSOptions(["Audio"]))
 	await minifyFile("./webpage/channel.js", generateJSOptions(["Channel"]))
+	await minifyFile("./webpage/component.js", generateJSOptions(["Component"]))
+	await minifyFile("./webpage/connections.js", generateJSOptions())
 	await minifyFile("./webpage/contextmenu.js", generateJSOptions(["Contextmenu"]))
 	await minifyFile("./webpage/dialog.js", generateJSOptions(["Dialog"]))
 	await minifyFile("./webpage/direct.js", generateJSOptions(["Group", "Direct"]))
 	await minifyFile("./webpage/embed.js", generateJSOptions(["Embed"]))
-	await minifyFile("./webpage/guild.js", generateJSOptions(["Guild"]))
-	await minifyFile("./webpage/index.js", generateJSOptions(["messagelist", "requestTestNotif"]))
-	await minifyFile("./webpage/localuser.js", generateJSOptions(["LocalUser"]))
-	await minifyFile("./webpage/login.js", generateJSOptions(["getBulkInfo", "getBulkUsers"]))
+	await minifyFile("./webpage/emoji.js", generateJSOptions(["Emoji"]))
+	await minifyFile("./webpage/emojis.js", generateJSOptions(["emojis", "emojiRegex"]))
+	//await minifyFile("./webpage/guild.js", generateJSOptions(["Guild"]))
+	//await minifyFile("./webpage/index.js", generateJSOptions(["messagelist", "requestTestNotif"]))
+	await minifyFile("./webpage/invite.js", generateJSOptions())
+	await minifyFile("./webpage/infiniteScroller.js", generateJSOptions(["InfiniteScroller"]))
+	//await minifyFile("./webpage/localuser.js", generateJSOptions(["LocalUser"]))
+	//await minifyFile("./webpage/login.js", generateJSOptions(["getBulkInfo", "getBulkUsers"]))
 	await minifyFile("./webpage/markdown.js", generateJSOptions(["MarkDown"]))
 	await minifyFile("./webpage/member.js", generateJSOptions(["Member"]))
 	await minifyFile("./webpage/message.js", generateJSOptions(["Message"]))
@@ -125,6 +132,8 @@ const minify = async () => {
 	await minifyFile("./webpage/register.js", generateJSOptions())
 	await minifyFile("./webpage/role.js", generateJSOptions(["Role"]))
 	await minifyFile("./webpage/service.js", generateJSOptions())
+	await minifyFile("./webpage/settings.js", generateJSOptions(["Settings", "RoleList"]))
+	await minifyFile("./webpage/snowflake.js", generateJSOptions(["SnowFlake"]))
 	await minifyFile("./webpage/user.js", generateJSOptions(["User"]))
 
 	await minifyFile("./webpage/style.css")
