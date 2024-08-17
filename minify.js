@@ -113,18 +113,16 @@ const minify = async () => {
 	await minifyFile("./webpage/direct.js", generateJSOptions(["Group", "Direct"]))
 	await minifyFile("./webpage/embed.js", generateJSOptions(["Embed"]))
 	await minifyFile("./webpage/guild.js", generateJSOptions(["Guild"]))
-	await minifyFile("./webpage/index.js", generateJSOptions([
-		"editchannel", "messagelist"
-	]))
+	await minifyFile("./webpage/index.js", generateJSOptions(["messagelist", "requestTestNotif"]))
 	await minifyFile("./webpage/localuser.js", generateJSOptions(["LocalUser"]))
 	await minifyFile("./webpage/login.js", generateJSOptions(["getBulkInfo", "getBulkUsers"]))
-	await minifyFile("./webpage/markdown.js", generateJSOptions(["markdown"]))
+	await minifyFile("./webpage/markdown.js", generateJSOptions(["MarkDown"]))
 	await minifyFile("./webpage/member.js", generateJSOptions(["Member"]))
 	await minifyFile("./webpage/message.js", generateJSOptions(["Message"]))
 	await minifyFile("./webpage/permissions.js", generateJSOptions(["Permissions"]))
-	await minifyFile("./webpage/register.js", generateJSOptions([]))
+	await minifyFile("./webpage/register.js", generateJSOptions())
 	await minifyFile("./webpage/role.js", generateJSOptions(["Role"]))
-	await minifyFile("./webpage/service.js", generateJSOptions([]))
+	await minifyFile("./webpage/service.js", generateJSOptions())
 	await minifyFile("./webpage/user.js", generateJSOptions(["User"]))
 
 	await minifyFile("./webpage/style.css")

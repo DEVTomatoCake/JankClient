@@ -42,7 +42,6 @@ const global = {
 	messagelist: "writable",
 	setTheme: "writeable",
 	checkInstance: "writeable",
-	editchannel: "writeable",
 	getBulkUsers: "writeable",
 	getBulkInfo: "writeable",
 	adduser: "writeable",

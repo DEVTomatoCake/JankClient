@@ -22,7 +22,7 @@ class Channel {
 		}, null, owner => owner.isAdmin())
 
 		this.contextmenu.addbutton("Edit channel", function() {
-			editchannel(this)
+			this.editChannel()
 		}, null, owner => owner.isAdmin())
 
 		this.contextmenu.addbutton("Make invite", function() {

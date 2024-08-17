@@ -78,10 +78,6 @@ const showAccountSwitcher = () => {
 	document.body.append(container)
 }
 
-const userSettings = () => {
-	thisuser.showusersettings()
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
 	const menu = new Contextmenu()
 	menu.addbutton("Create channel", () => {
@@ -109,7 +105,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 			elem.appendChild(await LocalUser.loadSVG(elem.getAttribute("data-icon")))
 		})
 
-	document.getElementById("settings").addEventListener("click", userSettings)
+	document.getElementById("settings").addEventListener("click", () => {
+		thisuser.showusersettings()
+	})
 
 	if ("serviceWorker" in navigator) {
 		navigator.serviceWorker.register("/service.js")
@@ -147,11 +145,6 @@ const requestTestNotif = async () => {
 			Authorization: users.users[users.currentuser].token
 		}
 	})
-}
-
-// eslint-disable-next-line no-unused-vars
-const editchannel = channel => {
-	channel.editChannel()
 }
 
 // eslint-disable-next-line no-unused-vars
