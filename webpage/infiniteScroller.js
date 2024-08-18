@@ -16,12 +16,23 @@ class InfiniteScroller {
 		div.classList.add("messagecontainer")
 		const scroll = document.createElement("div")
 		scroll.classList.add("flexttb")
-		div.append(scroll)
+		div.appendChild(scroll)
+
 		this.div = div
-		this.interval = setInterval(this.updatestuff.bind(this), 100)
+		this.div.addEventListener("scroll", this.watchForChange.bind(this))
+
 		this.scroll = scroll
 		this.scroll.addEventListener("scroll", this.watchForChange.bind(this))
-		new ResizeObserver(this.watchForChange.bind(this)).observe(div)
+
+		let oldheight = 0
+		new ResizeObserver(() => {
+			const change = oldheight - div.offsetHeight
+			if (change > 0 && this.scroll) this.scroll.scrollTop += change
+
+			oldheight = div.offsetHeight
+			this.watchForChange()
+		}).observe(div)
+
 		new ResizeObserver(this.watchForChange.bind(this)).observe(scroll)
 
 		await this.firstElement(initialId)
@@ -31,22 +42,39 @@ class InfiniteScroller {
 		})
 		return div
 	}
-	updatestuff() {
+	needsupdate = true
+	async updatestuff() {
+		this.timeout = null
 		this.scrollBottom = this.scroll.scrollHeight - this.scroll.scrollTop - this.scroll.clientHeight
 		this.scrollTop = this.scroll.scrollTop
-		if (this.scrollBottom) this.reachesBottom()
+		if (!this.scrollBottom && !await this.watchForChange()) {
+				this.reachesBottom()
+			}
+
+		if (!this.scrollTop) {
+			await this.watchForChange()
+		}
+		this.needsupdate = false
 	}
 	async firstElement(id) {
 		const html = await this.getHTMLFromID(id)
-		this.scroll.append(html)
+		this.scroll.appendChild(html)
 		this.HTMLElements.push([html, id])
 	}
 	currrunning = false
 	async addedBottom() {
 		this.updatestuff()
-		const scrollBottom = this.scrollBottom
+		const func = this.snapBottom()
 		await this.watchForChange()
-		if (scrollBottom < 30) this.scroll.scrollTop = this.scroll.scrollHeight
+		func()
+	}
+	snapBottom() {
+		const scrollBottom = this.scrollBottom
+		return () => {
+			if (this.scroll && scrollBottom < 30) {
+				this.scroll.scrollTop = this.scroll.scrollHeight
+			}
+		}
 	}
 	async watchForTop() {
 		let again = false
@@ -61,6 +89,12 @@ class InfiniteScroller {
 			if (nextid) {
 				again = true
 				const html = await this.getHTMLFromID(nextid)
+				if (!html) {
+					this.destroyFromID(nextid)
+					console.error("html isn't defined")
+					throw new Error("html isn't defined")
+				}
+
 				this.scroll.prepend(html)
 				this.HTMLElements.unshift([html, nextid])
 				this.scrollTop += 60
@@ -75,6 +109,7 @@ class InfiniteScroller {
 		}
 
 		if (again) await this.watchForTop()
+			return again
 	}
 	async watchForBottom() {
 		let again = false
@@ -85,7 +120,7 @@ class InfiniteScroller {
 			if (nextid) {
 				again = true
 				const html = await this.getHTMLFromID(nextid)
-				this.scroll.append(html)
+				this.scroll.appendChild(html)
 				this.HTMLElements.push([html, nextid])
 				this.scrollBottom += 60
 				if (scrollBottom < 30) this.scroll.scrollTop = this.scroll.scrollHeight
@@ -100,17 +135,34 @@ class InfiniteScroller {
 		}
 
 		if (again) await this.watchForBottom()
+			return again
 	}
 	async watchForChange() {
-		if (this.currrunning) return
+		try {
+			if (this.currrunning) {
+				return
+			} else {
+				this.currrunning = true
+			}
+			if (!this.div) {
+				this.currrunning = false
+				return
+			}
 
-		this.currrunning = true
-		if (!this.div) {
+			const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()])
+			const changed = (out[0] || out[1])
+			if (this.timeout === null && changed) {
+				this.timeout = setTimeout(this.updatestuff.bind(this), 300)
+			}
+
+			if (!this.currrunning) {
+				console.error("something really bad happened")
+			}
 			this.currrunning = false
-			return
+			return Boolean(changed)
+		} catch (e) {
+			console.error(e)
 		}
-		await Promise.allSettled([this.watchForBottom(), this.watchForTop()])
-		this.currrunning = false
 	}
 	async focus(id, flash = true) {
 		let element
@@ -154,7 +206,7 @@ class InfiniteScroller {
 			await this.destroyFromID(thing[1])
 		}
 		this.HTMLElements = []
-		clearInterval(this.interval)
+		clearTimeout(this.timeout)
 		if (this.div) this.div.remove()
 		this.scroll = null
 		this.div = null

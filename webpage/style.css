@@ -284,7 +284,8 @@ code {
 	font-size: .5cm;
 	cursor: pointer;
 	border-width: 0 0 .03in;
-	margin: .02in .05in;
+	margin: .03in .05in;
+	margin-bottom: .05in;
 }
 .contextbutton:hover, .contextbutton:focus {
 	background: var(--primary-bg);
@@ -353,6 +354,8 @@ small.subtext {
 	background: var(--profile-info-bg);
 	border-radius: .05in;
 	z-index: 5;
+	width: fit-content !important;
+	padding: .03in;
 }
 
 #neunence {
@@ -390,8 +393,7 @@ small.subtext {
 
 img {
 	vertical-align: middle;
-	max-width: 5in;
-	max-height: 5in;
+	aspect-ratio: 2 / 1;
 }
 
 #page {
@@ -472,6 +474,7 @@ p {
 	display: inline-block;
 	text-indent: .05in;
 	width: .175in;
+	height: .175in;
 	padding-right: .026in;
 }
 
@@ -692,6 +695,7 @@ hr {
 	flex-shrink: 1;
 	min-height: 0;
 	height: 100%;
+	position: relative;
 }
 
 .timestamp {
@@ -860,6 +864,10 @@ textarea {
 	user-select: none;
 	max-width: 4in;
 	max-height: unset;
+	flex-shrink: 0;
+	flex-grow: 0;
+	width: 100%;
+	height: 100%;
 }
 
 .tag {
@@ -944,6 +952,7 @@ select {
 	margin: .02in .05in;
 	border-color: var(--timestamp-color);
 	box-shadow: 0 0 .03in var(--black);
+	appearance: none;
 }
 
 #logindiv {
@@ -976,7 +985,6 @@ select {
 }
 
 .addchannel {
-	align-self: end;
 	margin-left: auto;
 	width: .2in;
 	text-align: center;
@@ -1130,7 +1138,7 @@ span {
 }
 
 .tabbed-head {
-	background: var(--settings-hover);
+	background: var(--profile-info-bg);
 }
 .tabbed-content td {
 	border-inline: medium solid var(--textarea-bg);
@@ -2103,4 +2111,50 @@ small.edited {
 
 #channelTopic {
 	margin-left: 10px;
+}
+
+#loadingdiv {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 0;
+	background: var(--primary-bg);
+	opacity: 0;
+	display: flex;
+	flex-direction: column-reverse;
+	overflow-y: scroll;
+	z-index: 1;
+}
+
+#loadingdiv &.loading {
+	opacity: 1;
+	height: 100%;
+}
+
+.loadingmessage {
+	position: relative;
+}
+
+.loadingpfp {
+	position: absolute;
+	width: .4in;
+	height: .4in;
+	background: var(--channel-hover);
+
+	margin-left: .05in;
+	border-radius: 1in;
+}
+
+.loadingcontent {
+	margin-left: .5in;
+	background: var(--channel-hover);
+	margin-bottom: .1in;
+	border-radius: .1in;
+	height: 17px;
+}
+
+.capsflex {
+	display: flex;
+	align-items: center;
 }

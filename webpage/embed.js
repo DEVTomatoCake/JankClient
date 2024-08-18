@@ -150,6 +150,17 @@ class Embed {
 			img.src = this.json.thumbnail.proxy_url
 			img.alt = ""
 			img.loading = "lazy"
+
+			if (this.json.thumbnail.width) {
+				let scale = 1
+				const max = 96 * 3
+				scale = Math.max(scale, this.json.thumbnail.width / max)
+				scale = Math.max(scale, this.json.thumbnail.height / max)
+				this.json.thumbnail.width /= scale
+				this.json.thumbnail.height /= scale
+			}
+			img.style.width = this.json.thumbnail.width + "px"
+			img.style.height = this.json.thumbnail.height + "px"
 		}
 
 		return img

@@ -25,25 +25,21 @@ class Contextmenu {
 		return {}
 	}
 	makemenu(x, y, addinfo, obj) {
-		const div = document.createElement("table")
-		div.classList.add("contextmenu")
+		const div = document.createElement("div")
+		div.classList.add("contextmenu", "flexttb")
+
 		for (const button of this.buttons) {
 			if (!button.shown(addinfo)) continue
-
-			const textb = document.createElement("tr")
 
 			const intext = document.createElement("button")
 			intext.classList.add("contextbutton")
 			intext.textContent = button.text
 			intext.disabled = !button.enabled()
 
-			textb.button = intext
-			textb.appendChild(intext)
-
 			if (button.type == "button") intext.onclick = button.onclick.bind(addinfo, obj)
 			else intext.onclick = button.onclick.bind(addinfo)
 
-			div.appendChild(textb)
+			div.appendChild(intext)
 		}
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 

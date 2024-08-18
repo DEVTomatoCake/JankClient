@@ -16,10 +16,22 @@ class Attachment {
 		this.title = fileJSON.title
 		this.description = fileJSON.description
 	}
-	getHTML(temp = false) {
+	getHTML(hideControls = false) {
 		const src = this.proxy_url || this.url
 
+		if (this.width) {
+			let scale = 1
+			const max = 96 * 3
+			scale = Math.max(scale, this.width / max)
+			scale = Math.max(scale, this.height / max)
+			this.width /= scale
+			this.height /= scale
+		}
+
 		if (this.content_type.startsWith("image/")) {
+			const div = document.createElement("div")
+			div.classList.add("messageimgdiv")
+
 			const img = document.createElement("img")
 			img.classList.add("messageimg")
 			img.addEventListener("click", () => {
@@ -29,9 +41,13 @@ class Attachment {
 			img.crossOrigin = "anonymous"
 			img.src = src
 			img.alt = this.description || this.title || "Image: " + this.filename
-			if (this.width) img.width = this.width
+			if (this.width) {
+				div.style.width = this.width + "px"
+				div.style.height = this.height + "px"
+			}
+			div.append(img)
 
-			return img
+			return div
 		} else if (this.content_type.startsWith("video/")) {
 			const video = document.createElement("video")
 			const source = document.createElement("source")
@@ -39,7 +55,12 @@ class Attachment {
 			source.src = src
 			video.append(source)
 			source.type = this.content_type
-			video.controls = !temp
+			video.controls = !hideControls
+
+			if (this.width) {
+				video.width = this.width
+				video.height = this.height
+			}
 			return video
 		} else if (this.content_type.startsWith("audio/")) {
 			const audio = document.createElement("audio")
@@ -47,7 +68,7 @@ class Attachment {
 			source.src = src
 			audio.append(source)
 			source.type = this.content_type
-			audio.controls = !temp
+			audio.controls = !hideControls
 			return audio
 		}
 

@@ -509,9 +509,10 @@ class LocalUser {
 		let inviteurl = ""
 		const inviteError = document.createElement("span")
 
-		let serverName = ""
-		const serverCreateError = document.createElement("span")
-
+		const fields = {
+			name: "",
+			icon: null
+		}
 		const full = new Dialog(["tabs", [
 			["Join using invite", [
 				"vdiv",
@@ -544,38 +545,42 @@ class LocalUser {
 						}
 					]
 			]],
-			["Create server", [
-				"vdiv",
-					["textbox",
-						"Server name",
-						"",
-						function() {
-							serverName = this.value
-						}
-					],
-					["html", serverCreateError],
-					["button",
-						"",
-						"Submit",
-						async () => {
-							const res = await fetch(this.info.api + "/guilds", {
-								method: "POST",
-								headers: this.headers,
-								body: JSON.stringify({
-									name: serverName
-								})
-							})
-							if (res.ok) full.hide()
-							else {
-								const json = await res.json()
-								serverCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
-								console.error("Unable to create guild", json)
+			["Create server",
+				["vdiv",
+					["title", "Create a server"],
+					["fileupload", "Icon:", function(event) {
+							const reader = new FileReader()
+							const target = event.target
+							reader.readAsDataURL(target.files[0])
+							reader.onload = () => {
+								fields.icon = reader.result
 							}
+						}],
+					["textbox", "Name:", "", function(event) {
+							const target = event.target
+							fields.name = target.value
+						}],
+					["button", "", "submit", () => {
+							this.makeGuild(fields).then(_ => {
+								if (_.message) {
+									alert(_.errors.name._errors[0].message)
+								} else {
+									full.hide()
+								}
+							})
 						}
 					]
-			]]
+				]
+			]
 		]])
 		full.show()
+	}
+	async makeGuild(fields) {
+		return await (await fetch(this.info.api + "/guilds", {
+			method: "POST",
+			headers: this.headers,
+			body: JSON.stringify(fields)
+		})).json()
 	}
 	async guildDiscovery() {
 		const container = document.createElement("div")
@@ -863,7 +868,7 @@ class LocalUser {
 			document.documentElement.style.setProperty("--accent-color", userinfos.accent_color)
 		}, { initColor: getBulkInfo().accent_color })
 
-		const security = settings.addButton("Account Security")
+		const security = settings.addButton("Account Settings")
 		if (this.mfa_enabled) {
 			security.addTextInput("Disable MFA, TOTP code:", value => {
 				fetch(this.info.api + "/users/@me/mfa/totp/disable", {
@@ -923,6 +928,25 @@ class LocalUser {
 				addmodel.show()
 			})
 		}
+
+		let disc = ""
+		security.addButtonInput("", "Change discriminator", () => {
+			const update = new Dialog(["vdiv",
+				["title", "Change discriminator"],
+				["textbox", "New discriminator:", "", e => {
+						disc = e.target.value
+					}],
+				["button", "", "submit", () => {
+						this.changeDiscriminator(disc).then(json => {
+							if (json.message) {
+								alert(json.errors.discriminator._errors[0].message)
+							} else {
+								update.hide()
+							}
+						})
+					}]])
+			update.show()
+		})
 
 		const connections = settings.addButton("Connections")
 		const connectionContainer = document.createElement("div")
@@ -1161,6 +1185,13 @@ class LocalUser {
 		)
 		botDialog.show()
 	}
+	async changeDiscriminator(discriminator) {
+		return await (await fetch(this.info.api + "/users/@me/", {
+			method: "PATCH",
+			headers: this.headers,
+			body: JSON.stringify({ discriminator })
+		})).json()
+	}
 	static async loadSVG(name = "") {
 		const res = await fetch("/icons/bootstrap/" + name + ".svg", {
 			headers: {
@@ -1176,6 +1207,10 @@ class LocalUser {
 	waitingmembers = new Map()
 	presences = new Map()
 	async resolvemember(id, guildid) {
+		if (guildid === "@me") {
+			return
+		}
+
 		if (!this.waitingmembers.has(guildid)) this.waitingmembers.set(guildid, new Map())
 
 		let res

@@ -124,7 +124,6 @@ class Channel {
 	}
 
 	setUpInfiniteScroller() {
-		const ids = new Map()
 		this.infinite = new InfiniteScroller((async (id, offset) => {
 			const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
 			if (offset == 1) {
@@ -141,22 +140,20 @@ class Channel {
 				}
 			}
 		}), (async id => {
-			let resolve
-			const promise = new Promise(res => {
-				resolve = res
-			})
 			const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
-			if (!snowflake.getObject()) await this.grabAround(id)
 
-			const html = snowflake.getObject().buildhtml(this.messageids.get(this.idToPrev.get(snowflake)), promise)
-			ids.set(id, resolve)
-			return html
-		}), (id => {
-			if (ids[id]) {
-				ids[id]()
-				delete ids[id]
+			try {
+				return snowflake.getObject().buildhtml(this.messageids.get(this.idToPrev.get(snowflake)))
+			} catch (e) {
+				console.error(e)
 			}
-			return true
+		}), (id => {
+			const message = SnowFlake.getSnowFlakeFromID(id, Message).getObject()
+			try {
+				message.deleteDiv()
+			} catch (e) {
+				console.error(e)
+			}
 		}), this.readbottom.bind(this))
 	}
 
@@ -283,7 +280,9 @@ class Channel {
 
 		if (this.type == 4) {
 			this.sortchildren()
+
 			const caps = document.createElement("div")
+			caps.classList.add("capsflex")
 
 			const decdiv = document.createElement("div")
 			decdiv.classList.add("channeleffects")
@@ -595,6 +594,10 @@ class Channel {
 			document.getElementById("channelTopic").removeAttribute("hidden")
 		} else document.getElementById("channelTopic").setAttribute("hidden", "")
 
+		const loading = document.getElementById("loadingdiv")
+		Channel.regenLoadingMessages()
+		loading.classList.add("loading")
+
 		await this.putmessages()
 		await prom
 		if (id != Channel.genid) return
@@ -605,8 +608,34 @@ class Channel {
 		if (this.canMessage) document.getElementById("typebox").contentEditable = true
 		else document.getElementById("typebox").contentEditable = false
 	}
+	static regenLoadingMessages() {
+		const loading = document.getElementById("loadingdiv")
+		loading.innerHTML = ""
+		for (let i = 0; i < 15; i++) {
+			const div = document.createElement("div")
+			div.classList.add("loadingmessage")
+			if (Math.random() < 0.5) {
+				const pfp = document.createElement("div")
+				pfp.classList.add("loadingpfp")
+				const username = document.createElement("div")
+				username.style.width = Math.floor(Math.random() * 96 * 1.5 + 40) + "px"
+				username.classList.add("loadingcontent")
+				div.append(pfp, username)
+			}
+			const content = document.createElement("div")
+			content.style.width = Math.floor(Math.random() * 96 * 3 + 40) + "px"
+			content.style.height = Math.floor(Math.random() * 3 + 1) * 20 + "px"
+			content.classList.add("loadingcontent")
+			div.append(content)
+			loading.append(div)
+		}
+	}
 	async putmessages() {
 		if (this.allthewayup) return
+
+		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) {
+			return
+		}
 
 		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100", {
 			headers: this.headers
@@ -700,32 +729,37 @@ class Channel {
 	infinitefocus = false
 	async tryfocusinfinite() {
 		if (this.infinitefocus) return
+		this.infinitefocus = true
 
 		const messages = document.getElementById("channelw")
-		messages.innerHTML = ""
+		const loading = document.getElementById("loadingdiv")
+		const removetitle = document.getElementById("removetitle")
+
 		let id
 		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) id = this.lastreadmessageid
 		else if (this.lastmessage && this.lastmessage.snowflake) id = this.goBackIds(this.lastmessage.snowflake, 50)
 
 		if (!id) {
-			const title = document.createElement("h2")
-			title.textContent = "No messages appear to be here, be the first to say something!"
-			title.classList.add("titlespace")
-			messages.append(title)
+			if (!removetitle) {
+				const title = document.createElement("h2")
+				title.id = "removetitle"
+				title.textContent = "No messages appear to be here, be the first to say something!"
+				title.classList.add("titlespace")
+				messages.append(title)
+			}
+			this.infinitefocus = false
+			loading.classList.remove("loading")
 			return
+		} else if (removetitle) {
+			removetitle.remove()
 		}
-		messages.innerHTML = ""
 
 		messages.append(await this.infinite.getDiv(id.id))
 		this.infinite.updatestuff()
 		this.infinite.watchForChange().then(async () => {
-			await new Promise(resolve => {
-				setTimeout(resolve, 0)
-			})
 			this.infinite.focus(id.id, false) //if someone could figure out how to make this work correctly without this, that's be great :P
+			loading.classList.remove("loading")
 		})
-		this.infinite.focus(id.id, false)
-		this.infinitefocus = true
 	}
 	goBackIds(id, back, returnIfNotExistent = true) {
 		while (back != 0) {

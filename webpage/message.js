@@ -82,6 +82,8 @@ class Message {
 		this.giveData(messagejson)
 	}
 	giveData(messagejson) {
+		const snapBottom = this.channel.infinite.snapBottom()
+
 		this.type = messagejson.type
 		this.channel_id = messagejson.channel_id
 		this.guild_id = messagejson.guild_id
@@ -141,6 +143,8 @@ class Message {
 		}
 
 		if (this.div) this.generateMessage()
+
+		snapBottom()
 	}
 	canDelete() {
 		return this.channel.hasPermission("MANAGE_MESSAGES") || this.author.snowflake === this.localuser.user.snowflake
@@ -174,15 +178,21 @@ class Message {
 			headers: this.headers
 		})
 	}
-	messageevents(obj, del = Message.del) {
-		const func = Message.contextmenu.bind(obj, this)
+	messageevents(obj) {
+		Message.contextmenu.bind(obj, this)
 		this.div = obj
-		del.then(() => {
-			obj.removeEventListener("click", func)
-			if (this.div) this.div.remove()
-			this.div = null
-		})
 		obj.classList.add("messagediv")
+	}
+	deleteDiv() {
+		console.log(this.id)
+		if (!this.div)
+			return
+		try {
+			this.div.remove()
+			this.div = null
+		} catch (e) {
+			console.error(e)
+		}
 	}
 	mentionsuser(userd) {
 		if (userd instanceof User) return this.mentions.includes(userd)
@@ -416,6 +426,8 @@ class Message {
 		const reactdiv = this.reactdiv.deref()
 		if (!reactdiv) return
 
+		const snapBottom = this.channel.infinite.snapBottom()
+
 		reactdiv.innerHTML = ""
 		for (const thing of this.reactions) {
 			const reactionContainer = document.createElement("div")
@@ -438,6 +450,8 @@ class Message {
 				this.reactionToggle(thing.emoji.name)
 			})
 		}
+
+		snapBottom()
 	}
 	giveReaction(data, member) {
 		for (const thing of this.reactions) {
@@ -475,16 +489,20 @@ class Message {
 			}
 		}
 	}
-	buildhtml(premessage, del = Message.del) {
+	buildhtml(premessage) {
 		if (this.div) {
 			console.error(`HTML for ${this.id} already exists, aborting`)
 			return
 		}
 
-		const div = document.createElement("div")
-		this.div = div
-		this.messageevents(div, del)
-		return this.generateMessage(premessage)
+		try {
+			const div = document.createElement("div")
+			this.div = div
+			this.messageevents(div)
+			return this.generateMessage(premessage)
+		} catch (e) {
+			console.error(e)
+		}
 	}
 }
 
