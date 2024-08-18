@@ -5,7 +5,7 @@ class Guild {
 	static setupcontextmenu() {
 		Guild.contextmenu.addbutton("Copy guild id", function() {
 			navigator.clipboard.writeText(this.id)
-		}, null, owner => owner.localuser.settings.developerMode)
+		}, null, owner => owner.localuser.settings.developer_mode)
 
 		Guild.contextmenu.addbutton("Mark as read", function() {
 			this.markAsRead()
@@ -372,7 +372,9 @@ class Guild {
 
 		const noti = document.createElement("div")
 		noti.classList.add("unread")
+		if (this.properties.icon) noti.classList.add("servericon-unread")
 		divy.append(noti)
+
 		this.localuser.guildhtml.set(this.id, divy)
 		if (this.properties.icon) {
 			const img = document.createElement("img")

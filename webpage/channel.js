@@ -7,7 +7,7 @@ class Channel {
 	static setupcontextmenu() {
 		this.contextmenu.addbutton("Copy channel id", function() {
 			navigator.clipboard.writeText(this.id)
-		}, null, owner => owner.localuser.settings.developerMode)
+		}, null, owner => owner.localuser.settings.developer_mode)
 
 		this.contextmenu.addbutton("Mark as read", function() {
 			this.readbottom()
@@ -416,6 +416,7 @@ class Channel {
 			headers: this.headers,
 			body: JSON.stringify({})
 		})
+		this.lastreadmessageid = this.lastmessageid
 	}
 	coatDropDiv(div, container = false) {
 		div.addEventListener("dragenter", event => {
@@ -740,6 +741,7 @@ class Channel {
 		else if (this.lastmessage && this.lastmessage.snowflake) id = this.goBackIds(this.lastmessage.snowflake, 50)
 
 		if (!id) {
+			if (document.getElementsByClassName("messagecontainer")[0]) document.getElementsByClassName("messagecontainer")[0].remove()
 			if (!removetitle) {
 				const title = document.createElement("h2")
 				title.id = "removetitle"
@@ -750,9 +752,7 @@ class Channel {
 			this.infinitefocus = false
 			loading.classList.remove("loading")
 			return
-		} else if (removetitle) {
-			removetitle.remove()
-		}
+		} else if (removetitle) removetitle.remove()
 
 		messages.append(await this.infinite.getDiv(id.id))
 		this.infinite.updatestuff()

@@ -309,11 +309,11 @@ class LocalUser {
 				case "MESSAGE_ACK":
 					const messageAcked = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
 
-					messageAcked.channel.lastreadmessageid = json.d.message_id
+					messageAcked.channel.lastreadmessageid = messageAcked.snowflake
 					messageAcked.channel.guild.unreads()
 
 					if (messageAcked.channel.myhtml !== null) {
-						if (messageAcked.channel.lastmessageid == json.d.message_id) messageAcked.channel.myhtml.classList.remove("cunread")
+						if (messageAcked.channel.lastmessageid.id == json.d.message_id) messageAcked.channel.myhtml.classList.remove("cunread")
 						else messageAcked.channel.myhtml.classList.add("cunread")
 					}
 
@@ -335,6 +335,7 @@ class LocalUser {
 					break
 				case "USER_NOTE_UPDATE":
 					this.noteCache.set(json.d.id, json.d.note)
+					setTimeout(() => this.noteCache.delete(json.d.id), 1000 * 60 * 2)
 					break
 				case "CHANNEL_UPDATE":
 					if (this.initialized) this.updateChannel(json.d)

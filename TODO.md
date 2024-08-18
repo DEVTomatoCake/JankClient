@@ -91,14 +91,6 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | show_activity | boolean
 | ❌ | metadata_visibility | boolean
 
-#### User notes
-
-`PUT /users/@me/notes/{id}`
-
-| Status | Field | Type | Notes
-| --- | --- | --- | ---
-| ✅ | note* | string
-
 #### Disable account
 
 `POST /users/@me/disable/`
@@ -370,14 +362,6 @@ List of properties which should be editable somewhere, and handled if necessary 
 #### Application delete
 
 `POST /applications/{id}/delete`
-
-### Message
-
-#### (Un)Pin message
-
-`PUT /channels/{channel_id}/pins/{message_id}`
-
-`DELETE /channels/{channel_id}/pins/{message_id}`
 
 ### Webhook
 

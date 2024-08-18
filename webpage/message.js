@@ -47,7 +47,7 @@ class Message {
 
 		Message.contextmenu.addbutton("Copy message id", function() {
 			navigator.clipboard.writeText(this.id)
-		}, null, owner => owner.localuser.settings.developerMode)
+		}, null, msg => msg.localuser.settings.developer_mode)
 
 		Message.contextmenu.addsubmenu("Add reaction", function(e) {
 			Emoji.emojiPicker(e.x, e.y, this.localuser).then(emoji => {
@@ -59,9 +59,12 @@ class Message {
 			fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/ack", {
 				method: "POST",
 				headers: this.headers,
-				body: JSON.stringify({})
+				body: JSON.stringify({
+					manual: true
+				})
 			})
-		})
+			this.channel.lastreadmessageid = this.snowflake
+		}, null, msg => msg.channel.lastmessage.id != msg.id)
 
 		Message.contextmenu.addbutton("Edit", function() {
 			this.channel.editing = this
@@ -73,6 +76,21 @@ class Message {
 		Message.contextmenu.addbutton("Delete message", function() {
 			this.delete()
 		}, null, msg => msg.canDelete())
+
+		Message.contextmenu.addbutton("Pin message", function() {
+			fetch(this.info.api + "/channels/" + this.channel.id + "/pins/" + this.id, {
+				method: "PUT",
+				headers: this.headers,
+				body: JSON.stringify({})
+			})
+		}, null, msg => msg.canDelete() && !msg.pinned)
+		Message.contextmenu.addbutton("Unpin message", function() {
+			fetch(this.info.api + "/channels/" + this.channel.id + "/pins/" + this.id, {
+				method: "DELETE",
+				headers: this.headers,
+				body: JSON.stringify({})
+			})
+		}, null, msg => msg.canDelete() && msg.pinned)
 	}
 
 	constructor(messagejson, owner) {
@@ -184,9 +202,8 @@ class Message {
 		obj.classList.add("messagediv")
 	}
 	deleteDiv() {
-		console.log(this.id)
-		if (!this.div)
-			return
+		if (!this.div) return
+
 		try {
 			this.div.remove()
 			this.div = null
@@ -289,7 +306,7 @@ class Message {
 
 		build.classList.add("message")
 		div.appendChild(build)
-		if ({ 0: true, 19: true }[this.type] || this.attachments.length > 0) {
+		if (this.type == 0 || this.type == 19 || this.attachments.length > 0) {
 			const pfpRow = document.createElement("div")
 			pfpRow.classList.add("flexltr", "pfprow")
 
@@ -409,7 +426,7 @@ class Message {
 			time.classList.add("timestamp")
 			texttxt.append(time)
 			div.classList.add("topMessage")
-		}
+		} else console.warn("Cannot render message type " + this.type, this)
 		div.all = this
 
 		const reactions = document.createElement("div")
