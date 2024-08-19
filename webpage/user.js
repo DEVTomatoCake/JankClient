@@ -57,6 +57,29 @@ class User {
 		}
 		this.hypotheticalpfp = false
 	}
+	async getUserProfile() {
+		const res = await fetch(this.info.api + "/users/" + this.id.replace("#clone", "") + "/profile?with_mutual_guilds=true&with_mutual_friends=true", {
+			headers: this.localuser.headers
+		})
+		return await res.json()
+	}
+	resolving = false
+	async getBadge(id) {
+		if (this.localuser.badges.has(id)) return this.localuser.badges.get(id)
+
+		if (this.resolving) {
+			await this.resolving
+			return this.localuser.badges.get(id)
+		}
+		const prom = await this.getUserProfile()
+		this.resolving = prom
+		const badges = prom.badges
+		this.resolving = false
+		for (const thing of badges) {
+			this.localuser.badges.set(thing.id, thing)
+		}
+		return this.localuser.badges.get(id)
+	}
 	async resolvemember(guild) {
 		return await Member.resolveMember(this, guild)
 	}
@@ -138,6 +161,7 @@ class User {
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
 		const div = document.createElement("div")
+		div.classList.add("profile", "flexttb")
 		if (this.accent_color) div.style.setProperty("--accent_color", "#" + this.accent_color.toString(16).padStart(6, "0"))
 		else div.style.setProperty("--accent_color", "transparent")
 
@@ -156,12 +180,11 @@ class User {
 		}
 
 		if (x == -1) {
-			div.classList.add("profile", "hypoprofile", "flexttb")
+			div.classList.add("hypoprofile")
 			this.setstatus("online")
 		} else {
 			div.style.left = x + "px"
 			div.style.top = y + "px"
-			div.classList.add("profile", "flexttb")
 		}
 
 		const pfp = await this.buildstatuspfp()
@@ -169,12 +192,37 @@ class User {
 
 		div.appendChild(topContainer)
 
+		const badgediv = document.createElement("div")
+		badgediv.classList.add("badges")
+		if (this.badge_ids) {
+			for (const id of this.badge_ids) {
+				this.getBadge(id).then(badgejson => {
+					const badge = document.createElement(badgejson.link ? "a" : "span")
+					badge.classList.add("badge")
+					if (badgejson.link) badge.href = badgejson.link
+
+					const img = document.createElement("img")
+					img.crossOrigin = "anonymous"
+					img.src = badgejson.icon
+					img.loading = "lazy"
+					badge.append(img)
+
+					const span = document.createElement("p")
+					span.textContent = badgejson.description
+					badge.append(span)
+
+					badgediv.append(badge)
+				})
+			}
+		}
+
 		const userbody = document.createElement("div")
 		userbody.classList.add("infosection")
 
 		const usernamehtml = document.createElement("h2")
 		usernamehtml.textContent = this.username
 		userbody.appendChild(usernamehtml)
+		userbody.appendChild(badgediv)
 
 		const discrimatorhtml = document.createElement("h3")
 		discrimatorhtml.classList.add("tag")

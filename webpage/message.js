@@ -508,7 +508,7 @@ class Message {
 	}
 	buildhtml(premessage) {
 		if (this.div) {
-			console.error(`HTML for ${this.id} already exists, aborting`)
+			console.error("HTML for " + this.id + " already exists, aborting")
 			return
 		}
 

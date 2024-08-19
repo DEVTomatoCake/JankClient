@@ -113,7 +113,8 @@ const getAPIURLs = async str => {
 			api: handleEndpoint(info.apiEndpoint, true),
 			gateway: handleEndpoint(info.gateway),
 			cdn: handleEndpoint(info.cdn),
-			wellknown: handleEndpoint(str)
+			wellknown: handleEndpoint(str),
+			login: new URL(api).toString()
 		}
 	} catch {
 		return false

@@ -65,7 +65,7 @@ class SnowFlake {
 		try {
 			return Number((BigInt(this.id) >> 22n) + 1420070400000n)
 		} catch {
-			console.error(`The ID is corrupted, it's ${this.id} when it should be some number.`)
+			console.error("Snowflake is corrupted, it's " + this.id + " when it should be a number.", this)
 			return 0
 		}
 	}

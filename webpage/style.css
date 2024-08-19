@@ -2165,3 +2165,30 @@ small.edited {
 	display: flex;
 	align-items: center;
 }
+
+.badge {
+	display: flex;
+	color: var(--primary-text);
+	width: fit-content;
+	background: var(--profile-bg);
+	padding: .04in;
+	border-radius: .07in;
+	font-size: .12in;
+	align-items: center;
+	border: solid .01in var(--black);
+	box-sizing: border-box;
+}
+
+.badge img {
+	width: .1in;
+	height: .1in;
+}
+
+.badges {
+	width: fit-content;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+}

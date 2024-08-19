@@ -319,15 +319,11 @@ class Guild {
 				noti
 			],
 			["button", "", "submit", () => {
-				fetch(this.info.api + "/users/@me/guilds/settings", {
+				fetch(this.info.api + "/users/@me/guilds/" + this.id + "/settings", {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({
-						guilds: {
-							[this.id]: {
-								message_notifications: noti
-							}
-						}
+						message_notifications: noti
 					})
 				})
 				this.message_notifications = noti

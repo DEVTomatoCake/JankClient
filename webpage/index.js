@@ -13,7 +13,8 @@ try {
 		document.getElementById("loading").classList.add("doneloading")
 		document.getElementById("loading").classList.remove("loading")
 	})
-} catch {
+} catch (e) {
+	console.error(e)
 	document.getElementById("load-desc").textContent = "Account unable to start"
 	thisuser = new LocalUser(-1)
 }

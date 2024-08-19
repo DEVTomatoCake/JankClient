@@ -47,6 +47,7 @@ class Group extends Channel {
 		this.mentions = 0
 
 		this.setUpInfiniteScroller()
+		this.position = Math.max(this.lastmessageid.getUnixTime(), this.snowflake.getUnixTime())
 	}
 	createGuildHTML() {
 		const div = document.createElement("div")

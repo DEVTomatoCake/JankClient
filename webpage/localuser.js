@@ -69,6 +69,7 @@ class LocalUser {
 		}
 	}
 
+	badges = new Map()
 	noteCache = new Map()
 
 	gottenReady(ready) {
@@ -144,6 +145,8 @@ class LocalUser {
 
 		this.ws.addEventListener("open", () => {
 			console.log("WebSocket connected")
+			document.getElementById("load-additional").textContent = ""
+
 			this.ws.send(JSON.stringify({
 				op: 2,
 				d: {
@@ -238,7 +241,7 @@ class LocalUser {
 			res()
 		})
 
-		this.ws.addEventListener("close", event => {
+		this.ws.addEventListener("close", async event => {
 			console.log("WebSocket closed with code " + event.code)
 
 			this.unload()
@@ -255,6 +258,38 @@ class LocalUser {
 				connectionSucceed = 0
 
 				document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (errorBackoff * 2.8)) + "</b> seconds..."
+
+				switch (this.errorBackoff) { //try to recover from bad domain
+					case 3:
+						const newURLsWellKnown = await getAPIURLs(this.info.wellknown)
+						if (newURLsWellKnown) {
+							this.info = newURLsWellKnown
+							this.serverurls = newURLsWellKnown
+							this.userinfo.json.serverurls = this.info
+							this.userinfo.updateLocal()
+						} else document.getElementById("load-additional").textContent = "Unable to load connection info from \"" + this.info.wellknown + "\""
+						break
+					/*case 4:
+						const newURLsOrigin = await getAPIURLs(new URL(this.info.wellknown).origin)
+						if (newURLsOrigin) {
+							this.info = newURLsOrigin
+							this.serverurls = newURLsOrigin
+							this.userinfo.json.serverurls = this.info
+							this.userinfo.updateLocal()
+						}
+						break
+					case 5:
+						const breakappart = new URL(this.info.wellknown).origin.split(".")
+						const url = "https://" + breakappart.at(-2) + "." + breakappart.at(-1)
+						const newURLsDomain = await getAPIURLs(url)
+						if (newURLsDomain) {
+							this.info = newURLsDomain
+							this.serverurls = newURLsDomain
+							this.userinfo.json.serverurls = this.info
+							this.userinfo.updateLocal()
+						}
+						break*/
+				}
 
 				setTimeout(() => {
 					if (this.swapped) return

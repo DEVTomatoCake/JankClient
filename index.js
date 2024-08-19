@@ -68,15 +68,14 @@ const getAPIURLs = async str => {
 
 	let api
 	try {
-		const info = await fetch(`${str}/.well-known/spacebar`).then(x => x.json())
+		const info = await fetch(str + "/.well-known/spacebar").then(x => x.json())
 		api = info.api
 	} catch {
 		return false
 	}
 
-	const url = new URL(api)
 	try {
-		const info = await fetch(`${api}${url.pathname.includes("api") ? "" : "api"}/policies/instance/domains`).then(x => x.json())
+		const info = await fetch(api + "/policies/instance/domains").then(x => x.json())
 		return {
 			api: handleEndpoint(info.apiEndpoint, true),
 			gateway: handleEndpoint(info.gateway),

@@ -139,25 +139,20 @@ class InfiniteScroller {
 	}
 	async watchForChange() {
 		try {
-			if (this.currrunning) {
-				return
-			} else {
-				this.currrunning = true
-			}
+			if (this.currrunning) return
+			this.currrunning = true
+
 			if (!this.div) {
 				this.currrunning = false
 				return
 			}
 
 			const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()])
-			const changed = (out[0] || out[1])
+			const changed = out[0].value || out[1].value
 			if (this.timeout === null && changed) {
 				this.timeout = setTimeout(this.updatestuff.bind(this), 300)
 			}
 
-			if (!this.currrunning) {
-				console.error("something really bad happened")
-			}
 			this.currrunning = false
 			return Boolean(changed)
 		} catch (e) {

@@ -150,7 +150,7 @@ class Channel {
 		}), (id => {
 			const message = SnowFlake.getSnowFlakeFromID(id, Message).getObject()
 			try {
-				message.deleteDiv()
+				if (message) message.deleteDiv()
 			} catch (e) {
 				console.error(e)
 			}
@@ -733,6 +733,8 @@ class Channel {
 		this.infinitefocus = true
 
 		const messages = document.getElementById("channelw")
+		for (const thing of messages.getElementsByClassName("messagecontainer")) thing.remove()
+
 		const loading = document.getElementById("loadingdiv")
 		const removetitle = document.getElementById("removetitle")
 
