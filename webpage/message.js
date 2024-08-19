@@ -69,7 +69,7 @@ class Message {
 		Message.contextmenu.addbutton("Edit", function() {
 			this.channel.editing = this
 			const markdown = document.getElementById("typebox").markdown
-			markdown.txt = this.content.rawString
+			markdown.txt = this.content.rawString.split("")
 			markdown.boxupdate(document.getElementById("typebox"))
 		}, null, m => m.author.id == m.localuser.user.id)
 

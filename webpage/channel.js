@@ -303,9 +303,9 @@ class Channel {
 				addchannel.textContent = "+"
 				addchannel.classList.add("addchannel")
 				caps.appendChild(addchannel)
-				addchannel.onclick = function() {
+				addchannel.onclick = () => {
 					this.guild.createchannels()
-				}.bind(this)
+				}
 				this.coatDropDiv(decdiv, childrendiv)
 			}
 			div.appendChild(caps)
@@ -612,22 +612,27 @@ class Channel {
 	static regenLoadingMessages() {
 		const loading = document.getElementById("loadingdiv")
 		loading.innerHTML = ""
-		for (let i = 0; i < 15; i++) {
+
+		for (let i = 0; i < 18; i++) {
 			const div = document.createElement("div")
 			div.classList.add("loadingmessage")
-			if (Math.random() < 0.5) {
+
+			if (Math.random() > 0.5) {
 				const pfp = document.createElement("div")
-				pfp.classList.add("loadingpfp")
+				pfp.classList.add("pfp", "loadingpfp")
+
 				const username = document.createElement("div")
-				username.style.width = Math.floor(Math.random() * 96 * 1.5 + 40) + "px"
 				username.classList.add("loadingcontent")
+				username.style.width = Math.floor(Math.random() * 96 * 1.5 + 40) + "px"
 				div.append(pfp, username)
 			}
+
 			const content = document.createElement("div")
-			content.style.width = Math.floor(Math.random() * 96 * 3 + 40) + "px"
-			content.style.height = Math.floor(Math.random() * 3 + 1) * 20 + "px"
 			content.classList.add("loadingcontent")
+			content.style.width = Math.floor(Math.random() * 96 * 3 + 40) + "px"
+			content.style.height = (Math.floor(Math.random() * 3 + 1) * 20) + "px"
 			div.append(content)
+
 			loading.append(div)
 		}
 	}

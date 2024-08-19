@@ -121,6 +121,7 @@ const getAPIURLs = async str => {
 	}
 }
 
+let undelete = false
 const login = async (email, password, captcha) => {
 	const info = JSON.parse(localStorage.getItem("instanceEndpoints"))
 
@@ -132,13 +133,17 @@ const login = async (email, password, captcha) => {
 		body: JSON.stringify({
 			login: email,
 			password,
-			undelete: false,
+			undelete,
 			captcha_key: captcha
 		})
 	})
 
 	const json = await res.json()
 	console.log(json)
+	if (json.code == 20011 || json.code == 20013) {
+		undelete = true
+		return Object.values(json.errors)[0]._errors[0].message + " - Click again to undisable/undelete account!"
+	}
 	if (json.message == "Invalid Form Body") return Object.values(json.errors)[0]._errors[0].message
 
 	if (json.captcha_sitekey) {
@@ -165,11 +170,11 @@ const login = async (email, password, captcha) => {
 			new Dialog(
 				["vdiv",
 					["title", "2FA code:"],
-					["textbox", "", "", function() {
-						onetimecode = this.value
+					["textbox", "", "", event => {
+						onetimecode = event.target.value
 					}],
-					["button", "", "Submit", function() {
-						fetch(info.login + "/auth/mfa/totp", {
+					["button", "", "Submit", async () => {
+						const mfaRes = await fetch(info.login + "/auth/mfa/totp", {
 							method: "POST",
 							headers: {
 								"Content-Type": "application/json"
@@ -178,20 +183,23 @@ const login = async (email, password, captcha) => {
 								code: onetimecode,
 								ticket: json.ticket
 							})
-						}).then(r => r.json()).then(response => {
-							if (response.message) alert(response.message)
-							else {
-								adduser({serverurls: info, email, token: response.token}).username = email
-
-								const params = new URLSearchParams(location.search)
-								if (params.has("next") && params.get("next").charAt(0) == "/" && params.get("next").charAt(1) != "/") location.href = params.get("next")
-								else location.href = "/channels/@me"
-							}
 						})
+						const mfaJSON = await mfaRes.json()
+
+						if (mfaJSON.message) alert(mfaJSON.message)
+						else {
+							if (!mfaJSON.token) return alert("No token found in login response, not logging in")
+							adduser({serverurls: info, email, token: mfaJSON.token}).username = email
+
+							const params = new URLSearchParams(location.search)
+							if (params.has("next") && params.get("next").charAt(0) == "/" && params.get("next").charAt(1) != "/") location.href = params.get("next")
+							else location.href = "/channels/@me"
+						}
 					}]
 				]
 			).show()
 		} else {
+			if (!json.token) return alert("No token found in login response, not logging in")
 			adduser({serverurls: info, email, token: json.token}).username = email
 
 			const params = new URLSearchParams(location.search)
