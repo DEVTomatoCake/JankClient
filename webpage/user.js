@@ -73,6 +73,7 @@ class User {
 		}
 		const prom = await this.getUserProfile()
 		this.resolving = prom
+
 		const badges = prom.badges
 		this.resolving = false
 		for (const thing of badges) {
@@ -109,7 +110,7 @@ class User {
 	setstatus(status) {
 		this.status = status
 	}
-	async getStatus() {
+	getStatus() {
 		if (this.status) return this.status
 		return "offline"
 	}
@@ -124,22 +125,14 @@ class User {
 	}
 	async buildstatuspfp() {
 		const div = document.createElement("div")
-		div.style.position = "relative"
+		div.classList.add("pfpdiv")
 		const pfp = this.buildpfp()
 		div.append(pfp)
-		{
-			const status = document.createElement("div")
-			status.classList.add("statusDiv")
-			switch (await this.getStatus()) {
-				case "offline":
-					status.classList.add("offlinestatus")
-					break
-				default:
-					status.classList.add("onlinestatus")
-					break
-			}
-			div.append(status)
-		}
+
+		const status = document.createElement("div")
+		status.classList.add("statusDiv", this.getStatus() + "Status")
+		div.append(status)
+
 		return div
 	}
 	userupdate(json) {
@@ -168,16 +161,15 @@ class User {
 		const topContainer = document.createElement("div")
 		topContainer.classList.add("profileTop")
 
+		const banner = document.createElement("img")
+		banner.classList.add("banner")
+		banner.crossOrigin = "anonymous"
+		banner.loading = "lazy"
 		if (this.banner) {
-			const banner = document.createElement("img")
-			let src
-			if (this.hypotheticalbanner) src = this.banner
-			else src = this.info.cdn + "/avatars/" + this.id.replace("#clone", "") + "/" + this.banner + ".png"
-
-			banner.src = src
-			banner.classList.add("banner")
-			topContainer.appendChild(banner)
+			if (this.hypotheticalbanner) banner.src = this.banner
+			else banner.src = this.info.cdn + "/avatars/" + this.id.replace("#clone", "") + "/" + this.banner + "." + (this.banner.startsWith("a_") ? "gif" : "png")
 		}
+		topContainer.appendChild(banner)
 
 		if (x == -1) {
 			div.classList.add("hypoprofile")
@@ -237,7 +229,7 @@ class User {
 		userbody.appendChild(document.createElement("hr"))
 		userbody.appendChild(this.bio.makeHTML())
 
-		if (guild) await Member.resolveMember(this, guild).then(member => {
+		if (guild) await Member.resolveMember(this, guild).then(async member => {
 			if (!member) return
 
 			const roles = document.createElement("div")
@@ -247,8 +239,8 @@ class User {
 				roleContainer.classList.add("rolediv")
 
 				const color = document.createElement("div")
-				color.style.setProperty("--role-color", "#" + role.color.toString(16).padStart(6, "0"))
 				color.classList.add("colorrolediv")
+				color.style.setProperty("--role-color", "#" + role.color.toString(16).padStart(6, "0"))
 				roleContainer.append(color)
 
 				const span = document.createElement("span")
@@ -258,6 +250,23 @@ class User {
 				roles.append(roleContainer)
 			}
 			userbody.append(roles)
+
+			if (member.nick) usernamehtml.textContent = member.nick
+
+			const profile = await member.getMemberProfile()
+			console.log(profile)
+			if (profile && profile.guild_member_profile) {
+				if (profile.guild_member_profile.bio && this.bio != profile.guild_member_profile.bio) {
+					const memberBio = new MarkDown(profile.guild_member_profile.bio, this.localuser)
+					userbody.appendChild(memberBio.makeHTML())
+				}
+
+				if (profile.guild_member_profile.banner && this.banner != profile.guild_member_profile.banner)
+					banner.src = this.info.cdn + "/guilds/" + member.guild.id + "/users/" + this.id.replace("#clone", "") + "/avatars/" +
+						profile.guild_member_profile.banner + "." + (profile.guild_member_profile.banner.startsWith("a_") ? "gif" : "png")
+				if (profile.guild_member_profile.pronouns && this.pronouns != profile.guild_member_profile.pronouns)
+					pronounshtml.textContent = profile.guild_member_profile.pronouns
+			}
 		})
 
 		if (this.bio.txt.length > 0) userbody.appendChild(document.createElement("hr"))

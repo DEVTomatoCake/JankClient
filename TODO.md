@@ -24,8 +24,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | username | string - Constraints: 1 to 100 chars
 | ✅ | avatar | string┃null
 | ✅ | bio | string - Constraints: Max 1024 chars
-| ❌ | accent_color | integer
-| ❌ | banner | string┃null
+| ✅ | accent_color | integer
+| ✅ | banner | string┃null
 | ❌ | new_password | string
 | ❌ | email | string
 | 🗨️ | discriminator | string
@@ -37,8 +37,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
 | ✅ | bio | string
-| ❌ | accent_color | integer┃null
-| ❌ | banner | string┃null
+| ✅ | accent_color | integer┃null
+| ✅ | banner | string┃null
 | ✅ | pronouns | string
 | ❌ | theme_colors | [integer, integer]
 
@@ -58,7 +58,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | custom_status | object - one of: 1: object: emoji_id: string, emoji_name: string, expires_at: integer, text: string; 2: null
 | ⛔ | default_guilds_restricted | boolean | What's this for?
 | ⛔ | detect_platform_accounts | boolean | What's this for?
-| ❌ | developer_mode | boolean
+| 🗨️ | developer_mode | boolean
 | ⛔ | disable_games_tab | boolean | No use in SB
 | 🗨️ | enable_tts_command | boolean
 | ❌ | explicit_content_filter | integer
@@ -125,10 +125,10 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ❌ | banner | string┃null
-| ❌ | nick | string
-| ❌ | bio | string
-| ❌ | pronouns | string
+| ✅ | banner | string┃null
+| ✅ | nick | string
+| ✅ | bio | string
+| ✅ | pronouns | string
 | ❌ | theme_colors | [integer, integer]
 
 #### Guild member nickname edit

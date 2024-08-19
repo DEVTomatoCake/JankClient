@@ -120,7 +120,7 @@ const minify = async () => {
 	await minifyFile("./webpage/emoji.js", generateJSOptions(["Emoji"]))
 	await minifyFile("./webpage/emojis.js", generateJSOptions(["emojis", "emojiRegex"]))
 	//await minifyFile("./webpage/guild.js", generateJSOptions(["Guild"]))
-	//await minifyFile("./webpage/index.js", generateJSOptions(["messagelist", "requestTestNotif"]))
+	//await minifyFile("./webpage/index.js", generateJSOptions(["requestTestNotif"]))
 	await minifyFile("./webpage/invite.js", generateJSOptions())
 	await minifyFile("./webpage/infiniteScroller.js", generateJSOptions(["InfiniteScroller"]))
 	//await minifyFile("./webpage/localuser.js", generateJSOptions(["LocalUser"]))

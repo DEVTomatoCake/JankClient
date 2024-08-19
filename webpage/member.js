@@ -107,13 +107,11 @@ class Member {
 	getPresence(presence) {
 		this.user.getPresence(presence)
 	}
-	/**
-	 * @todo
-	 */
-	highInfo() {
-		fetch(this.info.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + this.guild.id, {
+	async getMemberProfile() {
+		const res = await fetch(this.info.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + this.guild.id, {
 			headers: this.guild.headers
 		})
+		return await res.json()
 	}
 	hasRole(ID) {
 		return this.roles.some(role => role.id == ID)

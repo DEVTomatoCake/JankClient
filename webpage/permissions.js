@@ -21,7 +21,7 @@ class Permissions {
 		return (big & ~bit) | (BigInt(state) << BigInt(b)) //thanks to geotale for this code :3
 	}
 	static makeMap() {
-		Permissions.info = [//for people in the future, do not reorder these, the creation of the map relies on the order
+		Permissions.info = [ // for people in the future, do not reorder these, the creation of the map relies on the order
 			{
 				name: "CREATE_INSTANT_INVITE",
 				readableName: "Create invite",

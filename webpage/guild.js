@@ -60,11 +60,15 @@ class Guild {
 			this.setNotification()
 		})
 
-		Guild.contextmenu.addbutton("Leave guild", function() {
+		Guild.contextmenu.addbutton("Edit server profile", function() {
+			this.editProfile()
+		})
+
+		Guild.contextmenu.addbutton("Leave server", function() {
 			this.confirmLeave()
 		}, null, g => g.properties.owner_id != g.member.user.id)
 
-		Guild.contextmenu.addbutton("Delete guild", function() {
+		Guild.contextmenu.addbutton("Delete server", function() {
 			this.confirmDelete()
 		}, null, g => g.properties.owner_id == g.member.user.id)
 	}
@@ -474,6 +478,60 @@ class Guild {
 				unicode_emoji: role.unicode_emoji
 			})
 		})
+	}
+	editProfile() {
+		const fields = {}
+
+		const profileDialog = new Dialog(["vdiv",
+			["textbox",
+				"Nickname",
+				this.member.nick || "",
+				event => {
+					fields.nick = event.target.value
+				}
+			],
+			["textbox",
+				"Pronouns",
+				this.member.pronouns || "",
+				event => {
+					fields.pronouns = event.target.value
+				}
+			],
+			["mdbox",
+				"Bio:",
+				this.member.bio || "",
+				event => {
+					fields.description = event.target.value
+				}
+			],
+			["vdiv",
+				this.member.banner ? ["img", this.member.banner, [128, 128]] : ["text", "No banner"],
+				["fileupload", "Server profile banner:", event => {
+					const reader = new FileReader()
+					reader.readAsDataURL(event.target.files[0])
+					reader.onload = () => {
+						fields.banner = reader.result
+					}
+				}]
+			],
+			["button",
+				"",
+				"Save changes",
+				async () => {
+					const updateRes = await fetch(this.info.api + "/guilds/" + this.id + "/profile/" + this.member.id, {
+						method: "PATCH",
+						headers: this.headers,
+						body: JSON.stringify(fields)
+					})
+					if (updateRes.ok) profileDialog.hide()
+					else {
+						const updateJSON = await updateRes.json()
+						alert("An error occurred: " + updateJSON.message)
+					}
+				}
+			]
+		])
+		profileDialog.show()
 	}
 }
 

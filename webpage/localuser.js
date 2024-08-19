@@ -255,7 +255,7 @@ class LocalUser {
 
 			if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code))) {
 				if (this.connectionSucceed != 0 && Date.now() > this.connectionSucceed + 20000) this.errorBackoff = 0
-				else this.errorBackoff = Math.min(this.errorBackoff + 1, 40)
+				else this.errorBackoff = Math.min(this.errorBackoff + 1, 60)
 				this.connectionSucceed = 0
 
 				document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar instance, retrying in <b>" + Math.round(0.2 + (this.errorBackoff * 2.8)) + "</b> seconds..."
@@ -272,24 +272,27 @@ class LocalUser {
 						} else document.getElementById("load-additional").textContent += "Unable to load connection info from \"" + this.info.wellknown + "\" (server offline or no internet?)"
 						break
 					/*case 4:
-						const newURLsOrigin = await getAPIURLs(new URL(this.info.wellknown).origin)
+						const urlOrigin = new URL(this.info.wellknown).origin
+						const newURLsOrigin = await getAPIURLs(urlOrigin)
 						if (newURLsOrigin) {
 							this.info = newURLsOrigin
 							this.serverurls = newURLsOrigin
 							this.userinfo.json.serverurls = this.info
 							this.userinfo.updateLocal()
-						}
+							document.getElementById("load-additional").textContent += "Server URLs have been updated to \"" + urlOrigin + "\""
+						} else document.getElementById("load-additional").textContent += "Unable to load connection info from \"" + urlOrigin + "\" (server offline or no internet?)"
 						break
 					case 5:
 						const breakappart = new URL(this.info.wellknown).origin.split(".")
-						const url = "https://" + breakappart.at(-2) + "." + breakappart.at(-1)
-						const newURLsDomain = await getAPIURLs(url)
+						const urlDomain = "https://" + breakappart.at(-2) + "." + breakappart.at(-1)
+						const newURLsDomain = await getAPIURLs(urlDomain)
 						if (newURLsDomain) {
 							this.info = newURLsDomain
 							this.serverurls = newURLsDomain
 							this.userinfo.json.serverurls = this.info
 							this.userinfo.updateLocal()
-						}
+							document.getElementById("load-additional").textContent += "Server URLs have been updated to \"" + urlDomain + "\""
+						} else document.getElementById("load-additional").textContent += "Unable to load connection info from \"" + urlDomain + "\" (server offline or no internet?)"
 						break*/
 				}
 
@@ -714,7 +717,7 @@ class LocalUser {
 	typing = new Map()
 	async typingStart(typing) {
 		if (this.channelfocus.id === typing.d.channel_id) {
-			const guild = SnowFlake.getSnowFlakeFromID(typing.d.guild_id, Guild).getObject()
+			const guild = this.guildids.get(typing.d.guild_id)
 			const memb = await Member.new(typing.d.member, guild)
 			if (memb.id == this.user.id) return
 

@@ -83,14 +83,14 @@ class Message {
 				headers: this.headers,
 				body: JSON.stringify({})
 			})
-		}, null, msg => msg.canDelete() && !msg.pinned)
+		}, null, msg => msg.channel.hasPermission("MANAGE_MESSAGES") && !msg.pinned)
 		Message.contextmenu.addbutton("Unpin message", function() {
 			fetch(this.info.api + "/channels/" + this.channel.id + "/pins/" + this.id, {
 				method: "DELETE",
 				headers: this.headers,
 				body: JSON.stringify({})
 			})
-		}, null, msg => msg.canDelete() && msg.pinned)
+		}, null, msg => msg.channel.hasPermission("MANAGE_MESSAGES") && msg.pinned)
 	}
 
 	constructor(messagejson, owner) {
@@ -121,43 +121,33 @@ class Message {
 
 		if (messagejson.attachments) {
 			this.attachments = []
-			for (const thing of messagejson.attachments) {
-				this.attachments.push(new Attachment(thing, this))
-			}
+			for (const thing of messagejson.attachments) this.attachments.push(new Attachment(thing, this))
 		}
 
 		if (messagejson.embeds) {
 			this.embeds = []
-			for (const thing of messagejson.embeds) {
-				this.embeds.push(new Embed(thing, this))
-			}
+			for (const thing of messagejson.embeds) this.embeds.push(new Embed(thing, this))
 		}
 
 		if (messagejson.components) {
 			this.components = []
-			for (const thing of messagejson.components) {
-				this.components.push(new Component(thing, this))
-			}
+			for (const thing of messagejson.components) this.components.push(new Component(thing, this))
+		}
+
+		if (messagejson.mentions) {
+			this.mentions = []
+			for (const thing of messagejson.mentions) this.mentions.push(new User(thing, this.localuser))
+		}
+
+		if (messagejson.mention_roles) {
+			this.mention_roles = []
+			for (const thing of messagejson.mention_roles) this.mention_roles.push(new Role(thing, this))
 		}
 
 		if (!this.member && this.guild.id != "@me") {
 			this.author.resolvemember(this.guild).then(member => {
 				this.member = member
 			})
-		}
-
-		if (messagejson.mentions) {
-			this.mentions = []
-			for (const thing of messagejson.mentions) {
-				this.mentions.push(new User(thing, this.localuser))
-			}
-		}
-
-		if (messagejson.mention_roles) {
-			this.mention_roles = []
-			for (const thing of messagejson.mention_roles) {
-				this.mention_roles.push(new Role(thing, this))
-			}
 		}
 
 		if (this.div) this.generateMessage()
@@ -338,9 +328,9 @@ class Message {
 			if (combine) {
 				const username = document.createElement("span")
 				username.classList.add("username")
+				username.textContent = this.member && this.member.nick ? this.member.nick : this.author.username
 				this.author.contextMenuBind(username, this.guild)
 
-				username.textContent = this.author.username
 				const userwrap = document.createElement("div")
 				userwrap.classList.add("flexltr", "message-header")
 				userwrap.appendChild(username)
@@ -472,7 +462,7 @@ class Message {
 	}
 	giveReaction(data, member) {
 		for (const thing of this.reactions) {
-			if (thing.emoji.name == data.name) {
+			if ((thing.emoji.id && thing.emoji.id == data.id) || (!thing.emoji.id && thing.emoji.name == data.name)) {
 				thing.count++
 				if (member.id == this.localuser.user.id) {
 					thing.me = true
@@ -491,13 +481,14 @@ class Message {
 	takeReaction(data, id) {
 		for (const i in this.reactions) {
 			const thing = this.reactions[i]
-			if (thing.emoji.name == data.name) {
+			if ((thing.emoji.id && thing.emoji.id == data.id) || (!thing.emoji.id && thing.emoji.name == data.name)) {
 				thing.count--
 				if (thing.count == 0) {
 					this.reactions.splice(i, 1)
 					this.updateReactions()
 					return
 				}
+
 				if (this.localuser.user.id == id) {
 					thing.me = false
 					this.updateReactions()

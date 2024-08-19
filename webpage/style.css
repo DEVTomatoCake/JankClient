@@ -137,7 +137,7 @@
 	--textarea-bg: color-mix(in srgb, #b4b7c7 85%, var(--accent-color));
 	--filename: #47bbff;
 	--notify-bg: #ff170f;
-	--pronouns: #6a6a6d;
+	--pronouns: #606063;
 	--error-color: #d40404;
 	--embed: color-mix(in srgb, #f2f3f5 90%, var(--accent-color));
 	--link: #3333ee;
@@ -309,13 +309,10 @@ code {
 	padding: .3cm;
 	width: 100%;
 	height: calc(100% - .5in - .2cm);
-	margin-top: 10px;
 	box-sizing: border-box;
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3 {
 	margin: 0;
 	display: inline-block;
 }
@@ -343,7 +340,7 @@ small.subtext {
 
 .servericon {
 	transition: border-radius .2s;
-	margin: 4px;
+	margin: 5px 8px;
 }
 .servericon:hover, .servericon:focus {
 	border-radius: 30%;
@@ -362,7 +359,7 @@ small.subtext {
 	vertical-align: top;
 	overflow: auto;
 	flex-shrink: 0;
-	width: 56px;
+	width: 62px;
 	background: var(--server-list);
 	overflow-y: scroll;
 	scrollbar-width: none;
@@ -408,7 +405,7 @@ img {
 }
 
 .pfprow {
-	width: .5in;
+	width: 56px;
 	flex-shrink: 0;
 }
 
@@ -773,7 +770,7 @@ hr {
 
 .pronouns {
 	color: var(--pronouns);
-	font-size: .15in;
+	font-size: 14px;
 }
 
 textarea {
@@ -1573,6 +1570,7 @@ video {
 	font-size: .2in;
 	width: 5in;
 	height: .5in;
+	z-index: 5;
 }
 .savediv button {
 	background-color: var(--green);
@@ -1592,7 +1590,6 @@ video {
 }
 
 .messagediv .flexltr {
-	display: flex;
 	flex-wrap: wrap;
 	max-height: 100in;
 	overflow: hidden !important;
@@ -1718,16 +1715,16 @@ textarea:focus-visible,
 	}
 }
 
-
 .suberror {
 	animation: goout 6s forwards;
 }
+
 .suberrora {
 	background: var(--channel-hover);
 	border-radius: .1in;
 	position: absolute;
 	border: solid var(--primary-text) .02in;
-	color: color-mix(in hsl,var(--yellow),var(--red));
+	color: color-mix(in hsl, var(--yellow), var(--red));
 	font-weight: bold;
 	opacity: 0;
 	cursor: auto;
@@ -1738,6 +1735,7 @@ textarea:focus-visible,
 	padding: .075in;
 	box-sizing: border-box;
 }
+
 @keyframes goout {
 	0%, 100% {
 		opacity: 0;
@@ -2044,21 +2042,27 @@ small.edited {
 
 .statusDiv {
 	position: absolute;
-	bottom: .025in;
-	right: .025in;
+	bottom: 0;
+	left: 30px;
 	width: .125in;
 	height: .125in;
 	background: var(--black);
-	border: solid .03in black;
+	border: solid .03in var(--black);
 	box-sizing: border-box;
 	border-radius: .1in;
 }
 
-.onlinestatus {
+.onlineStatus {
 	background: var(--green);
 }
-.offlinestatus {
+.offlineStatus, .invisibleStatus {
 	background: var(--primary-bg);
+}
+.idleStatus {
+	background: var(--yellow);
+}
+.dndStatus {
+	background: var(--red);
 }
 
 .banner {
@@ -2138,7 +2142,6 @@ small.edited {
 	width: .4in;
 	height: .4in;
 	background: var(--channel-hover);
-
 	margin-left: .05in;
 	border-radius: 1in;
 }
@@ -2153,6 +2156,15 @@ small.edited {
 
 .capsflex {
 	display: flex;
+	align-items: center;
+}
+
+.badges {
+	width: fit-content;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
 	align-items: center;
 }
 
@@ -2174,11 +2186,6 @@ small.edited {
 	height: .1in;
 }
 
-.badges {
-	width: fit-content;
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	justify-content: flex-start;
-	align-items: center;
+.pfpdiv {
+	position: relative;
 }

@@ -39,7 +39,6 @@ const global = {
 	SnowFlake: "writable",
 
 	thisuser: "writable",
-	messagelist: "writable",
 	setTheme: "writeable",
 	checkInstance: "writeable",
 	getBulkUsers: "writeable",

@@ -148,9 +148,6 @@ const requestTestNotif = async () => {
 	})
 }
 
-// eslint-disable-next-line no-unused-vars
-const messagelist = []
-
 let images = []
 let replyingto = null
 

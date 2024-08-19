@@ -16,11 +16,11 @@ class Contextmenu {
 	constructor() {
 		this.buttons = []
 	}
-	addbutton(text, onclick, img = null, shown = () => true, enabled = () => true) {
+	addbutton(text = "", onclick = () => {}, img = null, shown = () => true, enabled = () => true) {
 		this.buttons.push({type: "button", text, onclick, img, shown, enabled})
 		return {}
 	}
-	addsubmenu(text, onclick, img = null, shown = () => true, enabled = () => true) {
+	addsubmenu(text = "", onclick = () => {}, img = null, shown = () => true, enabled = () => true) {
 		this.buttons.push({type: "submenu", text, onclick, img, shown, enabled})
 		return {}
 	}
