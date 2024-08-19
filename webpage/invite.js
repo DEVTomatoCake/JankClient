@@ -19,10 +19,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 				if (user.serverurls.api.includes(out.api)) joinable.push(user)
 			}
 
-			document.getElementById("AcceptInvite").textContent = "Create an account to accept the invite"
+			document.getElementById("invite-accept").textContent = "Create an account to accept the invite"
 		} else {
-			document.getElementById("AcceptInvite").textContent = "Spacebar instance is unavailable"
-			document.getElementById("AcceptInvite").setAttribute("disabled", "")
+			document.getElementById("invite-accept").textContent = "Spacebar instance is unavailable"
+			document.getElementById("invite-accept").setAttribute("disabled", "")
 		}
 	} else urls = joinable[0].serverurls
 
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		}
 	})
 
-	document.getElementById("AcceptInvite").addEventListener("click", () => {
+	document.getElementById("invite-accept").addEventListener("click", () => {
 		const container = document.createElement("dialog")
 		container.classList.add("accountSwitcher")
 
@@ -104,5 +104,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 		container.append(td)
 
 		document.body.append(container)
+	})
+
+	document.getElementById("invite-link").value = instance + "/invite/" + code
+	document.getElementById("invite-link").addEventListener("click", () => {
+		document.getElementById("invite-link").select()
+		navigator.clipboard.writeText(document.getElementById("invite-link").value)
 	})
 })
