@@ -15,6 +15,21 @@ class Component {
 		this.headers = this.owner.headers
 		this.json = json
 	}
+	get message() {
+		return this.owner
+	}
+	get channel() {
+		return this.message.channel
+	}
+	get guild() {
+		return this.channel.guild
+	}
+	get localuser() {
+		return this.guild.localuser
+	}
+	get info() {
+		return this.localuser.info
+	}
 	generateHTML() {
 		const actionrow = document.createElement("div")
 		actionrow.classList.add("actionrow")

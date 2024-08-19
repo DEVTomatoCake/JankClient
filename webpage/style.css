@@ -1747,22 +1747,12 @@ textarea:focus-visible,
 	}
 }
 
-#register {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	flex-grow: 1;
-	justify-content: space-between;
-}
-
-.dontgrow {
-	flex-grow: 0;
-	width: 1.6in;
-	text-align: center;
-}
-
 form div {
 	width: 100%;
+}
+
+#logindiv label, #register label {
+	user-select: none;
 }
 
 .svgtheme {
@@ -1998,7 +1988,7 @@ small.edited {
 	justify-content: center;
 	padding: .5in .2in;
 	gap: .1in;
-	width: 5.in;
+	width: 5in;
 }
 
 #AcceptInvite{

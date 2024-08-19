@@ -79,8 +79,8 @@ const setDefaults = () => {
 		return
 	}
 
-	if (userinfos.accent_color === void 0 && userinfos.preferences.theme == "dark") userinfos.accent_color = "#242443"
-	else if (userinfos.accent_color === void 0) userinfos.accent_color = "#f0f0f0"
+	if (userinfos.accent_color === void 0 && userinfos.preferences.theme == "light") userinfos.accent_color = "#f0f0f0"
+	else if (userinfos.accent_color === void 0) userinfos.accent_color = "#242443"
 
 	localStorage.setItem("userinfos", JSON.stringify(userinfos))
 }
@@ -262,7 +262,7 @@ const setTheme = theme => {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-	if (localStorage.getItem("theme") != "dark") setTheme(localStorage.getItem("theme"))
+	if (localStorage.getItem("theme") && localStorage.getItem("theme") != "dark") setTheme(localStorage.getItem("theme"))
 	else if (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: light)").matches) setTheme("light")
 
 	document.documentElement.style.setProperty("--accent-color", getBulkInfo().accent_color)

@@ -1,8 +1,6 @@
 "use strict"
 
 const supportsCompression = "DecompressionStream" in window
-let connectionSucceed = 0
-let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
 let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
@@ -71,6 +69,9 @@ class LocalUser {
 
 	badges = new Map()
 	noteCache = new Map()
+
+	connectionSucceed = 0
+	errorBackoff = 0
 
 	gottenReady(ready) {
 		this.initialized = true
@@ -253,13 +254,13 @@ class LocalUser {
 			this.noncebuild = new Map()
 
 			if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code))) {
-				if (connectionSucceed != 0 && Date.now() > connectionSucceed + 20000) errorBackoff = 0
-				else errorBackoff = Math.min(errorBackoff + 1, 40)
-				connectionSucceed = 0
+				if (this.connectionSucceed != 0 && Date.now() > this.connectionSucceed + 20000) this.errorBackoff = 0
+				else this.errorBackoff = Math.min(this.errorBackoff + 1, 40)
+				this.connectionSucceed = 0
 
-				document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (errorBackoff * 2.8)) + "</b> seconds..."
+				document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar instance, retrying in <b>" + Math.round(0.2 + (this.errorBackoff * 2.8)) + "</b> seconds..."
 
-				switch (this.errorBackoff) { //try to recover from bad domain
+				switch (this.errorBackoff) { // try to recover from bad domain
 					case 3:
 						const newURLsWellKnown = await getAPIURLs(this.info.wellknown)
 						if (newURLsWellKnown) {
@@ -267,7 +268,8 @@ class LocalUser {
 							this.serverurls = newURLsWellKnown
 							this.userinfo.json.serverurls = this.info
 							this.userinfo.updateLocal()
-						} else document.getElementById("load-additional").textContent = "Unable to load connection info from \"" + this.info.wellknown + "\""
+							document.getElementById("load-additional").textContent += "Server URLs have been updated to \"" + this.info.wellknown + "\""
+						} else document.getElementById("load-additional").textContent += "Unable to load connection info from \"" + this.info.wellknown + "\" (server offline or no internet?)"
 						break
 					/*case 4:
 						const newURLsOrigin = await getAPIURLs(new URL(this.info.wellknown).origin)
@@ -303,8 +305,8 @@ class LocalUser {
 
 						document.getElementById("load-desc").textContent = "This shouldn't take long"
 					})
-				}, 200 + (errorBackoff * 2800))
-			} else document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server. Please try logging out and back in."
+				}, 200 + (this.errorBackoff * 2800))
+			} else document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar instance. Please try logging out and back in."
 		})
 
 		await promise
@@ -407,14 +409,14 @@ class LocalUser {
 		else if (json.op == 10) {
 			this.heartbeatInterval = json.d.heartbeat_interval
 
-			setTimeout(() => {
+			this.heartbeatTimeout = setTimeout(() => {
 				this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
 			}, Math.round(json.d.heartbeat_interval * Math.random()))
 		} else if (json.op == 11) {
 			this.heartbeatTimeout = setTimeout(() => {
 				if (!this.ws) return
 
-				if (connectionSucceed == 0) connectionSucceed = Date.now()
+				if (this.connectionSucceed == 0) this.connectionSucceed = Date.now()
 				this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
 			}, this.heartbeatInterval)
 		}

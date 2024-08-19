@@ -98,24 +98,22 @@ const registertry = async event => {
 document.addEventListener("DOMContentLoaded", () => {
 	document.getElementById("register").addEventListener("submit", registertry)
 
-	let TOSa = document.getElementById("TOSa")
 	checkInstance.alt = async () => {
-		const apiurl = new URL(JSON.parse(localStorage.getItem("instanceEndpoints")).api)
-		const tosPage = (await (await fetch(apiurl.toString() + "/ping")).json()).this.info.tosPage
+		const pingRes = await fetch(JSON.parse(localStorage.getItem("instanceEndpoints")).api + "/ping")
+		const tosPage = (await pingRes.json()).instance.tosPage
+
+		const TOSa = document.getElementById("TOSa")
 		if (tosPage) {
-			document.getElementById("TOSbox").innerHTML = "I agree to the <a id=\"TOSa\" target=\"_blank\" rel=\"noopener\">Terms of Service</a>:"
-			TOSa = document.getElementById("TOSa")
 			TOSa.href = tosPage
 
 			document.getElementById("tos-check").disabled = false
 			document.getElementById("tos-check").checked = false
 		} else {
-			document.getElementById("TOSbox").textContent = "This instance has no Terms of Service."
-			TOSa = null
+			TOSa.textContent = "This instance has no Terms of Service."
 
 			document.getElementById("tos-check").disabled = true
 			document.getElementById("tos-check").checked = true
 		}
-		console.log("Found ToS page: " + tosPage)
 	}
+	checkInstance.alt()
 })
