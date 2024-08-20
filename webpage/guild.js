@@ -189,8 +189,10 @@ class Guild {
 
 		const build = document.createElement("div")
 		if (this.id == "@me") build.classList.add("dm-container")
+
 		for (const thing of this.headchannels) {
-			build.appendChild(thing.createGuildHTML(this.isAdmin()))
+			const createdChannel = thing.createGuildHTML(this.isAdmin())
+			if (createdChannel) build.appendChild(createdChannel)
 		}
 		return build
 	}
@@ -312,25 +314,42 @@ class Guild {
 		this.message_notifications = settings.message_notifications
 	}
 	setNotification() {
-		let noti = this.message_notifications
+		const fields = {
+			message_notifications: this.message_notifications,
+			muted: this.muted,
+			suppress_everyone: this.suppress_everyone,
+			suppress_roles: this.suppress_roles
+		}
+
 		const notiselect = new Dialog(
 		["vdiv",
 			["radio", "select notifications type",
 				["all", "only mentions", "none"],
 				i => {
-					noti = ["all", "only mentions", "none"].indexOf(i)
+					fields.message_notifications = ["all", "only mentions", "none"].indexOf(i)
 				},
-				noti
+				fields.message_notifications
 			],
+			["checkbox", "Muted", this.muted, event => {
+				fields.muted = event.target.checked
+			}],
+			["checkbox", "Suppress @everyone/@here mentions", this.suppress_everyone, event => {
+				fields.suppress_everyone = event.target.checked
+			}],
+			["checkbox", "Suppress role mentions", this.suppress_roles, event => {
+				fields.suppress_roles = event.target.checked
+			}],
 			["button", "", "submit", () => {
 				fetch(this.info.api + "/users/@me/guilds/" + this.id + "/settings", {
 					method: "PATCH",
 					headers: this.headers,
-					body: JSON.stringify({
-						message_notifications: noti
-					})
+					body: JSON.stringify(fields)
 				})
-				this.message_notifications = noti
+
+				this.message_notifications = fields.message_notifications
+				this.muted = fields.muted
+				this.suppress_everyone = fields.suppress_everyone
+				this.suppress_roles = fields.suppress_roles
 			}]
 		])
 		notiselect.show()

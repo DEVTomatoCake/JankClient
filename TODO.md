@@ -108,12 +108,12 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
 | ❌ | channel_overrides | object: [any-key]: object: message_notifications*: integer; mute_config*: object: end_time*: integer, selected_time_window*: integer, muted*: boolean, channel_id*: string┃null
-| ❌ | message_notifications | integer
+| ✅ | message_notifications | integer
 | ❌ | mobile_push | boolean
 | ❌ | mute_config | object - one of: 1: object: end_time*: integer, selected_time_window*: integer; 2: null
-| ❌ | muted | boolean
-| ❌ | suppress_everyone | boolean
-| ❌ | suppress_roles | boolean
+| ✅ | muted | boolean
+| ⚙️ | suppress_everyone | boolean
+| ⚙️ | suppress_roles | boolean
 | ⛔ | flags | integer | Which flags?
 | ❌ | mute_scheduled_events | boolean
 | ❌ | hide_muted_channels | boolean

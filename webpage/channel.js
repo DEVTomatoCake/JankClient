@@ -113,7 +113,7 @@ class Channel {
 	generateSettings() {
 		this.sortPerms()
 		const settings = new Settings("Settings for " + this.name)
-		const s1 = settings.addButton("roles")
+		const s1 = settings.addButton("Roles")
 		s1.options.push(new RoleList(this.permission_overwritesar, this.guild, this.updateRolePermissions.bind(this), true))
 		settings.show()
 	}
@@ -259,14 +259,15 @@ class Channel {
 	}
 	static dragged = []
 	createGuildHTML(admin = false) {
-		const div = document.createElement("div")
 		if (!this.hasPermission("VIEW_CHANNEL")) {
 			let quit = true
 			for (const thing of this.children) {
 				if (thing.hasPermission("VIEW_CHANNEL")) quit = false
 			}
-			if (quit) return div
+			if (quit) return
 		}
+
+		const div = document.createElement("div")
 		div.id = "ch-" + this.id
 		div.all = this
 		div.draggable = admin
@@ -315,7 +316,8 @@ class Channel {
 			decdiv.all = this
 
 			for (const channel2 of this.children) {
-				childrendiv.appendChild(channel2.createGuildHTML(admin))
+				const createdChannel = channel2.createGuildHTML(admin)
+				if (createdChannel) childrendiv.appendChild(createdChannel)
 			}
 			childrendiv.classList.add("channels")
 			setTimeout(() => {
@@ -629,7 +631,7 @@ class Channel {
 
 			const content = document.createElement("div")
 			content.classList.add("loadingcontent")
-			content.style.width = Math.floor(Math.random() * 96 * 3 + 40) + "px"
+			content.style.width = Math.floor(Math.random() * 96 * 3 + 50) + "px"
 			content.style.height = (Math.floor(Math.random() * 3 + 1) * 20) + "px"
 			div.append(content)
 
@@ -638,10 +640,7 @@ class Channel {
 	}
 	async putmessages() {
 		if (this.allthewayup) return
-
-		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) {
-			return
-		}
+		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) return
 
 		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100", {
 			headers: this.headers
@@ -891,7 +890,7 @@ class Channel {
 		if (messagez.author === this.localuser.user) return
 		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
 
-		if (this.notification == "all" || (this.notification == "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)
+		if (this.guild.muted || this.notification == "all" || (this.notification == "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)
 	}
 	notititle(message) {
 		return message.author.username + " > " + this.guild.properties.name + " > " + this.name

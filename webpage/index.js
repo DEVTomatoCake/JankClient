@@ -220,21 +220,6 @@ document.addEventListener("paste", event => {
 	})
 })
 
-/*let triggered = false
-document.getElementById("messagecontainer").addEventListener("scroll", () => {
-	const messagecontainer = document.getElementById("messagecontainer")
-	if (messagecontainer.scrollTop < 2000) {
-		if (!triggered && thisuser.lookingguild) {
-			thisuser.lookingguild.prevchannel.grabBefore().then(() => {
-				triggered = false
-				if (messagecontainer.scrollTop == 0) messagecontainer.scrollTop = 1
-			})
-		}
-		triggered = true
-	} else if (Math.abs(messagecontainer.scrollHeight - messagecontainer.scrollTop - messagecontainer.clientHeight) < 3)
-		thisuser.lookingguild.prevchannel.readbottom()
-})*/
-
 if (screen.width <= 600) {
 	const collapse = () => {
 		document.getElementById("mobileback").removeAttribute("hidden")

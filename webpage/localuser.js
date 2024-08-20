@@ -352,6 +352,7 @@ class LocalUser {
 					messageAcked.channel.lastreadmessageid = messageAcked.snowflake
 					messageAcked.channel.guild.unreads()
 
+					if (messageAcked.channel.myhtml === null) console.warn("Message acked but no channel HTML found, channel " + messageAcked.channel.id + " " + messageAcked.channel.name)
 					if (messageAcked.channel.myhtml !== null) {
 						if (messageAcked.channel.lastmessageid.id == json.d.message_id) messageAcked.channel.myhtml.classList.remove("cunread")
 						else messageAcked.channel.myhtml.classList.add("cunread")
@@ -740,9 +741,10 @@ class LocalUser {
 
 		if (showing) {
 			document.getElementById("typing").classList.remove("hidden")
-			document.getElementById("typingtext").textContent = typingUsers.length > 1
-				? typingUsers.slice(1).join(", ") + " and " + typingUsers[0] + " are typing"
-				: typingUsers[0] + " is typing"
+			document.getElementById("typing-users").textContent = typingUsers.length > 1
+				? typingUsers.slice(1).join(", ") + " and " + typingUsers[0]
+				: typingUsers[0]
+			document.getElementById("typing-plural").textContent = typingUsers.length > 1 ? "are" : "is"
 		} else document.getElementById("typing").classList.add("hidden")
 	}
 	updatepfp(file) {
