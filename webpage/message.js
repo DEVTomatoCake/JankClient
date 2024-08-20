@@ -245,11 +245,24 @@ class Message {
 		if (!premessage) premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
 
 		const div = this.div
-		if (this === this.channel.replyingto) div.classList.add("replying")
 		div.innerHTML = ""
 
 		const build = document.createElement("div")
-		build.classList.add("flexltr")
+		build.classList.add("message", "flexltr")
+
+		if (this === this.channel.replyingto) div.classList.add("replying")
+			if (this.localuser.ready.d.relationships.some(relation => relation.id == this.author.id && relation.type == 2)) {
+				const blocked = document.createElement("i")
+				blocked.classList.add("blocked")
+				blocked.textContent = "You have blocked this user. Click here to still see the message."
+				blocked.addEventListener("click", () => {
+					blocked.remove()
+					build.classList.remove("user-blocked")
+				})
+
+				build.classList.add("user-blocked")
+				div.appendChild(blocked)
+			}
 
 		if (this.message_reference) {
 			const replyline = document.createElement("div")
@@ -294,8 +307,6 @@ class Message {
 			div.appendChild(replyline)
 		}
 
-		build.classList.add("message")
-		div.appendChild(build)
 		if (this.type == 0 || this.type == 19 || this.attachments.length > 0) {
 			const pfpRow = document.createElement("div")
 			pfpRow.classList.add("flexltr", "pfprow")
@@ -417,7 +428,8 @@ class Message {
 			texttxt.append(time)
 			div.classList.add("topMessage")
 		} else console.warn("Cannot render message type " + this.type, this)
-		div.all = this
+
+		div.appendChild(build)
 
 		const reactions = document.createElement("div")
 		reactions.classList.add("flexltr", "reactiondiv")
@@ -425,6 +437,7 @@ class Message {
 		this.updateReactions()
 		div.append(reactions)
 
+		div.all = this
 		return div
 	}
 	updateReactions() {

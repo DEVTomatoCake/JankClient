@@ -52,6 +52,7 @@ class Group extends Channel {
 	createGuildHTML() {
 		const div = document.createElement("div")
 		div.classList.add("channeleffects")
+
 		const myhtml = document.createElement("span")
 		myhtml.textContent = this.name
 		div.appendChild(this.user.buildpfp())

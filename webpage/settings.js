@@ -532,9 +532,12 @@ class Settings extends Buttons {
 		background.append(this.generateHTML())
 
 		const exit = document.createElement("span")
-		exit.textContent = "✖"
 		exit.classList.add("exitsettings")
+		exit.textContent = "✖"
+		exit.setAttribute("aria-label", "Close settings")
+		exit.setAttribute("tabindex", "0")
 		background.append(exit)
+
 		exit.addEventListener("click", () => {
 			this.hide()
 		})

@@ -142,7 +142,7 @@ class LocalUser {
 		const promise = new Promise(resolve => {
 			returny = resolve
 		})
-		this.ws = new WebSocket(this.info.gateway + "/?v=9&encoding=json" + (supportsCompression ? "&compress=zlib-stream" : ""))
+		this.ws = new WebSocket((this.ready && this.ready.d ? this.ready.d.resume_gateway_url : this.info.gateway) + "/?v=9&encoding=json" + (supportsCompression ? "&compress=zlib-stream" : ""))
 
 		this.ws.addEventListener("open", () => {
 			console.log("WebSocket connected")
@@ -353,9 +353,14 @@ class LocalUser {
 					messageAcked.channel.guild.unreads()
 
 					if (messageAcked.channel.myhtml === null) console.warn("Message acked but no channel HTML found, channel " + messageAcked.channel.id + " " + messageAcked.channel.name)
-					if (messageAcked.channel.myhtml !== null) {
-						if (messageAcked.channel.lastmessageid.id == json.d.message_id) messageAcked.channel.myhtml.classList.remove("cunread")
-						else messageAcked.channel.myhtml.classList.add("cunread")
+					else {
+						if (messageAcked.channel.lastmessageid.id == json.d.message_id) {
+							messageAcked.channel.myhtml.classList.remove("cunread")
+							console.log("Last message " + json.d.message_id + " in " + messageAcked.channel.id + " acked")
+						} else {
+							messageAcked.channel.myhtml.classList.add("cunread")
+							console.log("Acked message " + json.d.message_id + " which isn't last in " + messageAcked.channel.id)
+						}
 					}
 
 					break

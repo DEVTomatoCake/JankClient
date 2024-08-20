@@ -12,6 +12,8 @@ class Dialog {
 		const close = document.createElement("span")
 		close.classList.add("close")
 		close.innerHTML = "&times;"
+		close.setAttribute("aria-label", "Close dialog")
+		close.setAttribute("tabindex", "0")
 		dialog.appendChild(close)
 
 		this.tohtml(layout, dialog)

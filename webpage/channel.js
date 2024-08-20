@@ -286,7 +286,7 @@ class Channel {
 			caps.classList.add("capsflex")
 
 			const decdiv = document.createElement("div")
-			decdiv.classList.add("channeleffects")
+			decdiv.classList.add("channeleffects", "category")
 
 			const decoration = document.createElement("img")
 			decoration.src = "/icons/collapse.svg"
@@ -593,7 +593,7 @@ class Channel {
 		document.getElementById("channelname").textContent = "#" + this.name
 
 		if (this.topic) {
-			document.getElementById("channelTopic").textContent = this.topic
+			document.getElementById("channelTopic").innerHTML = new MarkDown(this.topic, this).makeHTML().innerHTML
 			document.getElementById("channelTopic").removeAttribute("hidden")
 		} else document.getElementById("channelTopic").setAttribute("hidden", "")
 

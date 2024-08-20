@@ -16,6 +16,22 @@ class User {
 				})
 			})
 		})
+
+		this.contextmenu.addbutton("Block user", function() {
+			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+				method: "PUT",
+				headers: this.localuser.headers,
+				body: JSON.stringify({
+					type: 2
+				})
+			})
+		}, null, owner => !owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 2))
+		this.contextmenu.addbutton("Unblock user", function() {
+			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+				method: "DELETE",
+				headers: this.localuser.headers
+			})
+		}, null, owner => owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 2))
 	}
 
 	static userids = {}
@@ -41,7 +57,6 @@ class User {
 
 	constructor(userjson, owner) {
 		this.owner = owner
-		if (!owner) console.error("missing localuser")
 
 		for (const thing of Object.keys(userjson)) {
 			if (thing == "bio") {

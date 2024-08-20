@@ -510,13 +510,8 @@ div {
 	min-height: .4in;
 	max-height: 1.5in;
 	overflow-y: auto;
-	flex-grow:1;
-}
-#typebox:focus {
-	border-color: inherit;
-	box-shadow: none;
-	outline: none !important;
-	outline-offset: 0 !important;
+	flex-grow: 1;
+	outline: none;
 }
 
 #realbox {
@@ -1682,7 +1677,7 @@ video {
 	gap: 10px;
 }
 
-#connection-container div, #app-list-container div {
+#connection-container > div, #app-list-container > div {
 	padding: 5px 10px;
 	border-radius: 5px;
 	background: var(--textarea-bg);
@@ -1690,15 +1685,16 @@ video {
 	display: flex;
 	flex-direction: column;
 }
-#connection-container .disabled {
+#connection-container > .disabled {
 	background: var(--embed-fallback);
 	cursor: not-allowed;
 }
 
-input[type=text]:focus-visible,
-input[type=password]:focus-visible,
+input:focus-visible,
+button:focus-visible,
 textarea:focus-visible,
-#typebox:focus-visible {
+.servericon:focus-visible,
+.channel:focus-visible {
 	outline: 2px solid var(--focus);
 }
 
@@ -1757,7 +1753,9 @@ form div {
 	color: var(--icon-color);
 	filter: hue-rotate(var(--rot)) invert(var(--invert)) brightness(var(--brightness));
 }
-img.svgtheme {
+
+img.svgtheme,
+#app-list-container img {
 	aspect-ratio: 1;
 }
 
@@ -1766,13 +1764,18 @@ img.svgtheme {
 }
 
 .collapse-icon {
-	width: .15in;
+	width: 12px;
 	padding-left: .05in;
 	padding-right: .025in;
 	transition: rotate .2s;
 }
 .hiddencat {
 	rotate: -90deg;
+}
+
+.category {
+	margin-top: 10px;
+	font-size: 14px;
 }
 
 .accent {
@@ -2184,4 +2187,12 @@ small.edited {
 
 .pfpdiv {
 	position: relative;
+}
+
+.blocked {
+	cursor: pointer;
+}
+
+.user-blocked {
+	display: none;
 }
