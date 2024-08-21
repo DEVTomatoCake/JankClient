@@ -12,7 +12,7 @@ class Emoji {
 		if (this.owner instanceof Guild) return this.owner
 	}
 	get localuser() {
-		if (this.owner instanceof Guild) return this.guild.localuser
+		if (this.owner instanceof Guild) return this.owner.localuser
 		return this.owner
 	}
 	get info() {

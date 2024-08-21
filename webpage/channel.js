@@ -3,6 +3,8 @@
 class Channel {
 	idToPrev = new Map()
 	idToNext = new Map()
+	messages = new Map()
+
 	static contextmenu = new Contextmenu()
 	static setupcontextmenu() {
 		this.contextmenu.addbutton("Copy channel id", function() {
@@ -63,9 +65,9 @@ class Channel {
 		copy.src = "/icons/copy.svg"
 		copy.classList.add("copybutton", "svgtheme")
 		copycontainer.append(copy)
-		copycontainer.onclick = () => {
-			navigator.clipboard.writeText(text.value)
-		}
+		copycontainer.addEventListener("click", () => {
+			if (text.value) navigator.clipboard.writeText(text.value)
+		})
 		div.append(copycontainer)
 
 		let uses = 0
@@ -140,10 +142,10 @@ class Channel {
 				}
 			}
 		}), (async id => {
-			const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
+			const message = this.messages.get(id)
 
 			try {
-				return snowflake.getObject().buildhtml(this.messageids.get(this.idToPrev.get(snowflake)))
+				if (message) return message.buildhtml()
 			} catch (e) {
 				console.error(e)
 			}
@@ -174,7 +176,7 @@ class Channel {
 		this.nsfw = json.nsfw
 		this.position = json.position
 		this.lastreadmessageid = null
-		this.lastmessageid = SnowFlake.getSnowFlakeFromID(json.last_message_id, Message)
+		this.lastmessageid = json.last_message_id ? SnowFlake.getSnowFlakeFromID(json.last_message_id, Message) : null
 		this.setUpInfiniteScroller()
 
 		this.permission_overwrites = new Map()
@@ -221,7 +223,7 @@ class Channel {
 	get hasunreads() {
 		if (!this.hasPermission("VIEW_CHANNEL")) return false
 
-		return this.lastmessageid != this.lastreadmessageid && this.type != 4 && Boolean(this.lastmessageid.id)
+		return this.lastmessageid != this.lastreadmessageid && this.type != 4 && !this.lastmessageid
 	}
 	get canMessage() {
 		return this.hasPermission("SEND_MESSAGES")
@@ -230,10 +232,12 @@ class Channel {
 		this.children.sort((a, b) => a.position - b.position)
 	}
 	resolveparent(guild) {
-		this.parent = guild.channelids[this.parent_id?.id]
+		const parentid = this.parent_id?.id
+		if (!parentid) return false
+		this.parent = guild.channelids[parentid]
 		this.parent ??= null
 		if (this.parent !== null) this.parent.children.push(this)
-		return this.parent === null
+		return this.parent !== null
 	}
 	calculateReorder() {
 		let position = -1
@@ -251,7 +255,7 @@ class Channel {
 			if (thing.move_id && thing.move_id != thing.parent_id) {
 				thing.parent_id = thing.move_id
 				thisthing.parent_id = thing.parent_id.id
-				thing.move_id = void 0
+				thing.move_id = null
 			}
 			if (thisthing.position || thisthing.parent_id) build.push(thisthing)
 		}
@@ -430,38 +434,41 @@ class Channel {
 		})
 
 		div.addEventListener("drop", event => {
-			const that = Channel.dragged[0]
+			const dragged = Channel.dragged[0]
+			if (!dragged) return
+
 			event.preventDefault()
 			if (container) {
-				that.move_id = this.snowflake
-				if (that.parent) that.parent.children.splice(that.parent.children.indexOf(that), 1)
+				dragged.move_id = this.snowflake
+				if (dragged.parent) dragged.parent.children.splice(dragged.parent.children.indexOf(dragged), 1)
 
-				that.parent = this
+				dragged.parent = this
 				container.prepend(Channel.dragged[1])
-				console.log(this, that)
-				this.children.unshift(that)
+				console.log(this, dragged)
+				this.children.unshift(dragged)
 			} else {
-				that.move_id = this.parent_id
-				if (that.parent) that.parent.children.splice(that.parent.children.indexOf(that), 1)
-				else this.guild.headchannels.splice(this.guild.headchannels.indexOf(that), 1)
+				dragged.move_id = this.parent_id
+				if (dragged.parent) dragged.parent.children.splice(dragged.parent.children.indexOf(dragged), 1)
+				else this.guild.headchannels.splice(this.guild.headchannels.indexOf(dragged), 1)
 
-				that.parent = this.parent
-				if (that.parent) {
+				dragged.parent = this.parent
+				if (dragged.parent) {
 					const build = []
-					for (let i = 0; i < that.parent.children.length; i++) {
-						build.push(that.parent.children[i])
-						if (that.parent.children[i] === this) build.push(that)
+					for (let i = 0; i < dragged.parent.children.length; i++) {
+						build.push(dragged.parent.children[i])
+						if (dragged.parent.children[i] === this) build.push(dragged)
 					}
-					that.parent.children = build
+					dragged.parent.children = build
 				} else {
 					const build = []
 					for (let i = 0; i < this.guild.headchannels.length; i++) {
 						build.push(this.guild.headchannels[i])
-						if (this.guild.headchannels[i] === this) build.push(that)
+						if (this.guild.headchannels[i] === this) build.push(dragged)
 					}
 					this.guild.headchannels = build
 				}
-				div.after(Channel.dragged[1])
+
+				if (Channel.dragged[1]) div.after(Channel.dragged[1])
 			}
 			this.guild.calculateReorder()
 		})
@@ -723,10 +730,6 @@ class Channel {
 			}
 		})
 	}
-	buildmessage(message, next) {
-		const built = message.buildhtml(next)
-		document.getElementById("messages").prepend(built)
-	}
 	async buildmessages() {
 		this.infinitefocus = false
 		this.tryfocusinfinite()
@@ -781,17 +784,15 @@ class Channel {
 		return id
 	}
 	findClosest(snowflake) {
-		if (!this.lastmessage)
-			return
+		if (!this.lastmessage) return
+
 		let flake = this.lastmessage.snowflake
-		if (!snowflake) {
-			return
-		}
+		if (!snowflake) return
 
 		const time = snowflake.getUnixTime()
 		let flaketime = flake.getUnixTime()
-		while (flake && time > flaketime) {
-			flake = this.idToNext.get(flake)
+		while (flake && time < flaketime) {
+			flake = this.idToPrev.get(flake)
 			if (!flake) return
 
 			flaketime = flake.getUnixTime()
@@ -801,7 +802,7 @@ class Channel {
 	updateChannel(json) {
 		this.type = json.type
 		this.name = json.name
-		this.parent_id = new SnowFlake(json.parent_id, void 0)
+		this.parent_id = SnowFlake.getSnowFlakeFromID(json.parent_id, Channel)
 		this.parent = null
 		this.children = []
 		this.guild_id = json.guild_id
@@ -870,8 +871,10 @@ class Channel {
 		if (!this.hasPermission("VIEW_CHANNEL")) return
 
 		const messagez = new Message(messagep.d, this)
-		this.idToNext.set(this.lastmessageid, messagez.snowflake)
-		this.idToPrev.set(messagez.snowflake, this.lastmessageid)
+		if (this.lastmessageid) {
+			this.idToNext.set(this.lastmessageid, messagez.snowflake)
+			this.idToPrev.set(messagez.snowflake, this.lastmessageid)
+		}
 		this.lastmessage = messagez
 		this.lastmessageid = messagez.snowflake
 		this.messageids.set(messagez.snowflake, messagez)
@@ -943,18 +946,20 @@ class Channel {
 	}
 	async updateRolePermissions(id, perms) {
 		const permission = this.permission_overwrites.get(id)
-		permission.allow = perms.allow
-		permission.deny = perms.deny
-		await fetch(this.info.api + "/channels/" + this.id + "/permissions/" + id, {
-			method: "PUT",
-			headers: this.headers,
-			body: JSON.stringify({
-				allow: permission.allow.toString(),
-				deny: permission.deny.toString(),
-				id,
-				type: 0
+		if (permission) {
+			permission.allow = perms.allow
+			permission.deny = perms.deny
+			await fetch(this.info.api + "/channels/" + this.id + "/permissions/" + id, {
+				method: "PUT",
+				headers: this.headers,
+				body: JSON.stringify({
+					allow: permission.allow.toString(),
+					deny: permission.deny.toString(),
+					id,
+					type: 0
+				})
 			})
-		})
+		}
 	}
 }
 

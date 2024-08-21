@@ -43,11 +43,10 @@ class Group extends Channel {
 		this.messageids = new Map()
 		this.permission_overwrites = new Map()
 		this.lastmessageid = SnowFlake.getSnowFlakeFromID(json.last_message_id, Message)
-		this.lastmessageid ??= new SnowFlake("0", void 0)
 		this.mentions = 0
 
 		this.setUpInfiniteScroller()
-		this.position = Math.max(this.lastmessageid.getUnixTime(), this.snowflake.getUnixTime())
+		this.position = -Math.max(this.position, this.snowflake.getUnixTime())
 	}
 	createGuildHTML() {
 		const div = document.createElement("div")
@@ -176,12 +175,6 @@ class Direct extends Guild {
 		this.channelids[json.id] = thischannel
 		this.channels.push(thischannel)
 		this.calculateReorder()
-	}
-	sortchannels() {
-		this.headchannels.sort((a, b) => {
-			const result = a.lastmessageid.getUnixTime() - b.lastmessageid.getUnixTime()
-			return Number(-result)
-		})
 	}
 	giveMember() {
 		console.error("not a real guild, can't give member object")

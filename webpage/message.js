@@ -27,14 +27,6 @@ class Message {
 		})
 		Message.setupcmenu()
 	}
-	static async wipeChanel() {
-		this.resolve()
-		document.getElementById("messages").innerHTML = ""
-		await Promise.allSettled([this.resolve])
-		this.del = new Promise(resolve => {
-			this.resolve = resolve
-		})
-	}
 
 	static contextmenu = new Contextmenu()
 	static setupcmenu() {
@@ -98,6 +90,7 @@ class Message {
 		this.headers = this.owner.headers
 
 		this.giveData(messagejson)
+		this.owner.messages.set(this.id, this)
 	}
 	giveData(messagejson) {
 		const snapBottom = this.channel.infinite.snapBottom()
@@ -196,7 +189,7 @@ class Message {
 
 		try {
 			this.div.remove()
-			this.div = null
+			this.div = void 0
 		} catch (e) {
 			console.error(e)
 		}
@@ -228,7 +221,7 @@ class Message {
 	deleteEvent() {
 		if (this.div) {
 			this.div.innerHTML = ""
-			this.div = null
+			this.div = void 0
 		}
 
 		const prev = this.channel.idToPrev.get(this.snowflake)
@@ -241,7 +234,8 @@ class Message {
 		if (regen) regen.generateMessage()
 		if (this.channel.lastmessage === this) this.channel.lastmessage = prev.getObject()
 	}
-	generateMessage(premessage = null) {
+	generateMessage(premessage) {
+		if (!this.div) return
 		if (!premessage) premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
 
 		const div = this.div
@@ -251,22 +245,25 @@ class Message {
 		build.classList.add("message", "flexltr")
 
 		if (this === this.channel.replyingto) div.classList.add("replying")
-			if (this.localuser.ready.d.relationships.some(relation => relation.id == this.author.id && relation.type == 2)) {
-				const blocked = document.createElement("i")
-				blocked.classList.add("blocked")
-				blocked.textContent = "You have blocked this user. Click here to still see the message."
-				blocked.addEventListener("click", () => {
-					blocked.remove()
-					build.classList.remove("user-blocked")
-				})
+		if (this.localuser.ready.d.relationships.some(relation => relation.id == this.author.id && relation.type == 2)) {
+			const blocked = document.createElement("i")
+			blocked.classList.add("blocked")
+			blocked.textContent = "You have blocked this user. Click here to still see the message."
+			blocked.addEventListener("click", () => {
+				blocked.remove()
+				build.classList.remove("user-blocked")
+			})
+			div.appendChild(blocked)
 
-				build.classList.add("user-blocked")
-				div.appendChild(blocked)
-			}
+			build.classList.add("user-blocked")
+		}
 
 		if (this.message_reference) {
 			const replyline = document.createElement("div")
+			replyline.classList.add("replyflex")
+
 			const line = document.createElement("hr")
+			line.classList.add("startreply")
 
 			const minipfp = document.createElement("img")
 			minipfp.alt = ""
@@ -283,14 +280,21 @@ class Message {
 			reply.classList.add("replytext")
 			replyline.appendChild(reply)
 
-			const line2 = document.createElement("hr")
-			replyline.appendChild(line2)
-			line2.classList.add("reply")
-			line.classList.add("startreply")
-			replyline.classList.add("replyflex")
-
 			this.channel.getmessage(this.message_reference.message_id).then(message => {
 				const author = User.checkuser(message.author, this.localuser)
+
+				if (this.localuser.ready.d.relationships.some(relation => relation.id == author.id && relation.type == 2)) {
+					const blocked = document.createElement("i")
+					blocked.classList.add("blocked")
+					blocked.textContent = "You have blocked this user. Click here to still see the message."
+					blocked.addEventListener("click", () => {
+						blocked.remove()
+						reply.classList.remove("user-blocked")
+					})
+					replyline.appendChild(blocked)
+
+					reply.classList.add("user-blocked")
+				}
 
 				reply.appendChild(message.content.makeHTML({stdsize: true}))
 

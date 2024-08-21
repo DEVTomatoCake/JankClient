@@ -725,7 +725,7 @@ class LocalUser {
 		if (this.channelfocus.id === typing.d.channel_id) {
 			const guild = this.guildids.get(typing.d.guild_id)
 			const memb = await Member.new(typing.d.member, guild)
-			if (memb.id == this.user.id) return
+			if (!memb || memb.id == this.user.id) return
 
 			this.typing.set(memb, Date.now())
 
@@ -853,7 +853,7 @@ class LocalUser {
 
 		settingsLeft.addButtonInput("Clear banner", "Clear", () => {
 			bfile = null
-			hypouser.banner = null
+			hypouser.banner = void 0
 			settingsLeft.changed()
 			regen()
 		})

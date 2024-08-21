@@ -237,6 +237,8 @@ class User {
 		if (this.badge_ids) {
 			for (const id of this.badge_ids) {
 				this.getBadge(id).then(badgejson => {
+					if (!badgejson) return
+
 					const badge = document.createElement(badgejson.link ? "a" : "span")
 					badge.classList.add("badge")
 					if (badgejson.link) badge.href = badgejson.link

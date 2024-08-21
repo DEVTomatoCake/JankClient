@@ -102,16 +102,20 @@ class InfiniteScroller {
 		}
 
 		if (this.scrollTop > this.maxDist) {
-			again = true
 			const html = this.HTMLElements.shift()
-			await this.destroyFromID(html[1])
-			this.scrollTop -= 60
+			if (html) {
+				again = true
+				await this.destroyFromID(html[1])
+				this.scrollTop -= 60
+			}
 		}
 
 		if (again) await this.watchForTop()
 			return again
 	}
 	async watchForBottom() {
+		if (!this.scroll) return false
+
 		let again = false
 		const scrollBottom = this.scrollBottom
 		if (scrollBottom < this.minDist) {
@@ -139,12 +143,12 @@ class InfiniteScroller {
 	}
 	async watchForChange() {
 		try {
-			if (this.currrunning) return
+			if (this.currrunning) return false
 			this.currrunning = true
 
 			if (!this.div) {
 				this.currrunning = false
-				return
+				return false
 			}
 
 			const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()])
@@ -157,6 +161,7 @@ class InfiniteScroller {
 			return Boolean(changed)
 		} catch (e) {
 			console.error(e)
+			return false
 		}
 	}
 	async focus(id, flash = true) {

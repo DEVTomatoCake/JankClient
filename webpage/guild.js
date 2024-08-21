@@ -84,7 +84,7 @@ class Guild {
 	}
 
 	constructor(json, owner, member) {
-		if (json == -1) return
+		if (json == -1 || member === null) return
 
 		this.owner = owner
 		this.headers = this.owner.headers
@@ -136,7 +136,7 @@ class Guild {
 			if (thing.move_id && thing.move_id != thing.parent_id) {
 				thing.parent_id = thing.move_id
 				thisthing.parent_id = thing.parent_id.id
-				thing.move_id = void 0
+				thing.move_id = null
 			}
 			if (thisthing.position || thisthing.parent_id) build.push(thisthing)
 
