@@ -4,19 +4,72 @@ class Member {
 	static already = {}
 	static contextmenu = new Contextmenu()
 	static setUpContextMenu() {
-		this.contextmenu.addbutton("Copy user id", function() {
-			navigator.clipboard.writeText(this.id)
-		}, null, owner => owner.localuser.settings.developer_mode)
+		this.contextmenu.addbutton("Change nickname", function() {
+			let newNick = this.nick
+			const dialog = new Dialog(["vdiv",
+				["textbox", "New nickname:", this.nick, function() {
+					newNick = this.value
+				}],
+				["button", "", "Change nickname", () => {
+					fetch(this.info.api + "/guilds/" + this.guild.id + "/members/" + this.id + "/nick", {
+						method: "PATCH",
+						headers: this.localuser.headers,
+						body: JSON.stringify({
+							nick: newNick || null
+						})
+					})
+					dialog.hide()
+				}]
+			])
+			dialog.show()
+		}, null, owner => owner.hasPermission("MANAGE_NICKNAMES"))
 
-		this.contextmenu.addbutton("Message user", function() {
-			fetch(this.info.api + "/users/@me/channels", {
-				method: "POST",
-				headers: this.localuser.headers,
-				body: JSON.stringify({
-					recipients: [this.id]
-				})
-			})
-		})
+		this.contextmenu.addbutton("Kick user", function() {
+			let reason = ""
+			const dialog = new Dialog(["vdiv",
+				["textbox", "Reason:", "", function() {
+					reason = this.value
+				}],
+				["button", "", "Confirm kick", async () => {
+					await fetch(this.info.api + "/guilds/" + this.guild.id + "/members/" + this.id + "/nick", {
+						method: "PATCH",
+						headers: this.localuser.headers,
+						body: JSON.stringify({
+							reason
+						})
+					})
+					dialog.hide()
+				}],
+				["button", "", "Cancel", () => {
+					dialog.hide()
+				}]
+			])
+			dialog.show()
+		}, null, owner => owner.hasPermission("MANAGE_NICKNAMES"))
+
+		this.contextmenu.addbutton("Ban user", function() {
+			let reason = ""
+			const dialog = new Dialog(["vdiv",
+				["textbox", "Reason:", "", function() {
+					reason = this.value
+				}],
+				["button", "", "Confirm ban", async () => {
+					await fetch(this.info.api + "/guilds/" + this.guild.id + "/bans/" + this.id, {
+						method: "PUT",
+						headers: this.localuser.headers,
+						body: JSON.stringify({
+							//delete_message_seconds: ,
+							reason
+						})
+					})
+					dialog.hide()
+				}],
+				["button", "", "Cancel", () => {
+					dialog.hide()
+				}]
+			])
+			dialog.show()
+		}, null, owner => owner.hasPermission("MANAGE_NICKNAMES"))
 	}
 
 	roles = []
@@ -43,7 +96,7 @@ class Member {
 			this[thing] = memberjson[thing]
 		}
 
-		if (SnowFlake.getSnowFlakeFromID(this?.id, User)) this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject()
+		if (SnowFlake.getSnowFlakeFromID(this.id, User)) this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject()
 	}
 	get guild() {
 		return this.owner
