@@ -32,6 +32,39 @@ class User {
 				headers: this.localuser.headers
 			})
 		}, null, owner => owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 2))
+
+		this.contextmenu.addbutton("Send friend request", function() {
+			fetch(this.info.api + "/users/@me/relationships", {
+				method: "POST",
+				headers: this.localuser.headers,
+				body: JSON.stringify({
+					username: this.username,
+					discriminator: this.discriminator
+				})
+			})
+		}, null, owner => !owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id))
+		this.contextmenu.addbutton("Accept friend request", function() {
+			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+				method: "PUT",
+				headers: this.localuser.headers,
+				body: JSON.stringify({
+					type: 1
+				})
+			})
+		}, null, owner => owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 3))
+
+		this.contextmenu.addbutton("Remove friend", function() {
+			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+				method: "DELETE",
+				headers: this.localuser.headers
+			})
+		}, null, owner => owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 1))
+		this.contextmenu.addbutton("Revoke friend request", function() {
+			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+				method: "DELETE",
+				headers: this.localuser.headers
+			})
+		}, null, owner => owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 4))
 	}
 
 	static userids = {}

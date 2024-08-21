@@ -279,7 +279,6 @@ code {
 	color: var(--primary-text);
 	font-weight: bold;
 	width: 5cm;
-	height: .8cm;
 	text-align: left;
 	font-size: .5cm;
 	cursor: pointer;
@@ -405,8 +404,8 @@ img {
 }
 
 .pfprow {
-	width: 56px;
-	flex-shrink: 0;
+	width: 54px;
+	flex-shrink: 0 !important;
 }
 
 .commentrow {
@@ -713,8 +712,8 @@ hr {
 .startreply {
 	display: inline-block;
 	vertical-align: middle;
-	width: 25px;
-	margin-left: 20px;
+	width: 30px;
+	margin: 0 3px 0 15px;
 	border-color: var(--reply-border);
 }
 
@@ -2191,6 +2190,12 @@ small.edited {
 
 .blocked {
 	cursor: pointer;
+	width: max-content;
+	font-size: 15px;
+	margin-left: 54px;
+}
+.replyflex .blocked {
+	margin-left: 10px;
 }
 
 .user-blocked {

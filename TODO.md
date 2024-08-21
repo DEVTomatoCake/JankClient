@@ -107,8 +107,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ❌ | discriminator* | string
-| ❌ | username* | string
+| ✅ | discriminator* | string
+| ✅ | username* | string
 
 #### Accept friend request & block user
 
@@ -116,11 +116,11 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ❌ | type | number - Allowed: 1 friends┃2 blocked┃3 incoming┃4 outgoing
+| ✅ | type | number - Allowed: 1 friends┃2 blocked┃3 incoming┃4 outgoing
 
 #### Deny friend request & unblock user
 
-`DELETE /users/@me/relationships/{id}`
+✅ `DELETE /users/@me/relationships/{id}`
 
 ### Per-guild user
 
