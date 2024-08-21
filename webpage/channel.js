@@ -232,12 +232,10 @@ class Channel {
 		this.children.sort((a, b) => a.position - b.position)
 	}
 	resolveparent(guild) {
-		const parentid = this.parent_id?.id
-		if (!parentid) return false
-		this.parent = guild.channelids[parentid]
+		this.parent = guild.channelids[this.parent_id?.id]
 		this.parent ??= null
 		if (this.parent !== null) this.parent.children.push(this)
-		return this.parent !== null
+		return this.parent === null
 	}
 	calculateReorder() {
 		let position = -1

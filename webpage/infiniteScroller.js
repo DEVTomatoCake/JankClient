@@ -47,13 +47,10 @@ class InfiniteScroller {
 		this.timeout = null
 		this.scrollBottom = this.scroll.scrollHeight - this.scroll.scrollTop - this.scroll.clientHeight
 		this.scrollTop = this.scroll.scrollTop
-		if (!this.scrollBottom && !await this.watchForChange()) {
-				this.reachesBottom()
-			}
+		if (!this.scrollBottom && !await this.watchForChange()) this.reachesBottom()
 
-		if (!this.scrollTop) {
-			await this.watchForChange()
-		}
+		if (!this.scrollTop) await this.watchForChange()
+
 		this.needsupdate = false
 	}
 	async firstElement(id) {

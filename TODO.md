@@ -17,7 +17,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### User data
 
-`PATCH /users/@me/`
+`PATCH /users/@me`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -32,7 +32,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### User profile
 
-`PATCH /users/{id}/profile/`
+`PATCH /users/{id}/profile`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -44,7 +44,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### User settings
 
-`PATCH /users/@me/settings/`
+`PATCH /users/@me/settings`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -83,7 +83,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Connections
 
-`PATCH /users/@me/connections/{connection_name}/{connection_id}/`
+`PATCH /users/@me/connections/{connection_name}/{connection_id}`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -93,17 +93,17 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Disable account
 
-`POST /users/@me/disable/`
+`POST /users/@me/disable`
 
 #### Delete account
 
-`POST /users/@me/delete/`
+`POST /users/@me/delete`
 
 ### Per-guild user
 
 #### Guild user settings
 
-`PATCH /users/@me/guilds/{guild_id}/settings/`
+`PATCH /users/@me/guilds/{guild_id}/settings`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -131,13 +131,16 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | pronouns | string
 | ❌ | theme_colors | [integer, integer]
 
-#### Guild member nickname edit
+#### Guild member edit
 
-`PATCH /guilds/{guild_id}/members/{member_id}/nick/`
+`PATCH /guilds/{guild_id}/members/{member_id}`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ✅ | nick* | string
+| ❌ | roles | [string]
+| ✅ | nick | string
+| ⛔ | avatar | string┃null | Requires `MANAGE_USERS` right - how to retrieve rights?
+| ⛔ | bio | string | Requires `MANAGE_USERS` right - how to retrieve rights?
 
 ### Guild moderation
 
@@ -153,22 +156,28 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Bulk ban
 
-`POST /guilds/{guild_id}/bulk-ban/`
+`POST /guilds/{guild_id}/bulk-ban`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
 | ❌ | user_ids* | [string]
 | ❌ | delete_message_seconds | integer
 
-#### Add role
+#### Unban
 
-`PUT /guilds/{guild_id}/members/{member_id}/roles/{role_id}/`
+`DELETE /guilds/{guild_id}/bans/{user_id}`
+
+#### Add/Remove role
+
+`PUT /guilds/{guild_id}/members/{member_id}/roles/{role_id}`
+
+`DELETE /guilds/{guild_id}/members/{member_id}/roles/{role_id}`
 
 ### Guild
 
 #### Guild settings
 
-`PATCH /guilds/{guild_id}/`
+`PATCH /guilds/{guild_id}`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -189,13 +198,13 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | discovery_splash | string
 | ❌ | icon | string┃null
 | ❌ | region | string
-| ❌ | guild_template_code | string
+| ❌ | guild_template_code | string | This can be edited...?
 | ❌ | system_channel_id | string
 | ❌ | rules_channel_id | string
 
 #### Widget
 
-`PATCH /guilds/{guild_id}/widget/`
+`PATCH /guilds/{guild_id}/widget`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -204,7 +213,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Welcome screen
 
-`PATCH /guilds/{guild_id}/welcome-screen/`
+`PATCH /guilds/{guild_id}/welcome-screen`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -214,7 +223,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Role positions
 
-`PATCH /guilds/{guild_id}/roles/`
+`PATCH /guilds/{guild_id}/roles`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -223,7 +232,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Channel positions
 
-`PATCH /guilds/{guild_id}/channels/`
+`PATCH /guilds/{guild_id}/channels`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -234,7 +243,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Vanity URL
 
-`PATCH /guilds/{guild_id}/vanity-url/`
+`PATCH /guilds/{guild_id}/vanity-url`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -242,7 +251,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Guild template
 
-`POST /guilds/{guild_id}/templates/`
+`POST /guilds/{guild_id}/templates`
 
 `PATCH /guilds/{guild_id}/templates/{code}`
 
@@ -255,7 +264,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Guild emoji create
 
-`POST /guilds/{guild_id}/emojis/`
+`POST /guilds/{guild_id}/emojis`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -281,7 +290,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Guild sticker create
 
-`POST /guilds/{guild_id}/stickers/`
+`POST /guilds/{guild_id}/stickers`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -307,7 +316,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Channel settings
 
-`PATCH /channels/{channel_id}/`
+`PATCH /channels/{channel_id}`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -333,7 +342,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Application create
 
-`POST /applications/`
+`POST /applications`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -342,7 +351,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Application edit
 
-`PATCH /applications/{id}/`
+`PATCH /applications/{id}`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
@@ -367,7 +376,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 #### Webhook create
 
-`POST /channels/{channel_id}/webhooks/`
+`POST /channels/{channel_id}/webhooks`
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---

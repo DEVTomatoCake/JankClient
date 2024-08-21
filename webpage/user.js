@@ -15,7 +15,7 @@ class User {
 					recipients: [this.id]
 				})
 			})
-		})
+		}, null, owner => owner.id != owner.localuser.user.id)
 
 		this.contextmenu.addbutton("Block user", function() {
 			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
@@ -25,13 +25,13 @@ class User {
 					type: 2
 				})
 			})
-		}, null, owner => !owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 2))
+		}, null, owner => owner.id != owner.localuser.user.id && !owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 2))
 		this.contextmenu.addbutton("Unblock user", function() {
 			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 				method: "DELETE",
 				headers: this.localuser.headers
 			})
-		}, null, owner => owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 2))
+		}, null, owner => owner.id != owner.localuser.user.id && owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 2))
 
 		this.contextmenu.addbutton("Send friend request", function() {
 			fetch(this.info.api + "/users/@me/relationships", {
@@ -42,7 +42,7 @@ class User {
 					discriminator: this.discriminator
 				})
 			})
-		}, null, owner => !owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id))
+		}, null, owner => owner.id != owner.localuser.user.id && !owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id))
 		this.contextmenu.addbutton("Accept friend request", function() {
 			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 				method: "PUT",
@@ -51,20 +51,20 @@ class User {
 					type: 1
 				})
 			})
-		}, null, owner => owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 3))
+		}, null, owner => owner.id != owner.localuser.user.id && owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 3))
 
 		this.contextmenu.addbutton("Remove friend", function() {
 			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 				method: "DELETE",
 				headers: this.localuser.headers
 			})
-		}, null, owner => owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 1))
+		}, null, owner => owner.id != owner.localuser.user.id && owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 1))
 		this.contextmenu.addbutton("Revoke friend request", function() {
 			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 				method: "DELETE",
 				headers: this.localuser.headers
 			})
-		}, null, owner => owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 4))
+		}, null, owner => owner.id != owner.localuser.user.id && owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 4))
 	}
 
 	static userids = {}
@@ -77,15 +77,6 @@ class User {
 		const tempuser = new User(userjson, owner)
 		User.userids[userjson.id] = tempuser
 		return tempuser
-	}
-	get info() {
-		return this.owner.info
-	}
-	get localuser() {
-		return this.owner
-	}
-	get id() {
-		return this.snowflake.id
 	}
 
 	constructor(userjson, owner) {
@@ -105,25 +96,36 @@ class User {
 		}
 		this.hypotheticalpfp = false
 	}
+	get info() {
+		return this.owner.info
+	}
+	get localuser() {
+		return this.owner
+	}
+	get id() {
+		return this.snowflake.id
+	}
+
 	async getUserProfile() {
 		const res = await fetch(this.info.api + "/users/" + this.id.replace("#clone", "") + "/profile?with_mutual_guilds=true&with_mutual_friends=true", {
 			headers: this.localuser.headers
 		})
 		return await res.json()
 	}
-	resolving = false
+	resolvingBadge = false
 	async getBadge(id) {
 		if (this.localuser.badges.has(id)) return this.localuser.badges.get(id)
 
-		if (this.resolving) {
-			await this.resolving
+		if (this.resolvingBadge) {
+			await this.resolvingBadge
 			return this.localuser.badges.get(id)
 		}
+
 		const prom = await this.getUserProfile()
-		this.resolving = prom
+		this.resolvingBadge = prom
 
 		const badges = prom.badges
-		this.resolving = false
+		this.resolvingBadge = false
 		for (const thing of badges) {
 			this.localuser.badges.set(thing.id, thing)
 		}

@@ -113,6 +113,7 @@ class Guild {
 			this.channels.push(temp)
 			this.channelids[temp.id] = temp
 		}
+
 		this.headchannels = []
 		for (const thing of this.channels) {
 			if (thing.resolveparent(this)) this.headchannels.push(thing)
