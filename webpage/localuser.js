@@ -493,9 +493,9 @@ class LocalUser {
 		img.classList.add("svgtheme", "svgicon")
 		img.src = "/icons/home.svg"
 		img.all = this.guildids.get("@me")
-		img.addEventListener("click", function() {
-			this.all.loadGuild()
-			this.all.loadChannel()
+		img.addEventListener("click", () => {
+			img.all.loadGuild()
+			img.all.loadChannel()
 		})
 		div.appendChild(img)
 
