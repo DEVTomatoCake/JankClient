@@ -50,25 +50,20 @@ List of properties which should be editable somewhere, and handled if necessary 
 | --- | --- | --- | ---
 | ❌ | status | string - one of: dnd┃idle┃invisible┃online
 | ⛔ | afk_timeout | integer | Where is this used?
-| ⛔ | allow_accessibility_detection | boolean | What's this for?
 | 🗨️ | animate_emoji | boolean
 | ❌ | animate_stickers | integer | 0 = enabled, 1 = only on focus, 2 = disabled
-| ⛔ | contact_sync_enabled | boolean | Not possible in Web
 | 🗨️ | convert_emoticons | boolean
 | ❌ | custom_status | object - one of: 1: object: emoji_id: string, emoji_name: string, expires_at: integer, text: string; 2: null
 | ⛔ | default_guilds_restricted | boolean | What's this for?
-| ⛔ | detect_platform_accounts | boolean | What's this for?
 | 🗨️ | developer_mode | boolean
 | ⛔ | disable_games_tab | boolean | No use in SB
 | 🗨️ | enable_tts_command | boolean
 | ❌ | explicit_content_filter | integer | 0 = disabled, 1 = only members without roles, 2 = everyone
-| ⛔ | friend_discovery_flags | integer | What's this for?
-| ⛔ | friend_source_flags | object - all*: boolean | What's this for?
 | ❌ | gif_auto_play | boolean
 | ❌ | guild_folders | array of object: color*: integer, guild_ids*: [string], id*: integer, name*: string, guild_positions: [string]
 | ⛔ | inline_attachment_media | boolean | What's this for?
 | ⛔ | inline_embed_media | boolean | What's this for?
-| ❌ | locale | string
+| ✅ | locale | string
 | ❌ | message_display_compact | boolean
 | 🗨️ | render_embeds | boolean
 | 🗨️ | render_reactions | boolean

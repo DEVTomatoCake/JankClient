@@ -51,7 +51,7 @@ self.addEventListener("push", event => {
 
 const isindexhtml = url => {
 	const parsed = new URL(url)
-	return parsed.pathname.startsWith("/channels")
+	return parsed.pathname.startsWith("/channels/")
 }
 
 self.addEventListener("fetch", event => {
@@ -65,13 +65,14 @@ self.addEventListener("fetch", event => {
 
 			const cache = await caches.open("cache")
 
-			if (new URL(event.request.url).origin != self.origin && !event.request.url.startsWith("https://cdnjs.cloudflare.com/ajax/libs/twemoji/")) {
+			if (url.origin != self.origin && !event.request.url.startsWith("https://cdnjs.cloudflare.com/ajax/libs/twemoji/")) {
 				console.log("External origin request to " + event.request.url)
 				return await fetch(event.request)
 			}
 
+			const requestUrl = isindexhtml(event.request.url) ? "/" : event.request
 			if (!url.pathname.startsWith("/api/")) {
-				const responseFromCache = await cache.match(isindexhtml(event.request.url) ? "/index" : event.request)
+				const responseFromCache = await cache.match(requestUrl)
 				if (responseFromCache && (
 					url.pathname == "/emoji.bin" ||
 					url.pathname == "/favicon.ico" || url.pathname == "/logo.svg" || url.pathname == "/logo.webp" ||
@@ -79,11 +80,11 @@ self.addEventListener("fetch", event => {
 					url.pathname.startsWith("/font/") || url.pathname.startsWith("/icons/") ||
 					url.pathname.startsWith("/cdn/") // If running on the same domain as the CDN
 				)) return responseFromCache
-				if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/index" : url.pathname))
+				if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/" : url.pathname))
 			}
 
-			const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index" : event.request)
-			cache.put(isindexhtml(event.request.url) ? "/index" : event.request, responseFromNetwork.clone())
+			const responseFromNetwork = await fetch(requestUrl)
+			cache.put(requestUrl, responseFromNetwork.clone())
 			return responseFromNetwork
 		})())
 	}

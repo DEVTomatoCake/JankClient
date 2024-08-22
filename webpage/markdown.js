@@ -61,6 +61,8 @@ class MarkDown {
 			}
 		}
 
+		const isEmojiOnly = /^((<a?:\w+:\d+>|\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]) *)+$/.test(txt.join(""))
+
 		for (let i = 0; i < txt.length; i++) {
 			if (txt[i] == "\n" || i == 0) {
 				const first = i == 0
@@ -424,8 +426,6 @@ class MarkDown {
 						appendcurrent()
 						i = j
 
-						const isEmojiOnly = txt.join("").trim() == build.join("").trim()
-
 						const owner = (this.owner instanceof Channel) ? this.owner.guild : this.owner
 						const emoji = new Emoji({ name: buildjoin, id: parts[2], animated: Boolean(parts[1]) }, owner)
 						span.appendChild(emoji.getHTML(isEmojiOnly))
@@ -441,7 +441,7 @@ class MarkDown {
 					i++
 					if (twEmoji[2] != "\uFE0E") {
 						appendcurrent()
-						span.appendChild(MarkDown.renderTwemoji(twEmoji[1]))
+						span.appendChild(MarkDown.renderTwemoji(twEmoji[1], isEmojiOnly ? 48 : 22))
 					}
 
 					continue
