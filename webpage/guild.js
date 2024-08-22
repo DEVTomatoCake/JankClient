@@ -408,7 +408,7 @@ class Guild {
 				this.loadGuild()
 				this.loadChannel()
 			})
-			Guild.contextmenu.bind(img, this)
+			Guild.contextmenu.bindContextmenu(img, this)
 		} else {
 			const div = document.createElement("div")
 			div.textContent = this.properties.name.replace(/'s /g, " ").replace(/\w+/g, word => word[0]).replace(/\s/g, "")
@@ -418,7 +418,7 @@ class Guild {
 				this.loadGuild()
 				this.loadChannel()
 			})
-			Guild.contextmenu.bind(div, this)
+			Guild.contextmenu.bindContextmenu(div, this)
 		}
 		return divy
 	}

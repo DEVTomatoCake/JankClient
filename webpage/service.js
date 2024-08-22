@@ -62,9 +62,13 @@ self.addEventListener("fetch", event => {
 			if (preloadResponse) return preloadResponse
 
 			checkCache()
-			if (new URL(event.request.url).origin != self.origin) return await fetch(event.request)
 
 			const cache = await caches.open("cache")
+
+			if (new URL(event.request.url).origin != self.origin && !event.request.url.startsWith("https://cdnjs.cloudflare.com/ajax/libs/twemoji/")) {
+				console.log("External origin request to " + event.request.url)
+				return await fetch(event.request)
+			}
 
 			if (!url.pathname.startsWith("/api/")) {
 				const responseFromCache = await cache.match(isindexhtml(event.request.url) ? "/index" : event.request)

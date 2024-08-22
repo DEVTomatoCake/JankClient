@@ -228,11 +228,6 @@ dialog .close:hover, dialog .close:focus {
 	color: #000;
 }
 
-th {
-	font-weight: 400;
-	padding: 0;
-}
-
 .messagediv {
 	overflow: hidden;
 	max-width: 100%;
@@ -424,11 +419,7 @@ img {
 	width: 100%;
 	display: flex;
 	flex-shrink: 1;
-}
-
-#messages {
-	width: 100%;
-	max-width: 100%;
+	transform: translateZ(0);
 }
 
 p {
@@ -451,19 +442,6 @@ p {
 	padding-bottom: 7px;
 }
 
-#channels-td {
-	padding-right: 245px;
-	flex-grow: 1;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	flex-shrink: 1;
-}
-
-#channels p {
-	text-indent: 10px;
-}
-
 .space {
 	margin: .02in;
 	font-size: .25in;
@@ -472,11 +450,6 @@ p {
 	width: .175in;
 	height: .175in;
 	padding-right: .026in;
-}
-
-.spacee {
-	font-size: .15in;
-	width: .2in;
 }
 
 .indent {
@@ -836,10 +809,6 @@ textarea {
 	background: var(--channel-hover);
 }
 
-.dm-container {
-	display: flex;
-	flex-direction: column;
-}
 .dm-container .pfp {
 	margin-right: 5px;
 	width: 32px;
@@ -1168,14 +1137,6 @@ span {
 }
 .switchtable:hover {
 	background:var(--profile-info-bg);
-}
-
-.accountSwitcher tr:hover, .accountSwitcher tr:focus {
-	background: var(--profile-info-bg);
-}
-
-.switchtable tr {
-	background-color: transparent;
 }
 
 .serverURL {
@@ -2200,4 +2161,18 @@ small.edited {
 
 .user-blocked {
 	display: none;
+}
+
+.blocked {
+	padding-left: .45in;
+	cursor: pointer;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.zeroheight {
+	height: 0;
+	flex-shrink: 1;
+	display: block;
+	padding: 0;
 }

@@ -1,92 +1,8 @@
 "use strict"
 
+// eslint-disable-next-line no-unused-vars
 class Member {
 	static already = {}
-	static contextmenu = new Contextmenu()
-	static setUpContextMenu() {
-		this.contextmenu.addbutton("Change nickname", function() {
-			let reason
-			let newNick = this.nick
-			const dialog = new Dialog(["vdiv",
-				["textbox", "Reason:", "", function() {
-					reason = this.value
-				}],
-				["textbox", "New nickname:", this.nick, function() {
-					newNick = this.value
-				}],
-				["button", "", "Change nickname", () => {
-					fetch(this.info.api + "/guilds/" + this.guild.id + "/members/" + this.id, {
-						method: "PATCH",
-						headers: {
-							...this.localuser.headers,
-							"X-Audit-Log-Reason": encodeURIComponent(reason)
-						},
-						body: JSON.stringify({
-							nick: newNick || null
-						})
-					})
-					dialog.hide()
-				}]
-			])
-			dialog.show()
-		}, null, owner => owner.hasPermission("MANAGE_NICKNAMES"))
-
-		this.contextmenu.addbutton("Kick user", function() {
-			let reason
-			const dialog = new Dialog(["vdiv",
-				["textbox", "Reason:", "", function() {
-					reason = this.value
-				}],
-				["button", "", "Confirm kick", async () => {
-					await fetch(this.info.api + "/guilds/" + this.guild.id + "/members/" + this.id, {
-						method: "DELETE",
-						headers: {
-							...this.localuser.headers,
-							"X-Audit-Log-Reason": encodeURIComponent(reason)
-						}
-					})
-					dialog.hide()
-				}],
-				["button", "", "Cancel", () => {
-					dialog.hide()
-				}]
-			])
-			dialog.show()
-		}, null, owner => owner.hasPermission("KICK_MEMBERS"))
-
-		this.contextmenu.addbutton("Ban user", function() {
-			let deleteMessages = 0
-			let reason = ""
-			const dialog = new Dialog(["vdiv",
-				["textbox", "Reason:", "", function() {
-					reason = this.value
-				}],
-				["select",
-					"Delete messages:", ["Don't delete any", "1 minute", "5 minutes", "10 minutes", "30 minutes", "1 hour", "3 hours", "8 hours", "1 day", "3 days"], event => {
-						deleteMessages = [0, 60, 60 * 5, 60 * 10, 60 * 30, 60 * 60, 60 * 60 * 3, 60 * 60 * 8, 60 * 60 * 24, 60 * 60 * 24 * 3][event.srcElement.selectedIndex]
-					},
-					0
-				],
-				["button", "", "Confirm ban", async () => {
-					await fetch(this.info.api + "/guilds/" + this.guild.id + "/bans/" + this.id, {
-						method: "PUT",
-						headers: {
-							...this.localuser.headers,
-							"X-Audit-Log-Reason": encodeURIComponent(reason)
-						},
-						body: JSON.stringify({
-							delete_message_seconds: deleteMessages
-						})
-					})
-					dialog.hide()
-				}],
-				["button", "", "Cancel", () => {
-					dialog.hide()
-				}]
-			])
-			dialog.show()
-		}, null, owner => owner.hasPermission("BAN_MEMBERS"))
-	}
 
 	roles = []
 	/**
@@ -195,13 +111,77 @@ class Member {
 	}
 	contextMenuBind(html) {
 		if (html.tagName == "SPAN") html.style.color = this.getColor()
-
-		this.profileclick(html)
-		Member.contextmenu.bind(html, this)
 	}
-	profileclick() {
-		//to be implemented
+	get name() {
+		return this.nick || this.user.username
+	}
+	kick() {
+		let reason = ""
+		const dialog = new Dialog(["vdiv",
+			["title", "Kick " + this.name + " from " + this.guild.properties.name],
+			["textbox", "Reason:", "", event => {
+				reason = event.target.value
+			}],
+			["button", "", "Confirm kick", async () => {
+				await this.kickAPI(reason)
+				dialog.hide()
+			}],
+			["button", "", "Cancel", () => {
+				dialog.hide()
+			}]
+		])
+		dialog.show()
+	}
+	kickAPI(reason) {
+		return fetch(this.info.api + "/guilds/" + this.guild.id + "/members/" + this.id, {
+			method: "DELETE",
+			headers: {
+				...this.localuser.headers,
+				"X-Audit-Log-Reason": encodeURIComponent(reason)
+			}
+		})
+	}
+	ban() {
+		let deleteMessages = 0
+		let reason = ""
+		const dialog = new Dialog(["vdiv",
+			["textbox", "Reason:", "", function() {
+				reason = this.value
+			}],
+			["select",
+				"Delete messages:", ["Don't delete any", "1 minute", "5 minutes", "10 minutes", "30 minutes", "1 hour", "3 hours", "8 hours", "1 day", "3 days"], event => {
+					deleteMessages = [0, 60, 60 * 5, 60 * 10, 60 * 30, 60 * 60, 60 * 60 * 3, 60 * 60 * 8, 60 * 60 * 24, 60 * 60 * 24 * 3][event.srcElement.selectedIndex]
+				},
+				0
+			],
+			["button", "", "Confirm ban", async () => {
+				await this.banAPI(reason, deleteMessages)
+				dialog.hide()
+			}],
+			["button", "", "Cancel", () => {
+				dialog.hide()
+			}]
+		])
+		dialog.show()
+	}
+	banAPI(reason, deleteMessages) {
+		return fetch(this.info.api + "/guilds/" + this.guild.id + "/bans/" + this.id, {
+			method: "PUT",
+			headers: {
+				...this.localuser.headers,
+				"X-Audit-Log-Reason": encodeURIComponent(reason)
+			},
+			body: JSON.stringify({
+				delete_message_seconds: deleteMessages
+			})
+		})
+	}
+	hasPermission(name) {
+		if (this.isAdmin()) return true
+
+		for (const thing of this.roles) {
+			if (thing.permissions.getPermission(name)) return true
+		}
+		return false
 	}
 }
-
-Member.setUpContextMenu()

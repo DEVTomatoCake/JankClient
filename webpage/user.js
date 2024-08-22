@@ -65,6 +65,42 @@ class User {
 				headers: this.localuser.headers
 			})
 		}, null, owner => owner.id != owner.localuser.user.id && owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 4))
+
+		// Member context menu
+		this.contextmenu.addbutton("Change nickname", function() {
+			let reason
+			let newNick = this.nick
+			const dialog = new Dialog(["vdiv",
+				["textbox", "New nickname:", this.nick || "", function() {
+					newNick = this.value
+				}],
+				["textbox", "Optional reason:", "", function() {
+					reason = this.value
+				}],
+				["button", "", "Change nickname", () => {
+					fetch(this.info.api + "/guilds/" + this.guild.id + "/members/" + this.id, {
+						method: "PATCH",
+						headers: {
+							...this.localuser.headers,
+							"X-Audit-Log-Reason": encodeURIComponent(reason)
+						},
+						body: JSON.stringify({
+							nick: newNick || null
+						})
+					})
+					dialog.hide()
+				}]
+			])
+			dialog.show()
+		}, null, (owner, member) => member && member.guild && member.guild.member.hasPermission("MANAGE_NICKNAMES"))
+
+		this.contextmenu.addbutton("Kick user", (owner, member) => {
+			member.kick()
+		}, null, (owner, member) => member && member.guild && member.guild.member.hasPermission("KICK_MEMBERS") && owner.id != member.guild.member.user.id && owner.id != member.guild.owner_id)
+
+		this.contextmenu.addbutton("Ban user", (owner, member) => {
+			member.ban()
+		}, null, (owner, member) => member && member.guild && member.guild.member.hasPermission("BAN_MEMBERS") && owner.id != member.guild.member.user.id && owner.id != member.guild.owner_id)
 	}
 
 	static userids = {}
@@ -79,6 +115,8 @@ class User {
 		return tempuser
 	}
 
+	nickname = null
+	relationshipType = 0
 	constructor(userjson, owner) {
 		this.owner = owner
 
@@ -169,8 +207,8 @@ class User {
 		pfp.crossOrigin = "anonymous"
 		pfp.src = this.getpfpsrc()
 		pfp.alt = ""
-		pfp.classList.add("pfp")
-		pfp.classList.add("userid:" + this.id)
+		pfp.loading = "lazy"
+		pfp.classList.add("pfp", "userid:" + this.id)
 		return pfp
 	}
 	async buildstatuspfp() {
@@ -371,6 +409,8 @@ class User {
 	contextMenuBind(html, guild, error = true) {
 		if (guild && guild.id != "@me") {
 			Member.resolveMember(this, guild).then(member => {
+				User.contextmenu.bindContextmenu(html, this, member)
+
 				if (member === void 0 && error) {
 					const errorElem = document.createElement("span")
 					errorElem.textContent = "!"
@@ -380,16 +420,45 @@ class User {
 				}
 				if (member) member.contextMenuBind(html)
 			})
-		}
+		} else User.contextmenu.bindContextmenu(html, this)
 
-		this.profileclick(html, guild)
-		User.contextmenu.bind(html, this)
+		if (guild) this.profileclick(html, guild)
+		else this.profileclick(html)
 	}
 	static async resolve(id, localuser) {
 		const res = await fetch(this.info.api + "/users/" + id + "/profile", {
 			headers: localuser.headers
 		})
 		return new User(await res.json(), localuser)
+	}
+	block() {
+		fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
+			method: "PUT",
+			headers: this.owner.headers,
+			body: JSON.stringify({
+				type: 2
+			})
+		})
+		this.relationshipType = 2
+		const channel = this.localuser.channelfocus
+		if (channel) {
+			for (const thing of channel.messages) {
+				thing[1].generateMessage()
+			}
+		}
+	}
+	unblock() {
+		fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
+			method: "DELETE",
+			headers: this.owner.headers
+		})
+		this.relationshipType = 0
+		const channel = this.localuser.channelfocus
+		if (channel) {
+			for (const thing of channel.messages) {
+				thing[1].generateMessage()
+			}
+		}
 	}
 }
 

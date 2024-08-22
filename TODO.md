@@ -61,17 +61,15 @@ List of properties which should be editable somewhere, and handled if necessary 
 | 🗨️ | developer_mode | boolean
 | ⛔ | disable_games_tab | boolean | No use in SB
 | 🗨️ | enable_tts_command | boolean
-| ❌ | explicit_content_filter | integer
+| ❌ | explicit_content_filter | integer | 0 = disabled, 1 = only members without roles, 2 = everyone
 | ⛔ | friend_discovery_flags | integer | What's this for?
 | ⛔ | friend_source_flags | object - all*: boolean | What's this for?
-| ⛔ | gateway_connected | boolean | What's this for?
 | ❌ | gif_auto_play | boolean
 | ❌ | guild_folders | array of object: color*: integer, guild_ids*: [string], id*: integer, name*: string, guild_positions: [string]
 | ⛔ | inline_attachment_media | boolean | What's this for?
 | ⛔ | inline_embed_media | boolean | What's this for?
 | ❌ | locale | string
 | ❌ | message_display_compact | boolean
-| ⛔ | native_phone_integration_enabled | boolean | What's this for?
 | 🗨️ | render_embeds | boolean
 | 🗨️ | render_reactions | boolean
 | ⛔ | restricted_guilds | [string] | What's this for?
@@ -151,7 +149,6 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
 | ❌ | delete_message_seconds | string
-| ❌ | delete_message_days | string
 | ❌ | reason | string
 
 #### Bulk ban
@@ -198,7 +195,6 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | discovery_splash | string
 | ❌ | icon | string┃null
 | ❌ | region | string
-| ❌ | guild_template_code | string | This can be edited...?
 | ❌ | system_channel_id | string
 | ❌ | rules_channel_id | string
 

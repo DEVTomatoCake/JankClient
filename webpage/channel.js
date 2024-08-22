@@ -30,23 +30,6 @@ class Channel {
 		this.contextmenu.addbutton("Make invite", function() {
 			this.createInvite()
 		}, null, owner => owner.hasPermission("CREATE_INSTANT_INVITE") && owner.type != 4)
-
-		this.contextmenu.addbutton("Test Lazy Request/opcode 14", function() {
-			this.localuser.ws.send(JSON.stringify({
-				op: 14,
-				d: {
-					guild_id: this.guild.id,
-					channels: {
-						[this.id]: [
-							[
-								0,
-								99
-							]
-						]
-					}
-				}
-			}))
-		}, null)
 	}
 	createInvite() {
 		const div = document.createElement("div")
@@ -127,7 +110,7 @@ class Channel {
 
 	setUpInfiniteScroller() {
 		this.infinite = new InfiniteScroller((async (id, offset) => {
-			const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
+			const snowflake = this.messages.get(id).snowflake
 			if (offset == 1) {
 				if (this.idToPrev.has(snowflake)) return this.idToPrev.get(snowflake)?.id
 				else {
@@ -150,7 +133,7 @@ class Channel {
 				console.error(e)
 			}
 		}), (id => {
-			const message = SnowFlake.getSnowFlakeFromID(id, Message).getObject()
+			const message = this.messages.get(id)
 			try {
 				if (message) message.deleteDiv()
 			} catch (e) {
@@ -223,7 +206,7 @@ class Channel {
 	get hasunreads() {
 		if (!this.hasPermission("VIEW_CHANNEL")) return false
 
-		return this.lastmessageid != this.lastreadmessageid && this.type != 4 && !this.lastmessageid
+		return this.lastmessageid && this.lastmessageid != this.lastreadmessageid && this.type != 4
 	}
 	get canMessage() {
 		return this.hasPermission("SEND_MESSAGES")
@@ -314,7 +297,7 @@ class Channel {
 			div.appendChild(caps)
 			caps.classList.add("flex")
 
-			Channel.contextmenu.bind(decdiv, this)
+			Channel.contextmenu.bindContextmenu(decdiv, this)
 			decdiv.all = this
 
 			for (const channel2 of this.children) {
@@ -342,7 +325,7 @@ class Channel {
 			div.classList.add("channel")
 			if (this.hasunreads) div.classList.add("cunread")
 
-			Channel.contextmenu.bind(div, this)
+			Channel.contextmenu.bindContextmenu(div, this)
 			if (admin) this.coatDropDiv(div)
 
 			div.all = this
@@ -370,16 +353,16 @@ class Channel {
 
 				if (this.type >= 10 && this.type <= 12) {
 					decoration.textContent = "🧵"
-					decoration.classList.add("space", "spacee")
+					decoration.classList.add("space")
 				} else if (this.type == 13) {
 					decoration.textContent = "🎭"
-					decoration.classList.add("space", "spacee")
+					decoration.classList.add("space")
 				} else if (this.type == 15) {
 					decoration.textContent = "🗂️"
-					decoration.classList.add("space", "spacee")
+					decoration.classList.add("space")
 				} else if (this.type == 16) {
 					decoration.textContent = "📸"
-					decoration.classList.add("space", "spacee")
+					decoration.classList.add("space")
 				} else {
 					decoration.textContent = "❓"
 					console.warn("Unable to handle channel type " + this.type)
@@ -426,7 +409,6 @@ class Channel {
 		div.addEventListener("dragenter", event => {
 			event.preventDefault()
 		})
-
 		div.addEventListener("dragover", event => {
 			event.preventDefault()
 		})
@@ -888,10 +870,14 @@ class Channel {
 			this.infinite.addedBottom()
 		}
 
-		if (messagez.author === this.localuser.user) return
-		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
-
-		if (this.guild.muted || this.notification == "all" || (this.notification == "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)
+		if (
+			messagez.author !== this.localuser.user &&
+			!this.guild.muted &&
+			!this.localuser.ready.d.relationships.some(relation => relation.id == messagez.author.id && relation.type == 2) &&
+			this.localuser.lookingguild.prevchannel !== this &&
+			!document.hasFocus() &&
+			(this.notification == "all" || (this.notification == "mentions" && messagez.mentionsuser(this.localuser.user)))
+		) this.notify(messagez)
 	}
 	notititle(message) {
 		return message.author.username + " > " + this.guild.properties.name + " > " + this.name

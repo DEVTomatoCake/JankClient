@@ -1,23 +1,22 @@
 "use strict"
 
-const isGerman = (navigator.language || navigator.userLanguage).startsWith("de")
-const makeTime = date => date.toLocaleTimeString(isGerman ? "de-DE" : void 0, { hour: "2-digit", minute: "2-digit" })
-const formatTime = date => {
+const makeTime = date => date.toLocaleTimeString(void 0, { hour: "2-digit", minute: "2-digit" })
+const formatTime = (date, locale = "en-US") => {
 	const now = new Date()
 	const sameDay = date.getDate() == now.getDate() &&
 		date.getMonth() == now.getMonth() &&
 		date.getFullYear() == now.getFullYear()
+	if (sameDay) return (locale == "de-DE" ? "heute um" : "Today at") + " " + makeTime(date)
 
 	const yesterday = new Date(now)
 	yesterday.setDate(now.getDate() - 1)
 	const isYesterday = date.getDate() == yesterday.getDate() &&
 		date.getMonth() == yesterday.getMonth() &&
 		date.getFullYear() == yesterday.getFullYear()
+	if (isYesterday) return (locale == "de-DE" ? "gestern um" : "Yesterday at") + " " + makeTime(date)
 
-	if (sameDay) return (isGerman ? "heute um" : "Today at") + " " + makeTime(date)
-	if (isYesterday) return (isGerman ? "gestern um" : "Yesterday at") + " " + makeTime(date)
-	return date.toLocaleDateString(isGerman ? "de-DE" : void 0, isGerman ? {year: "numeric", month: "2-digit", day: "2-digit"} : void 0) +
-		" " + (isGerman ? "um" : "at") + " " + makeTime(date)
+	return date.toLocaleDateString(locale == "de-DE" ? "de-DE" : void 0, locale == "de-DE" ? {year: "numeric", month: "2-digit", day: "2-digit"} : void 0) +
+		" " + (locale == "de-DE" ? "um" : "at") + " " + makeTime(date)
 }
 
 class Message {
@@ -180,7 +179,7 @@ class Message {
 		})
 	}
 	messageevents(obj) {
-		Message.contextmenu.bind(obj, this)
+		Message.contextmenu.bindContextmenu(obj, this)
 		this.div = obj
 		obj.classList.add("messagediv")
 	}
@@ -234,28 +233,83 @@ class Message {
 		if (regen) regen.generateMessage()
 		if (this.channel.lastmessage === this) this.channel.lastmessage = prev.getObject()
 	}
-	generateMessage(premessage) {
+	blockedPropigate() {
+		const premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
+		if (premessage?.author === this.author) {
+			premessage.blockedPropigate()
+		} else {
+			this.generateMessage()
+		}
+	}
+	generateMessage(premessage, ignoredblock = false) {
 		if (!this.div) return
 		if (!premessage) premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
 
 		const div = this.div
+		div.classList.remove("zeroheight")
 		div.innerHTML = ""
 
 		const build = document.createElement("div")
 		build.classList.add("message", "flexltr")
 
 		if (this === this.channel.replyingto) div.classList.add("replying")
-		if (this.localuser.ready.d.relationships.some(relation => relation.id == this.author.id && relation.type == 2)) {
-			const blocked = document.createElement("i")
-			blocked.classList.add("blocked")
-			blocked.textContent = "You have blocked this user. Click here to still see the message."
-			blocked.addEventListener("click", () => {
-				blocked.remove()
-				build.classList.remove("user-blocked")
-			})
-			div.appendChild(blocked)
 
-			build.classList.add("user-blocked")
+		if (this.author.relationshipType == 2) {
+			if (ignoredblock) {
+				if (premessage?.author !== this.author) {
+					const span = document.createElement("span")
+					span.textContent = "You have this user blocked, click to hide these messages."
+					div.append(span)
+					span.classList.add("blocked")
+					span.onclick = () => {
+						const scroll = this.channel.infinite.scrollTop
+						let next = this
+						while (next?.author === this.author) {
+							next.generateMessage()
+							next = this.channel.idToNext.get(next.snowflake)?.getObject()
+						}
+						if (this.channel.infinite.scroll && scroll) this.channel.infinite.scroll.scrollTop = scroll
+					}
+				}
+			} else {
+				div.classList.remove("topMessage")
+				if (premessage?.author === this.author) {
+					div.classList.add("zeroheight")
+					premessage.blockedPropigate()
+					div.appendChild(build)
+					return div
+				} else {
+					build.classList.add("blocked", "topMessage")
+
+					let count = 1
+					let next = this.channel.idToNext.get(this.snowflake)?.getObject()
+					while (next?.author === this.author) {
+						count++
+						next = this.channel.idToNext.get(next.snowflake)?.getObject()
+					}
+
+					const span = document.createElement("span")
+					span.textContent = "You have this user blocked, click to see " + count + " blocked messages."
+					span.onclick = () => {
+						const scroll = this.channel.infinite.scrollTop
+						const func = this.channel.infinite.snapBottom()
+
+						let next2 = this
+						while (next2?.author === this.author) {
+							next2.generateMessage(void 0, true)
+							next2 = this.channel.idToNext.get(next2.snowflake)?.getObject()
+						}
+						if (this.channel.infinite.scroll && scroll) {
+							func()
+							this.channel.infinite.scroll.scrollTop = scroll
+						}
+					}
+					build.append(span)
+
+					div.appendChild(build)
+					return div
+				}
+			}
 		}
 
 		if (this.message_reference) {
@@ -274,7 +328,6 @@ class Message {
 			const username = document.createElement("span")
 			username.classList.add("username")
 			replyline.appendChild(username)
-			this.author.contextMenuBind(username, this.guild)
 
 			const reply = document.createElement("div")
 			reply.classList.add("replytext")
@@ -283,7 +336,7 @@ class Message {
 			this.channel.getmessage(this.message_reference.message_id).then(message => {
 				const author = User.checkuser(message.author, this.localuser)
 
-				if (this.localuser.ready.d.relationships.some(relation => relation.id == author.id && relation.type == 2)) {
+				if (message.author.relationshipType == 2) {
 					const blocked = document.createElement("i")
 					blocked.classList.add("blocked")
 					blocked.textContent = "You have blocked this user. Click here to still see the message."
@@ -358,7 +411,7 @@ class Message {
 				}
 
 				const time = document.createElement("span")
-				time.textContent = formatTime(new Date(this.timestamp))
+				time.textContent = formatTime(new Date(this.timestamp), this.localuser.settings.locale)
 				time.classList.add("timestamp")
 				userwrap.appendChild(time)
 
@@ -374,7 +427,7 @@ class Message {
 				const edited = document.createElement("small")
 				edited.classList.add("edited")
 				edited.textContent = "(edited)"
-				edited.title = "Edited " + formatTime(new Date(this.edited_timestamp))
+				edited.title = "Edited " + formatTime(new Date(this.edited_timestamp), this.localuser.settings.locale)
 				messaged.appendChild(edited)
 			}
 			messagedwrap.appendChild(messaged)
@@ -427,7 +480,7 @@ class Message {
 			texttxt.appendChild(username)
 
 			const time = document.createElement("span")
-			time.textContent = formatTime(new Date(this.timestamp))
+			time.textContent = formatTime(new Date(this.timestamp), this.localuser.settings.locale)
 			time.classList.add("timestamp")
 			texttxt.append(time)
 			div.classList.add("topMessage")

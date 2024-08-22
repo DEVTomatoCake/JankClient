@@ -2,8 +2,9 @@
 
 // eslint-disable-next-line no-unused-vars
 class InfiniteScroller {
-	minDist = 3000
-	maxDist = 8000
+	minDist = 2000
+	fillDist = 3000
+	maxDist = 6000
 	HTMLElements = []
 	constructor(getIDFromOffset, getHTMLFromID, destroyFromID, reachesBottom = () => {}) {
 		this.getIDFromOffset = getIDFromOffset
@@ -19,13 +20,20 @@ class InfiniteScroller {
 		div.appendChild(scroll)
 
 		this.div = div
-		this.div.addEventListener("scroll", this.watchForChange.bind(this))
-
 		this.scroll = scroll
-		this.scroll.addEventListener("scroll", this.watchForChange.bind(this))
+
+		this.div.addEventListener("scroll", () => {
+			if (this.scroll) this.scrollTop = this.scroll.scrollTop
+			this.watchForChange()
+		})
+		this.scroll.addEventListener("scroll", () => {
+			if (this.timeout === null) this.timeout = setTimeout(this.updatestuff.bind(this), 300)
+			this.watchForChange()
+		})
 
 		let oldheight = 0
 		new ResizeObserver(() => {
+			this.updatestuff()
 			const change = oldheight - div.offsetHeight
 			if (change > 0 && this.scroll) this.scroll.scrollTop += change
 
@@ -42,10 +50,16 @@ class InfiniteScroller {
 		})
 		return div
 	}
+	averageheight = 60
 	needsupdate = true
 	async updatestuff() {
 		this.timeout = null
+		if (!this.scroll) return
+
 		this.scrollBottom = this.scroll.scrollHeight - this.scroll.scrollTop - this.scroll.clientHeight
+		this.averageheight = this.scroll.scrollHeight / this.HTMLElements.length
+		if (this.averageheight < 10) this.averageheight = 60
+
 		this.scrollTop = this.scroll.scrollTop
 		if (!this.scrollBottom && !await this.watchForChange()) this.reachesBottom()
 
@@ -69,46 +83,55 @@ class InfiniteScroller {
 		const scrollBottom = this.scrollBottom
 		return () => {
 			if (this.scroll && scrollBottom < 30) {
-				this.scroll.scrollTop = this.scroll.scrollHeight
+				this.scroll.scrollTop = this.scroll.scrollHeight + 20
 			}
 		}
 	}
-	async watchForTop() {
-		let again = false
-		if (this.scrollTop == 0) {
-			this.scrollTop = 1
-			this.scroll.scrollTop = 1
-		}
+	async watchForTop(already = false, fragement = new DocumentFragment()) {
+		if (!this.scroll) return
 
-		if (this.scrollTop < this.minDist) {
-			const previd = this.HTMLElements.at(0)[1]
-			const nextid = await this.getIDFromOffset(previd, 1)
-			if (nextid) {
-				again = true
-				const html = await this.getHTMLFromID(nextid)
-				if (!html) {
-					this.destroyFromID(nextid)
-					console.error("html isn't defined")
-					throw new Error("html isn't defined")
+		try {
+			let again = false
+			if (this.scrollTop < (already ? this.fillDist : this.minDist)) {
+				let nextid
+				const firstelm = this.HTMLElements.at(0)
+				if (firstelm) {
+					const previd = firstelm[1]
+					nextid = await this.getIDFromOffset(previd, 1)
 				}
-
-				this.scroll.prepend(html)
-				this.HTMLElements.unshift([html, nextid])
-				this.scrollTop += 60
+				if (nextid) {
+					const html = await this.getHTMLFromID(nextid)
+					if (!html) {
+						this.destroyFromID(nextid)
+						return false
+					}
+					again = true
+					fragement.prepend(html)
+					this.HTMLElements.unshift([html, nextid])
+					this.scrollTop += this.averageheight
+				}
 			}
-		}
 
-		if (this.scrollTop > this.maxDist) {
-			const html = this.HTMLElements.shift()
-			if (html) {
-				again = true
-				await this.destroyFromID(html[1])
-				this.scrollTop -= 60
+			if (this.scrollTop > this.maxDist) {
+				const html = this.HTMLElements.shift()
+				if (html) {
+					again = true
+					await this.destroyFromID(html[1])
+					this.scrollTop -= this.averageheight
+				}
 			}
-		}
 
-		if (again) await this.watchForTop()
+			if (again) await this.watchForTop(true, fragement)
 			return again
+		} finally {
+			if (!already) {
+				if (this.scroll.scrollTop == 0) {
+					this.scrollTop = 1
+					this.scroll.scrollTop = 10
+				}
+				this.scroll.prepend(fragement, fragement)
+			}
+		}
 	}
 	async watchForBottom() {
 		if (!this.scroll) return false
@@ -138,28 +161,49 @@ class InfiniteScroller {
 		if (again) await this.watchForBottom()
 			return again
 	}
+	watchtime = false
 	async watchForChange() {
-		try {
-			if (this.currrunning) return false
+		if (this.currrunning) {
+			this.watchtime = true
+			if (this.changePromise) return await this.changePromise
+			else return false
+		} else {
+			this.watchtime = false
 			this.currrunning = true
-
-			if (!this.div) {
-				this.currrunning = false
-				return false
-			}
-
-			const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()])
-			const changed = out[0].value || out[1].value
-			if (this.timeout === null && changed) {
-				this.timeout = setTimeout(this.updatestuff.bind(this), 300)
-			}
-
-			this.currrunning = false
-			return Boolean(changed)
-		} catch (e) {
-			console.error(e)
-			return false
 		}
+
+		this.changePromise = new Promise(async res => {
+			try {
+				try {
+					if (!this.div) {
+						res(false)
+						return
+					}
+
+					const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()])
+					const changed = (out[0].value || out[1].value)
+					if (this.timeout === null && changed) {
+						this.timeout = setTimeout(this.updatestuff.bind(this), 300)
+					}
+					if (!this.currrunning) {
+						console.error("something really bad happened")
+					}
+					res(Boolean(changed))
+					return
+				} catch (e) {
+					console.error(e)
+				}
+				res(false)
+			} finally {
+				setTimeout(() => {
+					delete this.changePromise
+					this.currrunning = false
+					if (this.watchtime) this.watchForChange()
+				}, 300)
+			}
+		})
+
+		return await this.changePromise
 	}
 	async focus(id, flash = true) {
 		let element

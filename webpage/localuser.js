@@ -117,6 +117,12 @@ class LocalUser {
 
 			this.guildids.get(guild.id).channelids[thing.channel_id].readStateInfo(thing)
 		}
+
+		for (const thing of ready.d.relationships) {
+			const user = new User(thing.user, this)
+			user.nickname = thing.nickname
+			user.relationshipType = thing.type
+		}
 	}
 	outoffocus() {
 		document.getElementById("servers").innerHTML = ""
@@ -722,7 +728,7 @@ class LocalUser {
 	}
 	typing = new Map()
 	async typingStart(typing) {
-		if (this.channelfocus.id === typing.d.channel_id) {
+		if (this.channelfocus.id == typing.d.channel_id) {
 			const guild = this.guildids.get(typing.d.guild_id)
 			const memb = await Member.new(typing.d.member, guild)
 			if (!memb || memb.id == this.user.id) return
@@ -753,14 +759,24 @@ class LocalUser {
 		} else document.getElementById("typing").classList.add("hidden")
 	}
 	updatepfp(file) {
-		const reader = new FileReader()
-		reader.readAsDataURL(file)
-		reader.onload = () => {
+		if (file) {
+			const reader = new FileReader()
+			reader.readAsDataURL(file)
+			reader.onload = () => {
+				fetch(this.info.api + "/users/@me", {
+					method: "PATCH",
+					headers: this.headers,
+					body: JSON.stringify({
+						avatar: reader.result
+					})
+				})
+			}
+		} else {
 			fetch(this.info.api + "/users/@me", {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
-					avatar: reader.result
+					avatar: null
 				})
 			})
 		}
@@ -802,13 +818,23 @@ class LocalUser {
 			body: JSON.stringify(settings)
 		})
 	}
+	async changeDiscriminator(discriminator) {
+		const res = await fetch(this.info.api + "/users/@me", {
+			method: "PATCH",
+			headers: this.headers,
+			body: JSON.stringify({
+				discriminator
+			})
+		})
+		return await res.json()
+	}
 	async showusersettings() {
 		const settings = new Settings("Settings")
 		this.usersettings = settings
 
-		const userOptions = settings.addButton("User Settings", { ltr: true })
+		const userOptions = settings.addButton("User profile", { ltr: true })
 		const hypotheticalProfile = document.createElement("div")
-		let file = null
+		let avatarFile = null
 		let newpronouns
 		let newbio
 		let color = this.user.accent_color ? "#" + this.user.accent_color.toString(16) : "transparent"
@@ -821,49 +847,57 @@ class LocalUser {
 		}
 		regen()
 
-		const settingsLeft = userOptions.addOptions("")
-		const settingsRight = userOptions.addOptions("")
-		settingsRight.addHTMLArea(hypotheticalProfile)
-		const finput = settingsLeft.addFileInput("Upload pfp:", () => {
-			if (file) this.updatepfp(file)
+		const profileLeft = userOptions.addOptions("")
+		const profileRight = userOptions.addOptions("")
+		profileRight.addHTMLArea(hypotheticalProfile)
+
+		const finput = profileLeft.addFileInput("Upload avatar:", () => {
+			if (avatarFile) this.updatepfp(avatarFile)
 		})
 		finput.watchForChange(value => {
 			if (value.length > 0) {
-				file = value[0]
-				const blob = URL.createObjectURL(file)
+				avatarFile = value[0]
+				const blob = URL.createObjectURL(avatarFile)
 				hypouser.avatar = blob
 				hypouser.hypotheticalpfp = true
 				regen()
 			}
 		})
 
-		let bfile
-		const binput = settingsLeft.addFileInput("Upload banner:", () => {
-			if (bfile !== void 0) this.updatebanner(bfile)
+		profileLeft.addButtonInput("Clear avatar", "Clear", () => {
+			avatarFile = null
+			hypouser.avatar = void 0
+			profileLeft.changed()
+			regen()
+		})
+
+		let bannerFile
+		const binput = profileLeft.addFileInput("Upload banner:", () => {
+			if (bannerFile !== void 0) this.updatebanner(bannerFile)
 		})
 		binput.watchForChange(value => {
 			if (value.length > 0) {
-				bfile = value[0]
-				const blob = URL.createObjectURL(bfile)
+				bannerFile = value[0]
+				const blob = URL.createObjectURL(bannerFile)
 				hypouser.banner = blob
 				hypouser.hypotheticalbanner = true
 				regen()
 			}
 		})
 
-		settingsLeft.addButtonInput("Clear banner", "Clear", () => {
-			bfile = null
+		profileLeft.addButtonInput("Clear banner", "Clear", () => {
+			bannerFile = null
 			hypouser.banner = void 0
-			settingsLeft.changed()
+			profileLeft.changed()
 			regen()
 		})
-		let changed = false
 
-		const pronounbox = settingsLeft.addTextInput("Pronouns", () => {
+		let changed = false
+		const pronounbox = profileLeft.addTextInput("Pronouns", () => {
 			if (newpronouns || newbio || changed) this.updateProfile({
 				pronouns: newpronouns,
 				bio: newbio,
-				accent_color: Number.parseInt("0x" + color.substr(1), 16)
+				accent_color: Number.parseInt("0x" + color.slice(1), 16)
 			})
 		}, { initText: this.user.pronouns })
 		pronounbox.watchForChange(value => {
@@ -872,26 +906,48 @@ class LocalUser {
 			regen()
 		})
 
-		const bioBox = settingsLeft.addMDInput("Bio:", () => {}, { initText: this.user.bio.rawString })
+		const bioBox = profileLeft.addMDInput("Bio:", () => {}, { initText: this.user.bio.rawString })
 		bioBox.watchForChange(value => {
 			newbio = value
 			hypouser.bio = new MarkDown(value, this)
 			regen()
 		})
 
-		const colorPicker = settingsLeft.addColorInput("Profile color", () => {}, { initColor: color })
+		const colorPicker = profileLeft.addColorInput("Profile color", () => {}, { initColor: color })
 		colorPicker.watchForChange(value => {
 			color = value
-			hypouser.accent_color = Number.parseInt("0x" + value.substr(1), 16)
+			hypouser.accent_color = Number.parseInt("0x" + value.slice(1), 16)
 			changed = true
 			regen()
+		})
+
+		let disc = ""
+		profileLeft.addButtonInput("", "Change discriminator", () => {
+			const update = new Dialog(["vdiv",
+				["title", "Change discriminator"],
+				["textbox", "New discriminator:", "", e => {
+						disc = e.target.value
+					}],
+				["button", "", "submit", () => {
+						this.changeDiscriminator(disc).then(json => {
+							if (json.message) alert(json.errors.discriminator._errors[0].message)
+							else update.hide()
+						})
+					}]])
+			update.show()
+		})
+
+		const userSettings = settings.addButton("Account settings")
+		userSettings.addTextInput("Locale:", value => {
+			if (value.length != 5) return alert("Please use a valid locale code (e.g. en-US)")
+			this.updateSettings({locale: value})
 		})
 
 		const tas = settings.addButton("Themes & sounds")
 
 		const themes = ["dark", "light"]
 		tas.addSelect("Theme:", value => {
-			const newTheme = themes[value].toLowerCase()
+			const newTheme = themes[value]
 			localStorage.setItem("theme", newTheme)
 			setTheme(newTheme)
 			this.updateSettings({theme: newTheme})
@@ -916,7 +972,7 @@ class LocalUser {
 			document.documentElement.style.setProperty("--accent-color", userinfos.accent_color)
 		}, { initColor: getBulkInfo().accent_color })
 
-		const security = settings.addButton("Account Settings")
+		const security = settings.addButton("Account security")
 		if (this.mfa_enabled) {
 			security.addTextInput("Disable MFA, TOTP code:", value => {
 				fetch(this.info.api + "/users/@me/mfa/totp/disable", {
@@ -976,25 +1032,6 @@ class LocalUser {
 				addmodel.show()
 			})
 		}
-
-		let disc = ""
-		security.addButtonInput("", "Change discriminator", () => {
-			const update = new Dialog(["vdiv",
-				["title", "Change discriminator"],
-				["textbox", "New discriminator:", "", e => {
-						disc = e.target.value
-					}],
-				["button", "", "submit", () => {
-						this.changeDiscriminator(disc).then(json => {
-							if (json.message) {
-								alert(json.errors.discriminator._errors[0].message)
-							} else {
-								update.hide()
-							}
-						})
-					}]])
-			update.show()
-		})
 
 		const connections = settings.addButton("Connections")
 		const connectionContainer = document.createElement("div")
@@ -1233,13 +1270,6 @@ class LocalUser {
 		)
 		botDialog.show()
 	}
-	async changeDiscriminator(discriminator) {
-		return await (await fetch(this.info.api + "/users/@me/", {
-			method: "PATCH",
-			headers: this.headers,
-			body: JSON.stringify({ discriminator })
-		})).json()
-	}
 	static async loadSVG(name = "") {
 		const res = await fetch("/icons/bootstrap/" + name + ".svg", {
 			headers: {
@@ -1255,9 +1285,7 @@ class LocalUser {
 	waitingmembers = new Map()
 	presences = new Map()
 	async resolvemember(id, guildid) {
-		if (guildid === "@me") {
-			return
-		}
+		if (guildid == "@me") return
 
 		if (!this.waitingmembers.has(guildid)) this.waitingmembers.set(guildid, new Map())
 

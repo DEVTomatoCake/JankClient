@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	menu.addbutton("Create category", () => {
 		thisuser.lookingguild.createcategory()
 	}, null, () => thisuser.isAdmin())
-	menu.bind(document.getElementById("channels"))
+	menu.bindContextmenu(document.getElementById("channels"))
 
 	const userinfo = document.getElementById("userinfo")
 	userinfo.addEventListener("click", event => {
