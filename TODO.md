@@ -64,7 +64,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ⛔ | inline_attachment_media | boolean | What's this for?
 | ⛔ | inline_embed_media | boolean | What's this for?
 | ✅ | locale | string
-| ❌ | message_display_compact | boolean
+| 🗨️ | message_display_compact | boolean
 | 🗨️ | render_embeds | boolean
 | 🗨️ | render_reactions | boolean
 | ⛔ | restricted_guilds | [string] | What's this for?

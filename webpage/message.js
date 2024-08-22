@@ -1,7 +1,9 @@
 "use strict"
 
 const makeTime = date => date.toLocaleTimeString(void 0, { hour: "2-digit", minute: "2-digit" })
-const formatTime = (date, locale = "en-US") => {
+const formatTime = (date, locale = "en-US", compactLayout = false) => {
+	if (compactLayout) return makeTime(date)
+
 	const now = new Date()
 	const sameDay = date.getDate() == now.getDate() &&
 		date.getMonth() == now.getMonth() &&
@@ -235,11 +237,8 @@ class Message {
 	}
 	blockedPropigate() {
 		const premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
-		if (premessage?.author === this.author) {
-			premessage.blockedPropigate()
-		} else {
-			this.generateMessage()
-		}
+		if (premessage?.author === this.author) premessage.blockedPropigate()
+		else this.generateMessage()
 	}
 	generateMessage(premessage, ignoredblock = false) {
 		if (!this.div) return
@@ -374,7 +373,6 @@ class Message {
 		if (this.type == 0 || this.type == 19 || this.attachments.length > 0) {
 			const pfpRow = document.createElement("div")
 			pfpRow.classList.add("flexltr", "pfprow")
-			if (compactLayout) pfpRow.classList.add("compact")
 
 			let pfpparent
 			let current
@@ -388,28 +386,35 @@ class Message {
 			}
 
 			const combine = premessage?.author?.snowflake != this.author.snowflake || current || this.message_reference
-			if (combine) {
+			if (combine || compactLayout) {
 				const pfp = this.author.buildpfp()
 				this.author.contextMenuBind(pfp, this.guild, false)
 				pfpRow.appendChild(pfp)
 			} else div.pfpparent = pfpparent
 
-			build.appendChild(pfpRow)
+			if (!compactLayout) build.appendChild(pfpRow)
 
 			const text = document.createElement("div")
 			text.classList.add("flexttb")
 
 			const texttxt = document.createElement("div")
 			texttxt.classList.add("flexttb", "commentrow")
+			if (compactLayout) texttxt.classList.add("compact")
 
-			if (combine) {
+			if (combine || compactLayout) {
+				const userwrap = document.createElement("div")
+				userwrap.classList.add("flexltr", "message-header")
+
 				const username = document.createElement("span")
 				username.classList.add("username")
 				username.textContent = this.member && this.member.nick ? this.member.nick : this.author.username
 				this.author.contextMenuBind(username, this.guild)
 
-				const userwrap = document.createElement("div")
-				userwrap.classList.add("flexltr", "message-header")
+				const time = document.createElement("span")
+				time.textContent = formatTime(new Date(this.timestamp), this.localuser.settings.locale, compactLayout)
+				time.classList.add("timestamp")
+				if (compactLayout) userwrap.appendChild(time)
+
 				userwrap.appendChild(username)
 
 				if (this.author.bot) {
@@ -418,14 +423,11 @@ class Message {
 					botTag.textContent = "BOT"
 					userwrap.appendChild(botTag)
 				}
-
-				const time = document.createElement("span")
-				time.textContent = formatTime(new Date(this.timestamp), this.localuser.settings.locale)
-				time.classList.add("timestamp")
-				userwrap.appendChild(time)
+				if (!compactLayout) userwrap.appendChild(time)
 
 				texttxt.appendChild(userwrap)
 				div.classList.add("topMessage")
+				if (compactLayout) div.classList.add("compact")
 			} else div.classList.remove("topMessage")
 
 			text.appendChild(texttxt)
@@ -439,7 +441,7 @@ class Message {
 				const edited = document.createElement("small")
 				edited.classList.add("edited")
 				edited.textContent = "(edited)"
-				edited.title = "Edited " + formatTime(new Date(this.edited_timestamp), this.localuser.settings.locale)
+				edited.title = "Edited " + formatTime(new Date(this.edited_timestamp), this.localuser.settings.locale, compactLayout)
 				messaged.appendChild(edited)
 			}
 			messagedwrap.appendChild(messaged)
@@ -492,7 +494,7 @@ class Message {
 			texttxt.appendChild(username)
 
 			const time = document.createElement("span")
-			time.textContent = formatTime(new Date(this.timestamp), this.localuser.settings.locale)
+			time.textContent = formatTime(new Date(this.timestamp), this.localuser.settings.locale, compactLayout)
 			time.classList.add("timestamp")
 			texttxt.append(time)
 			div.classList.add("topMessage")

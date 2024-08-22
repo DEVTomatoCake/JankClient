@@ -402,9 +402,6 @@ img {
 	width: 54px;
 	flex-shrink: 0 !important;
 }
-.pfprow.compact {
-	width: 22px;
-}
 
 .commentrow {
 	width: 100%;
@@ -1554,10 +1551,8 @@ video {
 }
 
 .messagediv .flexttb {
-	display: flex;
 	overflow: hidden;
 	width: 100%;
-	flex-direction: column;
 	max-height: 100in;
 }
 
@@ -2182,4 +2177,24 @@ small.edited {
 
 .settings .flexttb {
 	max-height: unset;
+}
+
+/* Breaks embeds & co.: .commentrow.compact {
+	flex-direction: row;
+}*/
+.commentrow.compact .message-header {
+	flex-wrap: nowrap;
+	min-width: min-content;
+}
+.commentrow.compact .timestamp {
+	word-break: keep-all;
+	word-wrap: normal;
+}
+
+.commentrow.compact .username, .commentrow.compact .timestamp {
+	margin: 0 5px 0 0;
+}
+
+.topMessage.compact {
+	margin-top: 0;
 }

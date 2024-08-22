@@ -239,8 +239,8 @@ class User {
 	changepfp(update) {
 		this.avatar = update
 		this.hypotheticalpfp = false
-		const src = this.getpfpsrc()
-		for (const thing of document.getElementsByClassName("userid:" + this.id)) thing.src = src
+
+		for (const thing of document.getElementsByClassName("userid:" + this.id)) thing.src = this.getpfpsrc()
 	}
 	getpfpsrc() {
 		if (this.hypotheticalpfp) return this.avatar
