@@ -110,7 +110,7 @@ class Emoji {
 		body.classList.add("emojiBody")
 
 		let isFirst = true
-		localuser.guilds.filter(guild => guild.id != "@me" && guild.emojis.length > 0).forEach(guild => {
+		localuser.guildids.values().filter(guild => guild.id != "@me" && guild.emojis.length > 0).forEach(guild => {
 			const select = document.createElement("div")
 			select.classList.add("emojiSelect")
 

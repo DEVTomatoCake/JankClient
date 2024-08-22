@@ -474,7 +474,7 @@ class MarkDown {
 						if (build[1] == "#") {
 							if (thisuser.lookingguild?.channelids[parts[2]]) mentionText = thisuser.lookingguild.channelids[parts[2]].name
 							else {
-								thisuser.guilds.forEach(guild => {
+								thisuser.guildids.values().forEach(guild => {
 									if (guild.channelids[parts[2]]) mentionText = guild.channelids[parts[2]].name
 								})
 							}
@@ -484,7 +484,7 @@ class MarkDown {
 							if (build[2] == "&") {
 								if (thisuser.lookingguild?.roleids[parts[2]]) mentionText = thisuser.lookingguild.roleids[parts[2]].name
 								else {
-									thisuser.guilds.forEach(guild => {
+									thisuser.guildids.values().forEach(guild => {
 										if (guild.roleids[parts[2]]) mentionText = guild.roleids[parts[2]].name
 									})
 								}

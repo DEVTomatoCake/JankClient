@@ -76,7 +76,6 @@ class LocalUser {
 	gottenReady(ready) {
 		this.initialized = true
 		this.ready = ready
-		this.guilds = []
 		this.guildids = new Map()
 		this.guildhtml = new Map()
 		this.user = User.checkuser(ready.d.user, this)
@@ -98,13 +97,11 @@ class LocalUser {
 		setTheme(this.settings.theme)
 
 		for (const thing of ready.d.guilds) {
-			const temp = new Guild(thing, this, members[thing.id])
-			this.guilds.push(temp)
-			this.guildids.set(temp.id, temp)
+			const guild = new Guild(thing, this, members[thing.id])
+			this.guildids.set(guild.id, guild)
 		}
 
 		const dmChannels = new Direct(ready.d.private_channels, this)
-		this.guilds.push(dmChannels)
 		this.guildids.set(dmChannels.id, dmChannels)
 
 		for (const guildSettings of ready.d.user_guild_settings.entries) {
@@ -135,7 +132,6 @@ class LocalUser {
 		if (this.heartbeatTimeout) clearTimeout(this.heartbeatTimeout)
 		this.initialized = false
 		this.outoffocus()
-		this.guilds = []
 		this.guildids = new Map()
 		if (this.ws) this.ws.close(1000)
 		SnowFlake.clear()
@@ -401,15 +397,13 @@ class LocalUser {
 				case "GUILD_DELETE": {
 					const guildy = this.guildids.get(json.d.id)
 					this.guildids.delete(json.d.id)
-					this.guilds.splice(this.guilds.indexOf(guildy), 1)
 					guildy.html.remove()
 
-					if (this.guilds.length <= 1) document.getElementById("bottomseparator").setAttribute("hidden", "")
+					if (this.guildids.size <= 1) document.getElementById("bottomseparator").setAttribute("hidden", "")
 					break
 				}
 				case "GUILD_CREATE": {
 					const guildy = new Guild(json.d, this, this.user)
-					this.guilds.push(guildy)
 
 					document.getElementById("bottomseparator").removeAttribute("hidden")
 					this.guildids.set(guildy.id, guildy)
@@ -436,8 +430,8 @@ class LocalUser {
 			}, this.heartbeatInterval)
 		}
 	}
-	resolveChannelFromID(ID) {
-		return this.guilds.find(guild => guild.channelids[ID])?.channelids[ID]
+	resolveChannelFromID(id) {
+		return this.guildids.values().find(guild => guild.channelids[id])?.channelids[id]
 	}
 	updateChannel(json) {
 		SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().updateChannel(json)
@@ -536,7 +530,7 @@ class LocalUser {
 		const hr2 = document.createElement("hr")
 		hr2.id = "bottomseparator"
 		hr2.classList.add("lightbr")
-		if (this.guilds.length <= 1) hr2.setAttribute("hidden", "")
+		if (this.guildids.size <= 1) hr2.setAttribute("hidden", "")
 		serverlist.appendChild(hr2)
 
 		const joinCreateButton = document.createElement("p")
@@ -629,18 +623,19 @@ class LocalUser {
 		full.show()
 	}
 	async makeGuild(fields) {
-		return await (await fetch(this.info.api + "/guilds", {
+		const res = await fetch(this.info.api + "/guilds", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify(fields)
-		})).json()
+		})
+		return await res.json()
 	}
 	async guildDiscovery() {
 		const container = document.createElement("div")
 		container.textContent = "Loading..."
 
-		const full = new Dialog(["html", container])
-		full.show()
+		const dialog = new Dialog(["html", container])
+		dialog.show()
 
 		const categoryRes = await fetch(this.info.api + "/discovery/categories", {
 			headers: this.headers
@@ -663,7 +658,7 @@ class LocalUser {
 		const guilds = document.createElement("div")
 		guilds.id = "discovery-guild-content"
 
-		json.guilds.forEach(guild => {
+		json.guildids.values().forEach(guild => {
 			const content = document.createElement("div")
 			content.classList.add("discovery-guild")
 
@@ -708,7 +703,11 @@ class LocalUser {
 					method: "PUT",
 					headers: this.headers
 				})
-				if (joinRes.ok) full.hide()
+				if (joinRes.ok) dialog.hide()
+				else {
+					const joinJSON = await joinRes.json()
+					alert(joinJSON.message || "An error occurred (response code " + joinRes.status + ")")
+				}
 			})
 			guilds.appendChild(content)
 		})
