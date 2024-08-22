@@ -7,29 +7,29 @@ class Channel {
 
 	static contextmenu = new Contextmenu()
 	static setupcontextmenu() {
-		this.contextmenu.addbutton("Copy channel id", function() {
-			navigator.clipboard.writeText(this.id)
-		}, null, owner => owner.localuser.settings.developer_mode)
+		this.contextmenu.addbutton("Copy channel id", (event, channel) => {
+			navigator.clipboard.writeText(channel.id)
+		}, null, channel => channel.localuser.settings.developer_mode)
 
-		this.contextmenu.addbutton("Mark as read", function() {
-			this.readbottom()
+		this.contextmenu.addbutton("Mark as read", (event, channel) => {
+			channel.readbottom()
+		}, null, channel => channel.hasunreads)
+
+		this.contextmenu.addbutton("Settings", (event, channel) => {
+			channel.generateSettings()
 		})
 
-		this.contextmenu.addbutton("Settings", function() {
-			this.generateSettings()
-		})
+		this.contextmenu.addbutton("Delete channel", (event, channel) => {
+			channel.deleteChannel()
+		}, null, channel => channel.isAdmin())
 
-		this.contextmenu.addbutton("Delete channel", function() {
-			this.deleteChannel()
-		}, null, owner => owner.isAdmin())
+		this.contextmenu.addbutton("Edit channel", (event, channel) => {
+			channel.editChannel()
+		}, null, channel => channel.isAdmin())
 
-		this.contextmenu.addbutton("Edit channel", function() {
-			this.editChannel()
-		}, null, owner => owner.isAdmin())
-
-		this.contextmenu.addbutton("Make invite", function() {
-			this.createInvite()
-		}, null, owner => owner.hasPermission("CREATE_INSTANT_INVITE") && owner.type != 4)
+		this.contextmenu.addbutton("Make invite", (event, channel) => {
+			channel.createInvite()
+		}, null, channel => channel.hasPermission("CREATE_INSTANT_INVITE") && channel.type != 4)
 	}
 	createInvite() {
 		const div = document.createElement("div")

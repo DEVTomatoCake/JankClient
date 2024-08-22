@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // eslint-disable-next-line no-unused-vars
 const requestTestNotif = async () => {
-	fetch(this.info.api + "/notifications/webpush/testNotification", {
+	fetch(thisuser.info.api + "/notifications/webpush/testNotification", {
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: users.users[users.currentuser].token
@@ -176,7 +176,7 @@ typebox.addEventListener("keyup", event => {
 		event.preventDefault()
 
 		let content = markdown.rawString.trim()
-			.replace(/:([-+\w]+):/g, (match, p1) => emojis[p1] || match)
+			.replace(/:([-+\w]+):/g, (match, p1) => Emoji.emojisFlat.some(emoji => emoji.slug == p1) ? Emoji.emojisFlat.find(emoji => emoji.slug == p1).emoji : match)
 
 		if (thisuser.settings.convert_emoticons)
 			Object.keys(emojiConversions).forEach(emoji => {

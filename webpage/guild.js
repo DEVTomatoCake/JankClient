@@ -3,26 +3,26 @@
 class Guild {
 	static contextmenu = new Contextmenu()
 	static setupcontextmenu() {
-		Guild.contextmenu.addbutton("Copy guild id", function() {
-			navigator.clipboard.writeText(this.id)
+		Guild.contextmenu.addbutton("Copy guild id", (event, guild) => {
+			navigator.clipboard.writeText(guild.id)
 		}, null, owner => owner.localuser.settings.developer_mode)
 
-		Guild.contextmenu.addbutton("Mark as read", function() {
-			this.markAsRead()
+		Guild.contextmenu.addbutton("Mark as read", (event, guild) => {
+			guild.markAsRead()
 		})
 
-		Guild.contextmenu.addbutton("Create Invite", async function() {
-			if (Object.keys(this.channelids).length == 0) return alert("No channels to create invite for")
+		Guild.contextmenu.addbutton("Create Invite", async (event, guild) => {
+			if (Object.keys(guild.channelids).length == 0) return alert("No channels to create invite for")
 
-			let res = await fetch(this.info.api + "/channels/" + (this.prevchannel ? this.prevchannel.id : Object.keys(this.channelids)[0]) + "/invites", {
+			let res = await fetch(guild.info.api + "/channels/" + (guild.prevchannel ? guild.prevchannel.id : Object.keys(guild.channelids)[0]) + "/invites", {
 				method: "POST",
-				headers: this.headers
+				headers: guild.headers
 			})
 			let json = await res.json()
 			console.log(json)
 
 			const inviteCreateError = document.createElement("span")
-			if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(this.info.api).origin + "/invite/" + json.code
+			if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(guild.info.api).origin + "/invite/" + json.code
 			else {
 				inviteCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
 				console.error("Unable to create invite", json)
@@ -34,14 +34,14 @@ class Guild {
 					"",
 					"Create invite",
 					async () => {
-						res = await fetch(this.info.api + "/channels/" + (this.prevchannel ? this.prevchannel.id : Object.keys(this.channelids)[0]) + "/invites", {
+						res = await fetch(guild.info.api + "/channels/" + (guild.prevchannel ? guild.prevchannel.id : Object.keys(guild.channelids)[0]) + "/invites", {
 							method: "POST",
-							headers: this.headers
+							headers: guild.headers
 						})
 						json = await res.json()
 						console.log(json)
 
-						if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(this.info.api).origin + "/invite/" + json.code
+						if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(guild.info.api).origin + "/invite/" + json.code
 						else {
 							inviteCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
 							console.error("Unable to create invite", json)
@@ -52,24 +52,24 @@ class Guild {
 			full.show()
 		})
 
-		Guild.contextmenu.addbutton("Settings", function() {
-			this.generateSettings()
+		Guild.contextmenu.addbutton("Settings", (event, guild) => {
+			guild.generateSettings()
 		})
 
-		Guild.contextmenu.addbutton("Notifications", function() {
-			this.setNotification()
+		Guild.contextmenu.addbutton("Notifications", (event, guild) => {
+			guild.setNotification()
 		})
 
-		Guild.contextmenu.addbutton("Edit server profile", function() {
-			this.editProfile()
+		Guild.contextmenu.addbutton("Edit server profile", (event, guild) => {
+			guild.editProfile()
 		})
 
-		Guild.contextmenu.addbutton("Leave server", function() {
-			this.confirmLeave()
+		Guild.contextmenu.addbutton("Leave server", (event, guild) => {
+			guild.confirmLeave()
 		}, null, g => g.properties.owner_id != g.member.user.id)
 
-		Guild.contextmenu.addbutton("Delete server", function() {
-			this.confirmDelete()
+		Guild.contextmenu.addbutton("Delete server", (event, guild) => {
+			guild.confirmDelete()
 		}, null, g => g.properties.owner_id == g.member.user.id)
 	}
 	generateSettings() {
@@ -432,27 +432,27 @@ class Guild {
 			["textbox",
 				"Name of server:",
 				"",
-				function() {
-					confirmname = this.value
+				event => {
+					confirmname = event.target.value
 				}
 			],
 			["hdiv",
 				["button",
-				"",
-				"Yes, I'm sure",
-				async () => {
-					if (confirmname != this.properties.name) return
+					"",
+					"Yes, I'm sure",
+					async () => {
+						if (confirmname != this.properties.name) return
 
-					await this.delete()
-					full.hide()
-				}
+						await this.delete()
+						full.hide()
+					}
 				],
 				["button",
-				"",
-				"Nevermind",
-				() => {
-					full.hide()
-				}
+					"",
+					"Nevermind",
+					() => {
+						full.hide()
+					}
 				]
 			]
 		])

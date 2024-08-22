@@ -3,85 +3,85 @@
 class User {
 	static contextmenu = new Contextmenu()
 	static setUpContextMenu() {
-		this.contextmenu.addbutton("Copy user id", function() {
-			navigator.clipboard.writeText(this.id)
+		this.contextmenu.addbutton("Copy user id", (event, user) => {
+			navigator.clipboard.writeText(user.id)
 		}, null, owner => owner.localuser.settings.developer_mode)
 
-		this.contextmenu.addbutton("Message user", function() {
-			fetch(this.info.api + "/users/@me/channels", {
+		this.contextmenu.addbutton("Message user", (event, user) => {
+			fetch(user.info.api + "/users/@me/channels", {
 				method: "POST",
-				headers: this.localuser.headers,
+				headers: user.localuser.headers,
 				body: JSON.stringify({
-					recipients: [this.id]
+					recipients: [user.id]
 				})
 			})
 		}, null, owner => owner.id != owner.localuser.user.id)
 
-		this.contextmenu.addbutton("Block user", function() {
-			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+		this.contextmenu.addbutton("Block user", (event, user) => {
+			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
 				method: "PUT",
-				headers: this.localuser.headers,
+				headers: user.localuser.headers,
 				body: JSON.stringify({
 					type: 2
 				})
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType != 2)
-		this.contextmenu.addbutton("Unblock user", function() {
-			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+		}, null, user => user.id != user.localuser.user.id && user.relationshipType != 2)
+		this.contextmenu.addbutton("Unblock user", (event, user) => {
+			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
 				method: "DELETE",
-				headers: this.localuser.headers
+				headers: user.localuser.headers
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType == 2)
+		}, null, user => user.id != user.localuser.user.id && user.relationshipType == 2)
 
-		this.contextmenu.addbutton("Send friend request", function() {
-			fetch(this.info.api + "/users/@me/relationships", {
+		this.contextmenu.addbutton("Send friend request", (event, user) => {
+			fetch(user.info.api + "/users/@me/relationships", {
 				method: "POST",
-				headers: this.localuser.headers,
+				headers: user.localuser.headers,
 				body: JSON.stringify({
-					username: this.username,
-					discriminator: this.discriminator
+					username: user.username,
+					discriminator: user.discriminator
 				})
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && !owner.relationshipType)
-		this.contextmenu.addbutton("Accept friend request", function() {
-			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+		}, null, user => user.id != user.localuser.user.id && !user.relationshipType)
+		this.contextmenu.addbutton("Accept friend request", (event, user) => {
+			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
 				method: "PUT",
-				headers: this.localuser.headers,
+				headers: user.localuser.headers,
 				body: JSON.stringify({
 					type: 1
 				})
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType == 3)
+		}, null, user => user.id != user.localuser.user.id && user.relationshipType == 3)
 
-		this.contextmenu.addbutton("Remove friend", function() {
-			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+		this.contextmenu.addbutton("Remove friend", (event, user) => {
+			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
 				method: "DELETE",
-				headers: this.localuser.headers
+				headers: user.localuser.headers
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType == 1)
-		this.contextmenu.addbutton("Revoke friend request", function() {
-			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+		}, null, user => user.id != user.localuser.user.id && user.relationshipType == 1)
+		this.contextmenu.addbutton("Revoke friend request", (event, user) => {
+			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
 				method: "DELETE",
-				headers: this.localuser.headers
+				headers: user.localuser.headers
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType == 4)
+		}, null, user => user.id != user.localuser.user.id && user.relationshipType == 4)
 
 		// Member context menu
-		this.contextmenu.addbutton("Change nickname", function() {
+		this.contextmenu.addbutton("Change nickname", (event, member) => {
 			let reason
-			let newNick = this.nick
+			let newNick = member.nick
 			const dialog = new Dialog(["vdiv",
-				["textbox", "New nickname:", this.nick || "", function() {
-					newNick = this.value
+				["textbox", "New nickname:", member.nick || "", e => {
+					newNick = e.target.value
 				}],
-				["textbox", "Optional reason:", "", function() {
-					reason = this.value
+				["textbox", "Optional reason:", "", e => {
+					reason = e.target.value
 				}],
 				["button", "", "Change nickname", () => {
-					fetch(this.info.api + "/guilds/" + this.guild.id + "/members/" + this.id, {
+					fetch(member.info.api + "/guilds/" + member.guild.id + "/members/" + member.id, {
 						method: "PATCH",
 						headers: {
-							...this.localuser.headers,
+							...member.localuser.headers,
 							"X-Audit-Log-Reason": encodeURIComponent(reason)
 						},
 						body: JSON.stringify({
@@ -92,21 +92,26 @@ class User {
 				}]
 			])
 			dialog.show()
-		}, null, (owner, member) => member && member.guild && member.guild.member.hasPermission("MANAGE_NICKNAMES"))
+		}, null, (user, member) => member && member.guild && member.guild.member.hasPermission("MANAGE_NICKNAMES"))
 
-		this.contextmenu.addbutton("Kick user", (owner, member) => {
+		this.contextmenu.addbutton("Kick user", (event, member) => {
 			member.kick()
-		}, null, (owner, member) => member && member.guild && member.guild.member.hasPermission("KICK_MEMBERS") && owner.id != member.guild.member.user.id && owner.id != member.guild.owner_id)
+		}, null, (user, member) => member && member.guild && member.guild.member.hasPermission("KICK_MEMBERS") && user.id != member.guild.member.user.id && user.id != member.guild.owner_id)
 
 		this.contextmenu.addbutton("Ban user", (owner, member) => {
 			member.ban()
-		}, null, (owner, member) => member && member.guild && member.guild.member.hasPermission("BAN_MEMBERS") && owner.id != member.guild.member.user.id && owner.id != member.guild.owner_id)
+		}, null, (user, member) => member && member.guild && member.guild.member.hasPermission("BAN_MEMBERS") && user.id != member.guild.member.user.id && user.id != member.guild.owner_id)
 	}
 
 	static userids = {}
 	static clear() {
 		this.userids = {}
 	}
+
+	/**
+	 * @param {userjson} userjson
+	 * @param {LocalUser} owner
+	 */
 	static checkuser(userjson, owner) {
 		if (User.userids[userjson.id]) return User.userids[userjson.id]
 
@@ -117,6 +122,10 @@ class User {
 
 	nickname = null
 	relationshipType = 0
+	/**
+	 * @param {userjson} userjson
+	 * @param {LocalUser} owner
+	 */
 	constructor(userjson, owner) {
 		this.owner = owner
 
@@ -159,13 +168,14 @@ class User {
 			return this.localuser.badges.get(id)
 		}
 
-		const prom = await this.getUserProfile()
+		const prom = this.getUserProfile()
 		this.resolvingBadge = prom
+		await prom
 
 		const badges = prom.badges
 		this.resolvingBadge = false
-		for (const thing of badges) {
-			this.localuser.badges.set(thing.id, thing)
+		for (const badge of badges) {
+			this.localuser.badges.set(badge.id, badge)
 		}
 		return this.localuser.badges.get(id)
 	}
@@ -191,7 +201,7 @@ class User {
 			badge_ids: this.badge_ids
 		}, this.owner)
 	}
-	getPresence(presence) {
+	setPresence(presence) {
 		if (presence) this.setstatus(presence.status)
 		else this.setstatus("offline")
 	}

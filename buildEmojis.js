@@ -13,25 +13,21 @@ const write8 = numb => {
 	view.setUint8(i,numb)
 	i += 1
 }
+
+const textEncoder = new TextEncoder("utf8")
 const writeString8 = str => {
-	const encode = new TextEncoder("utf8").encode(str)
+	const encode = textEncoder.encode(str)
 	write8(encode.length)
-	for (const thing of encode) {
-		write8(thing)
-	}
+	for (const thing of encode) write8(thing)
 }
 const writeString16 = str => {
-	const encode = new TextEncoder("utf8").encode(str)
+	const encode = textEncoder.encode(str)
 	write16(encode.length)
-	for (const thing of encode) {
-		write8(thing)
-	}
+	for (const thing of encode) write8(thing)
 }
 const writeStringNo = str => {
-	const encode = new TextEncoder("utf8").encode(str)
-	for (const thing of encode) {
-		write8(thing)
-	}
+	const encode = textEncoder.encode(str)
+	for (const thing of encode) write8(thing)
 }
 
 write16(emojilist.length)
@@ -40,17 +36,19 @@ for (const thing of emojilist) {
 	write16(thing.emojis.length)
 	for (const emoji of thing.emojis) {
 		writeString8(emoji.name)
-		write8(new TextEncoder("utf8").encode(emoji.emoji).length + 128 * emoji.skin_tone_support)
+		writeString8(emoji.slug)
+		write8(textEncoder.encode(emoji.emoji).length + 128 * emoji.skin_tone_support)
 		writeStringNo(emoji.emoji)
 	}
 }
 const out = new ArrayBuffer(i)
+
 const ar = new Uint8Array(out)
 const br = new Uint8Array(buffer)
 for (const thing in ar) {
 	ar[thing] = br[thing]
 }
-console.log(i, ar)
+console.log(ar)
 
 const decodeEmojiList = bufferDecode => {
 	const viewDecode = new DataView(bufferDecode, 0)
@@ -90,11 +88,13 @@ const decodeEmojiList = bufferDecode => {
 		let emojinumber = read16()
 		for (; emojinumber != 0; emojinumber--) {
 			const name8 = readString8()
+			const slug8 = readString8()
 			const len = read8()
 			const skin_tone_support = len > 127
 			const emoji = readStringNo(len - skin_tone_support * 128)
 			emojis.push({
 				name: name8,
+				slug: slug8,
 				skin_tone_support,
 				emoji
 			})
@@ -109,4 +109,4 @@ const decodeEmojiList = bufferDecode => {
 console.log(JSON.stringify(decodeEmojiList(out)))
 
 const fs = require("node:fs")
-fs.writeFile("./webpage/emoji.bin",new Uint8Array(out), () => {})
+fs.writeFile("./webpage/emoji.bin", new Uint8Array(out), () => {})

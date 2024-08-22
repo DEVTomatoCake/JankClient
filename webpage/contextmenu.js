@@ -35,7 +35,9 @@ class Contextmenu {
 			intext.classList.add("contextbutton")
 			intext.textContent = button.text
 			intext.disabled = !button.enabled(addinfo, other)
-			intext.onclick = button.onclick.bind(addinfo, other)
+			intext.addEventListener("click", event => {
+				button.onclick(event, addinfo, other)
+			})
 
 			div.appendChild(intext)
 		}

@@ -40,9 +40,9 @@ class Member {
 		return this.owner.info
 	}
 	/**
-	 * @param {User|memberjson|string} unknown
-	 * @param {Guild} guild
-	 * @returns {Promise<Member>}
+	 * @param {memberjson} memberjson
+	 * @param {Guild} owner
+	 * @returns {Promise<Member|undefined>}
 	 */
 	static async new(memberjson, owner) {
 		let user
@@ -64,8 +64,8 @@ class Member {
 		}
 	}
 	static async resolveMember(user, guild) {
-		const maybe = user.members.get(guild)
-		if (!user.members.has(guild)) {
+		const member = user.members.get(guild)
+		if (!member) {
 			const membpromise = guild.localuser.resolvemember(user.id, guild.id)
 			let resolve
 			const promise = new Promise(res => {
@@ -77,20 +77,20 @@ class Member {
 				resolve(void 0)
 				return
 			} else {
-				const member = new Member(membjson, guild)
+				const memb = new Member(membjson, guild)
 				const map = guild.localuser.presences
-				member.getPresence(map.get(member.id))
-				map.delete(member.id)
-				resolve(member)
-				return member
+				memb.setPresence(map.get(memb.id))
+				map.delete(memb.id)
+				resolve(memb)
+				return memb
 			}
 		}
 
-		if (maybe instanceof Promise) return await maybe
-		return maybe
+		if (member instanceof Promise) return await member
+		return member
 	}
-	getPresence(presence) {
-		this.user.getPresence(presence)
+	setPresence(presence) {
+		this.user.setPresence(presence)
 	}
 	async getMemberProfile() {
 		const res = await fetch(this.info.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + this.guild.id, {
@@ -98,8 +98,8 @@ class Member {
 		})
 		return await res.json()
 	}
-	hasRole(ID) {
-		return this.roles.some(role => role.id == ID)
+	hasRole(id) {
+		return this.roles.some(role => role.id == id)
 	}
 	getColor() {
 		if (!this.roles) return ""
@@ -145,8 +145,8 @@ class Member {
 		let deleteMessages = 0
 		let reason = ""
 		const dialog = new Dialog(["vdiv",
-			["textbox", "Reason:", "", function() {
-				reason = this.value
+			["textbox", "Reason:", "", event => {
+				reason = event.target.value
 			}],
 			["select",
 				"Delete messages:", ["Don't delete any", "1 minute", "5 minutes", "10 minutes", "30 minutes", "1 hour", "3 hours", "8 hours", "1 day", "3 days"], event => {

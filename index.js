@@ -11,7 +11,9 @@ const app = express()
 app.disable("x-powered-by")
 
 const compression = require("compression")
-app.use(compression())
+app.use(compression({
+	chunkSize: 1024 * 256
+}))
 
 app.use((req, res, next) => {
 	res.header("X-Frame-Options", "DENY")

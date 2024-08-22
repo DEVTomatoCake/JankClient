@@ -58,8 +58,8 @@ class Group extends Channel {
 		div.appendChild(myhtml)
 
 		div.all = this
-		div.addEventListener("click", function() {
-			this.all.getHTML()
+		div.addEventListener("click", () => {
+			div.all.getHTML()
 		})
 		return div
 	}

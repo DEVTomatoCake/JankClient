@@ -29,56 +29,56 @@ class Message {
 
 	static contextmenu = new Contextmenu()
 	static setupcmenu() {
-		Message.contextmenu.addbutton("Copy raw text", function() {
-			navigator.clipboard.writeText(this.content.rawString)
+		Message.contextmenu.addbutton("Copy raw text", (event, msg) => {
+			navigator.clipboard.writeText(msg.content.rawString)
 		})
-		Message.contextmenu.addbutton("Reply", function() {
-			this.channel.setReplying(this)
+		Message.contextmenu.addbutton("Reply", (event, msg) => {
+			msg.channel.setReplying(msg)
 		})
 
-		Message.contextmenu.addbutton("Copy message id", function() {
-			navigator.clipboard.writeText(this.id)
+		Message.contextmenu.addbutton("Copy message id", (event, msg) => {
+			navigator.clipboard.writeText(msg.id)
 		}, null, msg => msg.localuser.settings.developer_mode)
 
-		Message.contextmenu.addsubmenu("Add reaction", function(e) {
-			Emoji.emojiPicker(e.x, e.y, this.localuser).then(emoji => {
-				this.reactionToggle(emoji)
+		Message.contextmenu.addsubmenu("Add reaction", (event, msg) => {
+			Emoji.emojiPicker(event.x, event.y, msg.localuser).then(emoji => {
+				msg.reactionToggle(emoji)
 			})
 		})
 
-		Message.contextmenu.addsubmenu("Mark as unread", function() {
-			fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/ack", {
+		Message.contextmenu.addsubmenu("Mark as unread", (event, msg) => {
+			fetch(msg.info.api + "/channels/" + msg.channel.id + "/messages/" + msg.id + "/ack", {
 				method: "POST",
-				headers: this.headers,
+				headers: msg.headers,
 				body: JSON.stringify({
 					manual: true
 				})
 			})
-			this.channel.lastreadmessageid = this.snowflake
+			msg.channel.lastreadmessageid = msg.snowflake
 		}, null, msg => msg.channel.lastmessage.id != msg.id)
 
-		Message.contextmenu.addbutton("Edit", function() {
-			this.channel.editing = this
+		Message.contextmenu.addbutton("Edit", (event, msg) => {
+			msg.channel.editing = msg
 			const markdown = document.getElementById("typebox").markdown
-			markdown.txt = this.content.rawString.split("")
+			markdown.txt = msg.content.rawString.split("")
 			markdown.boxupdate(document.getElementById("typebox"))
 		}, null, m => m.author.id == m.localuser.user.id)
 
-		Message.contextmenu.addbutton("Delete message", function() {
-			this.delete()
+		Message.contextmenu.addbutton("Delete message", (event, msg) => {
+			msg.delete()
 		}, null, msg => msg.canDelete())
 
-		Message.contextmenu.addbutton("Pin message", function() {
-			fetch(this.info.api + "/channels/" + this.channel.id + "/pins/" + this.id, {
+		Message.contextmenu.addbutton("Pin message", (event, msg) => {
+			fetch(msg.info.api + "/channels/" + msg.channel.id + "/pins/" + msg.id, {
 				method: "PUT",
-				headers: this.headers,
+				headers: msg.headers,
 				body: JSON.stringify({})
 			})
 		}, null, msg => msg.channel.hasPermission("MANAGE_MESSAGES") && !msg.pinned)
-		Message.contextmenu.addbutton("Unpin message", function() {
-			fetch(this.info.api + "/channels/" + this.channel.id + "/pins/" + this.id, {
+		Message.contextmenu.addbutton("Unpin message", (event, msg) => {
+			fetch(msg.info.api + "/channels/" + msg.channel.id + "/pins/" + msg.id, {
 				method: "DELETE",
-				headers: this.headers,
+				headers: msg.headers,
 				body: JSON.stringify({})
 			})
 		}, null, msg => msg.channel.hasPermission("MANAGE_MESSAGES") && msg.pinned)

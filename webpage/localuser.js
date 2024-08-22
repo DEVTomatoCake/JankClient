@@ -53,6 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // eslint-disable-next-line no-unused-vars
 class LocalUser {
+	/**
+	 * @param {SpecialUser|-1} userinfo
+	 */
 	constructor(userinfo) {
 		if (userinfo == -1) return
 
@@ -73,6 +76,9 @@ class LocalUser {
 	connectionSucceed = 0
 	errorBackoff = 0
 
+	/**
+	 * @param {readyjson} ready
+	 */
 	gottenReady(ready) {
 		this.initialized = true
 		this.ready = ready
@@ -516,7 +522,7 @@ class LocalUser {
 		hr.classList.add("lightbr")
 		serverlist.appendChild(hr)
 
-		for (const guild of this.guilds) {
+		for (const guild of this.guildids.values()) {
 			if (guild instanceof Direct) {
 				guild.unreaddms()
 				continue
@@ -566,8 +572,8 @@ class LocalUser {
 					["textbox",
 						"Invite Link/Code",
 						"",
-						function() {
-							inviteurl = this.value
+						event => {
+							inviteurl = event.target.value
 						}
 					],
 					["html", inviteError],
@@ -719,20 +725,20 @@ class LocalUser {
 		this.unreads()
 	}
 	unreads() {
-		for (const thing of this.guilds) {
-			if (thing.id == "@me") continue
+		for (const guild of this.guildids.values()) {
+			if (guild.id == "@me") continue
 
-			thing.unreads(this.guildhtml.get(thing.id))
+			guild.unreads(this.guildhtml.get(guild.id))
 		}
 	}
 	typing = new Map()
 	async typingStart(typing) {
 		if (this.channelfocus.id == typing.d.channel_id) {
 			const guild = this.guildids.get(typing.d.guild_id)
-			const memb = await Member.new(typing.d.member, guild)
-			if (!memb || memb.id == this.user.id) return
+			const member = await Member.new(typing.d.member, guild)
+			if (!member || member.id == this.user.id) return
 
-			this.typing.set(memb, Date.now())
+			this.typing.set(member, Date.now())
 
 			this.rendertyping()
 			setTimeout(this.rendertyping.bind(this), 5000)
@@ -1013,11 +1019,11 @@ class LocalUser {
 					["title", "MFA set up"],
 					["text", "Copy this secret into your TOTP (time-based one time password) app, e.g. Authy or Google Authenticator"],
 					["text", "Your secret is: " + secret + " (Configuration: 6 digits, 30 second interval)"],
-					["textbox", "Account password:", "", function() {
-						password = this.value
+					["textbox", "Account password:", "", event => {
+						password = event.target.value
 					}],
-					["textbox", "TOTP Code:", "", function() {
-						code = this.value
+					["textbox", "TOTP Code:", "", event => {
+						code = event.target.value
 					}],
 					["button", "", "Enable MFA", () => {
 						fetch(this.info.api + "/users/@me/mfa/totp/enable", {
