@@ -249,6 +249,8 @@ class Message {
 		div.classList.remove("zeroheight")
 		div.innerHTML = ""
 
+		const compactLayout = this.localuser.settings.message_display_compact
+
 		const build = document.createElement("div")
 		build.classList.add("message", "flexltr")
 
@@ -318,12 +320,15 @@ class Message {
 
 			const line = document.createElement("hr")
 			line.classList.add("startreply")
+			replyline.appendChild(line)
 
 			const minipfp = document.createElement("img")
-			minipfp.alt = ""
-			minipfp.classList.add("replypfp")
-			replyline.appendChild(line)
-			replyline.appendChild(minipfp)
+			if (!compactLayout) {
+				minipfp.crossOrigin = "anonymous"
+				minipfp.alt = ""
+				minipfp.classList.add("replypfp")
+				replyline.appendChild(minipfp)
+			}
 
 			const username = document.createElement("span")
 			username.classList.add("username")
@@ -351,9 +356,11 @@ class Message {
 
 				reply.appendChild(message.content.makeHTML({stdsize: true}))
 
-				minipfp.crossOrigin = "anonymous"
-				minipfp.src = author.getpfpsrc()
-				author.contextMenuBind(minipfp, this.guild)
+				if (!compactLayout) {
+					minipfp.src = author.getpfpsrc()
+					author.contextMenuBind(minipfp, this.guild)
+				}
+
 				username.textContent = author.username
 				author.contextMenuBind(username, this.guild)
 			})
@@ -367,15 +374,17 @@ class Message {
 		if (this.type == 0 || this.type == 19 || this.attachments.length > 0) {
 			const pfpRow = document.createElement("div")
 			pfpRow.classList.add("flexltr", "pfprow")
+			if (compactLayout) pfpRow.classList.add("compact")
 
-			let pfpparent, current
+			let pfpparent
+			let current
 			if (premessage) {
 				pfpparent ??= premessage
 				let pfpparent2 = pfpparent.all
 				pfpparent2 ??= pfpparent
 				const old = new Date(pfpparent2.timestamp).getTime() / 1000
 				const next = new Date(this.timestamp).getTime() / 1000
-				current = (next - old) > 600
+				current = (next - old) > 60 * 8
 			}
 
 			const combine = premessage?.author?.snowflake != this.author.snowflake || current || this.message_reference
@@ -386,12 +395,12 @@ class Message {
 			} else div.pfpparent = pfpparent
 
 			build.appendChild(pfpRow)
+
 			const text = document.createElement("div")
 			text.classList.add("flexttb")
 
 			const texttxt = document.createElement("div")
 			texttxt.classList.add("flexttb", "commentrow")
-			text.appendChild(texttxt)
 
 			if (combine) {
 				const username = document.createElement("span")
@@ -419,10 +428,13 @@ class Message {
 				div.classList.add("topMessage")
 			} else div.classList.remove("topMessage")
 
-			const messaged = this.content.makeHTML()
-			div.txt = messaged
+			text.appendChild(texttxt)
+
 			const messagedwrap = document.createElement("div")
 			messagedwrap.classList.add("flexttb")
+
+			const messaged = this.content.makeHTML()
+			div.txt = messaged
 			if (this.edited_timestamp) {
 				const edited = document.createElement("small")
 				edited.classList.add("edited")
@@ -431,8 +443,8 @@ class Message {
 				messaged.appendChild(edited)
 			}
 			messagedwrap.appendChild(messaged)
-			texttxt.appendChild(messagedwrap)
 
+			texttxt.appendChild(messagedwrap)
 			build.appendChild(text)
 
 			if (this.attachments && this.attachments.length > 0) {

@@ -402,6 +402,9 @@ img {
 	width: 54px;
 	flex-shrink: 0 !important;
 }
+.pfprow.compact {
+	width: 22px;
+}
 
 .commentrow {
 	width: 100%;
@@ -2175,4 +2178,8 @@ small.edited {
 	flex-shrink: 1;
 	display: block;
 	padding: 0;
+}
+
+.settings .flexttb {
+	max-height: unset;
 }

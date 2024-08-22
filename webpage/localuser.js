@@ -938,9 +938,19 @@ class LocalUser {
 		})
 
 		const userSettings = settings.addButton("Account settings")
+
 		userSettings.addTextInput("Locale:", value => {
+			if (value == this.settings.locale) return
 			if (value.length != 5) return alert("Please use a valid locale code (e.g. en-US)")
 			this.updateSettings({locale: value})
+		}, { initText: this.settings.locale })
+
+		const status = ["online", "invisible", "idle", "dnd"]
+		userSettings.addSelect("Status:", value => {
+			if (value == this.settings.status) return
+			this.updateSettings({status: status[value]})
+		}, status, {
+			defaultIndex: status.indexOf(this.settings.status)
 		})
 
 		const tas = settings.addButton("Themes & sounds")

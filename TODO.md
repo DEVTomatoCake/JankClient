@@ -48,7 +48,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ❌ | status | string - one of: dnd┃idle┃invisible┃online
+| ⚙️ | status | string - one of: dnd┃idle┃invisible┃online
 | ⛔ | afk_timeout | integer | Where is this used?
 | 🗨️ | animate_emoji | boolean
 | ❌ | animate_stickers | integer | 0 = enabled, 1 = only on focus, 2 = disabled

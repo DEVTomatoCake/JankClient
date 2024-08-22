@@ -873,7 +873,7 @@ class Channel {
 		if (
 			messagez.author !== this.localuser.user &&
 			!this.guild.muted &&
-			!this.localuser.ready.d.relationships.some(relation => relation.id == messagez.author.id && relation.type == 2) &&
+			messagez.author.relationshipType != 2 &&
 			this.localuser.lookingguild.prevchannel !== this &&
 			!document.hasFocus() &&
 			(this.notification == "all" || (this.notification == "mentions" && messagez.mentionsuser(this.localuser.user)))

@@ -25,13 +25,13 @@ class User {
 					type: 2
 				})
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && !owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 2))
+		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType != 2)
 		this.contextmenu.addbutton("Unblock user", function() {
 			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 				method: "DELETE",
 				headers: this.localuser.headers
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 2))
+		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType == 2)
 
 		this.contextmenu.addbutton("Send friend request", function() {
 			fetch(this.info.api + "/users/@me/relationships", {
@@ -42,7 +42,7 @@ class User {
 					discriminator: this.discriminator
 				})
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && !owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id))
+		}, null, owner => owner.id != owner.localuser.user.id && !owner.relationshipType)
 		this.contextmenu.addbutton("Accept friend request", function() {
 			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 				method: "PUT",
@@ -51,20 +51,20 @@ class User {
 					type: 1
 				})
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 3))
+		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType == 3)
 
 		this.contextmenu.addbutton("Remove friend", function() {
 			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 				method: "DELETE",
 				headers: this.localuser.headers
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 1))
+		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType == 1)
 		this.contextmenu.addbutton("Revoke friend request", function() {
 			fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 				method: "DELETE",
 				headers: this.localuser.headers
 			})
-		}, null, owner => owner.id != owner.localuser.user.id && owner.localuser.ready.d.relationships.some(relation => relation.id == owner.id && relation.type == 4))
+		}, null, owner => owner.id != owner.localuser.user.id && owner.relationshipType == 4)
 
 		// Member context menu
 		this.contextmenu.addbutton("Change nickname", function() {
