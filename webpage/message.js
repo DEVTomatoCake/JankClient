@@ -21,6 +21,8 @@ const formatTime = (date, locale = "en-US", compactLayout = false) => {
 		" " + (locale == "de-DE" ? "um" : "at") + " " + makeTime(date)
 }
 
+const undeleteableTypes = new Set([1, 2, 3, 4, 5, 21])
+
 class Message {
 	static setup() {
 		this.del = new Promise(resolve => {
@@ -149,7 +151,7 @@ class Message {
 		snapBottom()
 	}
 	canDelete() {
-		return this.channel.hasPermission("MANAGE_MESSAGES") || this.author.snowflake === this.localuser.user.snowflake
+		return this.channel.hasPermission("MANAGE_MESSAGES") || this.author.snowflake === this.localuser.user.snowflake || undeleteableTypes.has(this.type)
 	}
 	get channel() {
 		return this.owner
@@ -484,7 +486,7 @@ class Message {
 
 			const messaged = document.createElement("span")
 			div.txt = messaged
-			messaged.textContent = "welcome: "
+			messaged.textContent = "Welcome new member: "
 			texttxt.appendChild(messaged)
 
 			const username = document.createElement("span")
