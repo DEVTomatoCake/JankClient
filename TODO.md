@@ -178,14 +178,14 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ⚙️ | splash | string┃null
 | ✅ | description | string
 | ✅ | features | [string] | Can only modify COMMUNITY, INVITES_DISABLED, DISCOVERABLE
-| ❌ | verification_level | integer
-| ❌ | default_message_notifications | integer
+| ✅ | verification_level | integer
+| ✅ | default_message_notifications | integer
 | ❌ | system_channel_flags | integer
-| ❌ | explicit_content_filter | integer
+| ✅ | explicit_content_filter | integer
 | ❌ | public_updates_channel_id | string
 | ❌ | afk_timeout | integer
 | ❌ | afk_channel_id | string
-| ❌ | preferred_locale | string
+| ✅ | preferred_locale | string
 | ⚙️ | premium_progress_bar_enabled | boolean
 | ✅ | discovery_splash | string
 | ✅ | icon | string┃null

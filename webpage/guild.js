@@ -121,32 +121,72 @@ class Guild {
 				else discoverySplashFile = null
 			})
 
+			const verificationLevels = [
+				"None: unrestricted",
+				"Low: must have verified email on the account",
+				"Medium: must be registered on the Spacebar instance for longer than 5 minutes",
+				"High: must be a member of the server for longer than 10 minutes",
+				"Very high: must have a verified phone number"
+			]
+			guildSettings.addSelect("Verification level", value => {
+				this.updateSettings({verification_level: value})
+			}, verificationLevels, {
+				defaultIndex: this.properties.verification_level
+			})
+
+			const messageNotifs = [
+				"All messages: members will receive notifications for all messages by default",
+				"Mentions only: members will receive notifications only for messages that @mention them by default"
+			]
+			guildSettings.addSelect("Default message notifications", value => {
+				this.updateSettings({default_message_notifications: value})
+			}, messageNotifs, {
+				defaultIndex: this.properties.default_message_notifications
+			})
+
+			const contentFilter = [
+				"Disabled: media content will not be scanned",
+				"Members without roles: media content sent by members without roles will be scanned",
+				"All members: media content sent by all members will be scanned"
+			]
+			guildSettings.addSelect("Default message notifications", value => {
+				this.updateSettings({default_message_notifications: value})
+			}, contentFilter, {
+				defaultIndex: this.properties.default_message_notifications
+			})
+
 			guildSettings.addCheckboxInput("Enable premium (boost level) progress bar", value => {
 				if (value != this.properties.premium_progress_bar_enabled) this.updateSettings({premium_progress_bar_enabled: value})
 			}, { initState: this.properties.premium_progress_bar_enabled })
+
+			guildSettings.addTextInput("Preferred locale", value => {
+				if (value == this.properties.preferred_locale) return
+				if (value.length != 5) return alert("Please use a valid locale code (e.g. en-US)")
+				this.updateSettings({preferred_locale: value})
+			}, { initText: this.properties.locale })
+
+			const guildFeatures = settings.addButton("Guild features")
+			const features = [
+				...(this.properties.features.includes("COMMUNITY") ? ["COMMUNITY"] : []),
+				...(this.properties.features.includes("INVITES_DISABLED") ? ["INVITES_DISABLED"] : []),
+				...(this.properties.features.includes("DISCOVERABLE") ? ["DISCOVERABLE"] : [])
+			]
+
+			guildFeatures.addCheckboxInput("Enable community", value => {
+				if (value) features.push("COMMUNITY")
+				else features.splice(features.indexOf("COMMUNITY"), 1)
+
+				this.updateSettings({features})
+			}, { initState: features.includes("COMMUNITY") })
+			guildFeatures.addCheckboxInput("Disable all server invites", value => {
+				if (value) features.push("INVITES_DISABLED")
+				else features.splice(features.indexOf("INVITES_DISABLED"), 1)
+			}, { initState: features.includes("INVITES_DISABLED") })
+			guildFeatures.addCheckboxInput("Show server in Guild discovery", value => {
+				if (value) features.push("DISCOVERABLE")
+				else features.splice(features.indexOf("DISCOVERABLE"), 1)
+			}, { initState: features.includes("DISCOVERABLE") })
 		}
-
-		const guildFeatures = settings.addButton("Guild features")
-		const features = [
-			...(this.properties.features.includes("COMMUNITY") ? ["COMMUNITY"] : []),
-			...(this.properties.features.includes("INVITES_DISABLED") ? ["INVITES_DISABLED"] : []),
-			...(this.properties.features.includes("DISCOVERABLE") ? ["DISCOVERABLE"] : [])
-		]
-
-		guildFeatures.addCheckboxInput("Enable community", value => {
-			if (value) features.push("COMMUNITY")
-			else features.splice(features.indexOf("COMMUNITY"), 1)
-
-			this.updateSettings({features})
-		}, { initState: features.includes("COMMUNITY") })
-		guildFeatures.addCheckboxInput("Disable all server invites", value => {
-			if (value) features.push("INVITES_DISABLED")
-			else features.splice(features.indexOf("INVITES_DISABLED"), 1)
-		}, { initState: features.includes("INVITES_DISABLED") })
-		guildFeatures.addCheckboxInput("Show server in Guild discovery", value => {
-			if (value) features.push("DISCOVERABLE")
-			else features.splice(features.indexOf("DISCOVERABLE"), 1)
-		}, { initState: features.includes("DISCOVERABLE") })
 
 		const roles = settings.addButton("Roles")
 		const permlist = []
