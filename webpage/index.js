@@ -101,11 +101,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 		showAccountSwitcher()
 	})
 
-	Array.from(document.getElementsByClassName("theme-icon"))
-		.forEach(async elem => {
-			elem.appendChild(await LocalUser.loadSVG(elem.getAttribute("data-icon")))
-		})
-
 	document.getElementById("settings").addEventListener("click", () => {
 		thisuser.showusersettings()
 	})
@@ -176,7 +171,21 @@ typebox.addEventListener("keyup", event => {
 		event.preventDefault()
 
 		let content = markdown.rawString.trim()
-			.replace(/:([-+\w]+):/g, (match, p1) => Emoji.emojisFlat.some(emoji => emoji.slug == p1) ? Emoji.emojisFlat.find(emoji => emoji.slug == p1).emoji : match)
+			.replace(/:([-+\w]+):/g, (match, p1) => {
+				let found = Emoji.emojisFlat.find(emoji => emoji.slug == p1)
+				if (!found) {
+					found = Emoji.emojisFlat.find(emoji => emoji.slug == p1.replace(/(_medium)?_(dark|light|medium)_skin_tone$/, ""))
+					if (found) {
+						if (p1.endsWith("_medium_light_skin_tone")) return found.emoji + "🏼"
+						if (p1.endsWith("_medium_dark_skin_tone")) return found.emoji + "🏽"
+						if (p1.endsWith("_medium_skin_tone")) return found.emoji + "🏾"
+						if (p1.endsWith("_light_skin_tone")) return found.emoji + "🏻"
+						if (p1.endsWith("_dark_skin_tone")) return found.emoji + "🏿"
+					}
+				}
+
+				return found ? found.emoji : match
+			})
 
 		if (thisuser.settings.convert_emoticons)
 			Object.keys(emojiConversions).forEach(emoji => {
@@ -211,12 +220,13 @@ typebox.addEventListener("keydown", event => {
 })
 
 document.addEventListener("paste", event => {
-	Array.from(event.clipboardData.files).forEach(f => {
-		const file = Attachment.initFromBlob(f)
-		event.preventDefault()
-		const html = file.upHTML(images, f)
+	event.preventDefault()
+
+	Array.from(event.clipboardData.files).forEach(file => {
+		const attachment = Attachment.initFromBlob(file)
+		const html = attachment.upHTML(images, file)
 		document.getElementById("pasteimage").appendChild(html)
-		images.push(f)
+		images.push(file)
 	})
 })
 
