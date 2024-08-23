@@ -203,21 +203,20 @@ class Guild {
 				this.updateSettings({features})
 			}, { initState: features.includes("DISCOVERABLE") })
 
-			/*fetch(this.info.api + "/guilds/" + this.id + "/widget", {
+			/*const widgetRes = await fetch(this.info.api + "/guilds/" + this.id + "/widget", {
 				headers: this.headers
-			}).then(async res => {
-				const json = await res.json()
-				const widget = settings.addButton("Widget")
+			})
+			const widgetJson = await widgetRes.json()
 
-				let newWidget = json
-				widget.addCheckboxInput("Enable widget", value => {
-					newWidget.enabled = value
-				}, { initState: json.enabled })
-				widget.addCheckboxInput("Widget channel", value => {
-					newWidget.channel_id = value
-					this.updateWidget(newWidget)
-				}, { initChannel: json.channel_id })
-			})*/
+			const widget = settings.addButton("Widget")
+			let newWidget = widgetJson
+			widget.addCheckboxInput("Enable widget", value => {
+				newWidget.enabled = value
+			}, { initState: widgetJson.enabled })
+			widget.addCheckboxInput("Widget channel", value => {
+				newWidget.channel_id = value
+				this.updateWidget(newWidget)
+			}, { initChannel: widgetJson.channel_id })*/
 		}
 
 		const roles = settings.addButton("Roles")
@@ -226,6 +225,23 @@ class Guild {
 			permlist.push([role.snowflake, role.permissions])
 		}
 		roles.options.push(new RoleList(permlist, this, this.updateRolePermissions.bind(this)))
+
+		/*const emojis = settings.addButton("Emojis")
+		const emojiHTML = emojis.addHTMLArea(() => {
+			const container = document.createElement("div")
+
+			this.emojis.forEach(emoji => {
+				const emojiDiv = document.createElement("div")
+				emojiDiv.classList.add("emoji-container")
+
+				const img = document.createElement("img")
+				img.crossOrigin = "anonymous"
+				img.src = this.info.cdn + "/emojis/" + emoji.id + "." + (emoji.animated ? "gif" : "png")
+				img.alt = emoji.name
+				emojiDiv.appendChild(img)
+
+				const
+		})*/
 
 		settings.show()
 	}

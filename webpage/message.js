@@ -385,7 +385,7 @@ class Message {
 				current = (next - old) > 60 * 8
 			}
 
-			const combine = premessage?.author?.snowflake != this.author.snowflake || current || this.message_reference
+			const combine = current || this.message_reference || premessage?.author?.snowflake != this.author.snowflake || (premessage?.type != 0 && premessage?.type != 19)
 			if (combine || compactLayout) {
 				const pfp = this.author.buildpfp()
 				this.author.contextMenuBind(pfp, this.guild, false)
