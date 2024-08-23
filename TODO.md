@@ -400,7 +400,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | 21 | THREAD_STARTER_MESSAGE
 | ❌ | 22 | GUILD_INVITE_REMINDER
 | ❌ | 23 | CONTEXT_MENU_COMMAND
-| ❌ | 24 | AUTO_MODERATION_ACTION*
+| ❌ | 24 | AUTO_MODERATION_ACTION
 | ❌ | 25 | ROLE_SUBSCRIPTION_PURCHASE
 | ❌ | 26 | INTERACTION_PREMIUM_UPSELL
 | ❌ | 27 | STAGE_START
@@ -413,8 +413,6 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | 38 | GUILD_INCIDENT_REPORT_RAID
 | ❌ | 39 | GUILD_INCIDENT_REPORT_FALSE_ALARM
 | ❌ | 44 | PURCHASE_NOTIFICATION
-
-* Can only be deleted by members with `MANAGE_MESSAGES` permission
 
 ## Gateway events
 
@@ -430,8 +428,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | GUILD_CREATE
 | ❌ | GUILD_UPDATE
 | ✅ | GUILD_DELETE
-| ❌ | GUILD_BAN_ADD
-| ❌ | GUILD_BAN_REMOVE
+| ⛔ | GUILD_BAN_ADD | Not needed
+| ⛔ | GUILD_BAN_REMOVE | Not needed
 | ❌ | GUILD_EMOJIS_UPDATE
 | ❌ | GUILD_STICKERS_UPDATE
 | ❌ | GUILD_INTEGRATIONS_UPDATE
@@ -452,8 +450,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | MESSAGE_DELETE_BULK
 | ✅ | MESSAGE_REACTION_ADD
 | ✅ | MESSAGE_REACTION_REMOVE
-| ❌ | MESSAGE_REACTION_REMOVE_ALL
-| ❌ | MESSAGE_REACTION_REMOVE_EMOJI
+| ✅ | MESSAGE_REACTION_REMOVE_ALL
+| ✅ | MESSAGE_REACTION_REMOVE_EMOJI
 | ❌ | PRESENCE_UPDATE
 | ✅ | TYPING_START
 | ✅ | USER_UPDATE

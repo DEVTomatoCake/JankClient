@@ -34,9 +34,8 @@ class SnowFlake {
 		this.SnowFlakes = new Map()
 	}
 	static getSnowFlakeFromID(id, type) {
-		if (!SnowFlake.SnowFlakes.get(type)) {
-			SnowFlake.SnowFlakes.set(type, new Map())
-		}
+		if (!SnowFlake.SnowFlakes.get(type)) SnowFlake.SnowFlakes.set(type, new Map())
+
 		const snowflake = SnowFlake.SnowFlakes.get(type).get(id)
 		if (snowflake) {
 			const obj = snowflake.deref()

@@ -151,7 +151,7 @@ class Message {
 		snapBottom()
 	}
 	canDelete() {
-		return this.channel.hasPermission("MANAGE_MESSAGES") || this.author.snowflake === this.localuser.user.snowflake || undeleteableTypes.has(this.type)
+		return !undeleteableTypes.has(this.type) && (this.channel.hasPermission("MANAGE_MESSAGES") || (this.author.snowflake === this.localuser.user.snowflake && this.type != 24))
 	}
 	get channel() {
 		return this.owner
@@ -546,28 +546,29 @@ class Message {
 
 		snapBottom()
 	}
-	giveReaction(data, member) {
-		for (const thing of this.reactions) {
-			if ((thing.emoji.id && thing.emoji.id == data.id) || (!thing.emoji.id && thing.emoji.name == data.name)) {
-				thing.count++
-				if (member.id == this.localuser.user.id) {
-					thing.me = true
+	reactionAdd(emoji, userId) {
+		for (const reaction of this.reactions) {
+			if ((reaction.emoji.id && reaction.emoji.id == emoji.id) || (!reaction.emoji.id && reaction.emoji.name == emoji.name)) {
+				reaction.count++
+				if (userId.id == this.localuser.user.id) {
+					reaction.me = true
 					this.updateReactions()
 					return
 				}
 			}
 		}
+
 		this.reactions.push({
 			count: 1,
-			emoji: data,
-			me: member.id == this.localuser.user.id
+			emoji,
+			me: userId.id == this.localuser.user.id
 		})
 		this.updateReactions()
 	}
-	takeReaction(data, id) {
+	reactionRemove(emoji, userId) {
 		for (const i in this.reactions) {
 			const thing = this.reactions[i]
-			if ((thing.emoji.id && thing.emoji.id == data.id) || (!thing.emoji.id && thing.emoji.name == data.name)) {
+			if ((thing.emoji.id && thing.emoji.id == emoji.id) || (!thing.emoji.id && thing.emoji.name == emoji.name)) {
 				thing.count--
 				if (thing.count == 0) {
 					this.reactions.splice(i, 1)
@@ -575,11 +576,25 @@ class Message {
 					return
 				}
 
-				if (this.localuser.user.id == id) {
+				if (this.localuser.user.id == userId) {
 					thing.me = false
 					this.updateReactions()
 					return
 				}
+			}
+		}
+	}
+	reactionRemoveAll() {
+		this.reactions = []
+		this.updateReactions()
+	}
+	reactionRemoveEmoji(emoji) {
+		for (const i in this.reactions) {
+			const thing = this.reactions[i]
+			if ((thing.emoji.id && thing.emoji.id == emoji.id) || (!thing.emoji.id && thing.emoji.name == emoji.name)) {
+				this.reactions.splice(i, 1)
+				this.updateReactions()
+				break
 			}
 		}
 	}

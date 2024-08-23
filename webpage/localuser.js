@@ -351,7 +351,7 @@ class LocalUser {
 						let thing
 						if (json.d.member) thing = await Member.new(json.d.member, guild)
 						else thing = { id: json.d.user_id }
-						messageReactionAdd.giveReaction(json.d.emoji, thing)
+						messageReactionAdd.reactionAdd(json.d.emoji, thing)
 					}
 					break
 				case "MESSAGE_ACK":
@@ -375,7 +375,19 @@ class LocalUser {
 				case "MESSAGE_REACTION_REMOVE":
 					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
 						const messageReactionRemove = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
-						messageReactionRemove.takeReaction(json.d.emoji, json.d.user_id)
+						messageReactionRemove.reactionRemove(json.d.emoji, json.d.user_id)
+					}
+					break
+				case "MESSAGE_REACTION_REMOVE_ALL":
+					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
+						const messageReactionRemoveAll = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+						messageReactionRemoveAll.reactionRemoveAll()
+					}
+					break
+				case "MESSAGE_REACTION_REMOVE_EMOJI":
+					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
+						const messageReactionRemoveEmoji = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+						messageReactionRemoveEmoji.reactionRemoveEmoji(json.d.emoji)
 					}
 					break
 				case "TYPING_START":
