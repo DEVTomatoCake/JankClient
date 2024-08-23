@@ -23,10 +23,6 @@ class Channel {
 			channel.deleteChannel()
 		}, null, channel => channel.isAdmin())
 
-		this.contextmenu.addbutton("Edit channel", (event, channel) => {
-			channel.editChannel()
-		}, null, channel => channel.isAdmin())
-
 		this.contextmenu.addbutton("Make invite", (event, channel) => {
 			channel.createInvite()
 		}, null, channel => channel.hasPermission("CREATE_INSTANT_INVITE") && channel.type != 4)
@@ -95,11 +91,39 @@ class Channel {
 			["html", div]
 		]).show()
 	}
-	generateSettings() {
-		this.sortPerms()
+	async generateSettings() {
 		const settings = new Settings("Settings for " + this.name)
-		const s1 = settings.addButton("Roles")
-		s1.options.push(new RoleList(this.permission_overwritesar, this.guild, this.updateRolePermissions.bind(this), true))
+
+		const channelSettings = settings.addButton("Channel settings")
+		const newSettings = {}
+
+		channelSettings.addTextInput("Name", value => {
+			if (value.trim() && this.name.trim() != value.trim() && value.length <= 100) newSettings.name = value.trim()
+		}, { initText: this.name })
+		const topicBox = channelSettings.addMDInput("Channel topic", () => {}, { initText: this.topic ? this.topic.rawString : "" })
+		topicBox.watchForChange(value => {
+			newSettings.topic = value
+		})
+		channelSettings.addCheckboxInput("NSFW", value => {
+			if (this.nsfw != value) newSettings.nsfw = value.trim()
+		}, { initState: this.nsfw })
+
+		if (this.type == 2) {
+			const regionsRes = await fetch(this.info.api + "/voice/regions", {
+				headers: this.headers
+			})
+			const regions = await regionsRes.json()
+
+			channelSettings.addSelect("Region", value => {
+				newSettings.rtc_region = regions[value].id
+			}, regions.map(region => region.name + (region.optimal ? " (optimal)" : "")),
+				{ defaultIndex: regions.findIndex(region => region.id == this.rtc_region) })
+		}
+
+		const roles = settings.addButton("Roles")
+		this.sortPerms()
+		roles.options.push(new RoleList(this.permission_overwritesar, this.guild, this.updateRolePermissions.bind(this), true))
+
 		settings.show()
 	}
 	sortPerms() {
@@ -157,6 +181,15 @@ class Channel {
 		this.messageids = new Map()
 		this.topic = json.topic
 		this.nsfw = json.nsfw
+		this.rtc_region = json.rtc_region
+		this.bitrate = json.bitrate
+		this.user_limit = json.user_limit
+		this.rate_limit_per_user = json.rate_limit_per_user
+		this.default_auto_archive_duration = json.default_auto_archive_duration
+		this.default_reaction_emoji = json.default_reaction_emoji
+		this.default_thread_rate_limit_per_user = json.default_thread_rate_limit_per_user
+		this.flags = json.flags
+		this.video_quality_mode = json.video_quality_mode
 		this.position = json.position
 		this.lastreadmessageid = null
 		this.lastmessageid = json.last_message_id ? SnowFlake.getSnowFlakeFromID(json.last_message_id, Message) : null
@@ -466,46 +499,6 @@ class Channel {
 				permission_overwrites: []
 			})
 		})
-	}
-	editChannel() {
-		let name = this.name
-		let topic = this.topic
-		let nsfw = this.nsfw
-		const thisid = this.id
-		const thistype = this.type
-		const full = new Dialog(
-			["hdiv",
-				["vdiv",
-					["textbox", "Channel name:", this.name, event => {
-						name = event.target.value
-					}],
-					["mdbox", "Channel topic:", this.topic, event => {
-						topic = event.target.value
-					}],
-					["checkbox", "NSFW Channel", this.nsfw, event => {
-						nsfw = event.target.checked
-					}],
-					["button", "", "submit", () => {
-						fetch(this.info.api + "/channels/" + thisid, {
-							method: "PATCH",
-							headers: this.headers,
-							body: JSON.stringify({
-								name,
-								type: thistype,
-								topic,
-								nsfw/*,
-								bitrate: 64000,
-								user_limit: 0,
-								flags: 0,
-								rate_limit_per_user: 0*/
-							})
-						})
-						full.hide()
-					}]
-				]
-
-			])
-		full.show()
 	}
 	deleteChannel() {
 		if (confirm("Do you really want to delete the channel \"" + this.name + "\"?")) fetch(this.info.api + "/channels/" + this.id, {

@@ -311,7 +311,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
 | ✅ | name | string: Constraints: Max 100 chars
-| ❌ | type | number: Allowed: 0┃1┃10┃11┃12┃13┃14┃15┃2┃255┃3┃33┃34┃35┃4┃5┃6┃64┃7┃8┃9
+| ❌ | type | number: Allowed: 0┃1┃10┃11┃12┃13┃14┃15┃2┃255┃3┃33┃34┃35┃4┃5┃6┃64┃7┃8┃9 | Which conversion is possible?
 | ✅ | topic | string
 | ❌ | icon | string┃null
 | ❌ | bitrate | integer
@@ -319,9 +319,9 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | rate_limit_per_user | integer
 | ✅ | position | integer | Handled by the `positions` endpoint
 | 🟨 | permission_overwrites | array of object: id*: string, type*: number (Allowed: 0┃1┃2), allow*: string, deny*: string
-| ⛔ | parent_id | string | Handled by the position endpoint
+| ✅ | parent_id | string | Handled by the `positions` endpoint
 | ✅ | nsfw | boolean
-| ❌ | rtc_region | string
+| ✅ | rtc_region | string
 | ❌ | default_auto_archive_duration | integer
 | ❌ | default_reaction_emoji | string┃null
 | ❌ | flags | integer
