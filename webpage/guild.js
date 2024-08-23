@@ -78,11 +78,15 @@ class Guild {
 
 		if (this.member.hasPermission("MANAGE_GUILD")) {
 			const guildSettings = settings.addButton("Server settings")
+			const newSettings = {}
+
 			guildSettings.addTextInput("Name", value => {
-				if (value.trim() && this.properties.name.trim() != value.trim()) this.updateSettings({name: value.trim()})
+				if (value.trim() && this.properties.name.trim() != value.trim()) newSettings.name = value.trim()
+
+				this.updateSettings(newSettings)
 			}, { initText: this.properties.name })
 			guildSettings.addTextInput("Description", value => {
-				if (value.trim() && this.properties.description?.trim() != value.trim()) this.updateSettings({description: value.trim()})
+				if (value.trim() && this.properties.description?.trim() != value.trim()) newSettings.description = value.trim()
 			}, { initText: this.properties.description || "" })
 
 			let iconFile
@@ -129,7 +133,7 @@ class Guild {
 				"Very high: must have a verified phone number"
 			]
 			guildSettings.addSelect("Verification level", value => {
-				this.updateSettings({verification_level: value})
+				if (value != this.properties.verification_level) newSettings.verification_level = value
 			}, verificationLevels, {
 				defaultIndex: this.properties.verification_level
 			})
@@ -139,7 +143,7 @@ class Guild {
 				"Mentions only: members will receive notifications only for messages that @mention them by default"
 			]
 			guildSettings.addSelect("Default message notifications", value => {
-				this.updateSettings({default_message_notifications: value})
+				if (value != this.properties.default_message_notifications) newSettings.default_message_notifications = value
 			}, messageNotifs, {
 				defaultIndex: this.properties.default_message_notifications
 			})
@@ -150,22 +154,22 @@ class Guild {
 				"All members: media content sent by all members will be scanned"
 			]
 			guildSettings.addSelect("Default message notifications", value => {
-				this.updateSettings({default_message_notifications: value})
+				if (value != this.properties.default_message_notifications) newSettings.default_message_notifications = value
 			}, contentFilter, {
 				defaultIndex: this.properties.default_message_notifications
 			})
 
 			guildSettings.addCheckboxInput("Enable premium (boost level) progress bar", value => {
-				if (value != this.properties.premium_progress_bar_enabled) this.updateSettings({premium_progress_bar_enabled: value})
+				if (value != this.properties.premium_progress_bar_enabled) newSettings.premium_progress_bar_enabled = value
 			}, { initState: this.properties.premium_progress_bar_enabled })
 
 			guildSettings.addTextInput("Preferred locale", value => {
 				if (value == this.properties.preferred_locale) return
 				if (value.length != 5) return alert("Please use a valid locale code (e.g. en-US)")
-				this.updateSettings({preferred_locale: value})
+				newSettings.preferred_locale = value
 			}, { initText: this.properties.locale })
 
-			const guildFeatures = settings.addButton("Guild features")
+			const guildFeatures = settings.addButton("Server features")
 			const features = [
 				...(this.properties.features.includes("COMMUNITY") ? ["COMMUNITY"] : []),
 				...(this.properties.features.includes("INVITES_DISABLED") ? ["INVITES_DISABLED"] : []),
@@ -182,10 +186,15 @@ class Guild {
 				if (value) features.push("INVITES_DISABLED")
 				else features.splice(features.indexOf("INVITES_DISABLED"), 1)
 			}, { initState: features.includes("INVITES_DISABLED") })
-			guildFeatures.addCheckboxInput("Show server in Guild discovery", value => {
+			guildFeatures.addCheckboxInput("Show server in Server discovery", value => {
 				if (value) features.push("DISCOVERABLE")
 				else features.splice(features.indexOf("DISCOVERABLE"), 1)
 			}, { initState: features.includes("DISCOVERABLE") })
+
+			/*const guildWidget = settings.addButton("Widget")
+			guildWidget.addCheckboxInput("Enable widget", value => {
+				if (value != )
+			}, { initState: this.properties. })*/
 		}
 
 		const roles = settings.addButton("Roles")
