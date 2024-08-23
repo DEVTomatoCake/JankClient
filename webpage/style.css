@@ -147,7 +147,7 @@
 	--button-bg: color-mix(in srgb, #b7b7c7 80%, var(--accent-color));
 	--button-hover: #FFF;
 
-	--channels-bg: color-mix(in srgb, #e4e4e9 75%, var(--accent-color));
+	--channels-bg: color-mix(in srgb, #ededf1 75%, var(--accent-color));
 	--channel-hover: color-mix(in srgb, #cbcbd8 70%, var(--accent-color));
 	--channel-active: #bdbbc9;
 
@@ -160,6 +160,7 @@
 	--server-border: color-mix(in srgb, #c2c2ce 80%, var(--accent-color));
 	--server-bg: color-mix(in srgb, #c0c0d4 80%, var(--accent-color));
 	--server-name-bg: #a3a3b5;
+	--server-list: color-mix(in srgb, #dfdfe6 90%, var(--accent-color));
 	--discovery-bg: #c8c8d4;
 
 	--reply-border: #b1b2bd;
@@ -1127,7 +1128,7 @@ span {
 	transform: translate(-50%, -50%);
 	max-height: 80vh;
 	overflow: auto;
-	border:solid var(--black) .035in;
+	border: solid var(--black) .035in;
 	z-index: 102;
 }
 
@@ -1137,7 +1138,7 @@ span {
 	cursor: pointer;
 }
 .switchtable:hover {
-	background:var(--profile-info-bg);
+	background: var(--profile-info-bg);
 }
 
 .serverURL {
@@ -1923,7 +1924,7 @@ small.edited {
 }
 
 #settings {
-	width: .225in;
+	width: 20px;
 	margin: .05in;
 }
 
@@ -1933,7 +1934,7 @@ small.edited {
 }
 
 .emojirow {
-	flex-grow:0;
+	flex-grow: 0;
 }
 
 #invitebody {

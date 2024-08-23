@@ -73,17 +73,15 @@ class Guild {
 		}, null, g => g.properties.owner_id == g.member.user.id)
 	}
 
-	generateSettings() {
+	async generateSettings() {
 		const settings = new Settings("Settings for " + this.properties.name)
 
 		if (this.member.hasPermission("MANAGE_GUILD")) {
-			const guildSettings = settings.addButton("Server settings")
+			const guildSettings = settings.addButton("Settings")
 			const newSettings = {}
 
 			guildSettings.addTextInput("Name", value => {
 				if (value.trim() && this.properties.name.trim() != value.trim()) newSettings.name = value.trim()
-
-				this.updateSettings(newSettings)
 			}, { initText: this.properties.name })
 			guildSettings.addTextInput("Description", value => {
 				if (value.trim() && this.properties.description?.trim() != value.trim()) newSettings.description = value.trim()
@@ -138,6 +136,17 @@ class Guild {
 				defaultIndex: this.properties.verification_level
 			})
 
+			/*const contentFilter = [
+				"Disabled: media content will not be scanned",
+				"Members without roles: media content sent by members without roles will be scanned",
+				"All members: media content sent by all members will be scanned"
+			]
+			guildSettings.addSelect("Explicit content filter", value => {
+				if (value != this.properties.explicit_content_filter) newSettings.explicit_content_filter = value
+			}, contentFilter, {
+				defaultIndex: this.properties.explicit_content_filter
+			})*/
+
 			const messageNotifs = [
 				"All messages: members will receive notifications for all messages by default",
 				"Mentions only: members will receive notifications only for messages that @mention them by default"
@@ -148,26 +157,29 @@ class Guild {
 				defaultIndex: this.properties.default_message_notifications
 			})
 
-			const contentFilter = [
-				"Disabled: media content will not be scanned",
-				"Members without roles: media content sent by members without roles will be scanned",
-				"All members: media content sent by all members will be scanned"
-			]
-			guildSettings.addSelect("Default message notifications", value => {
-				if (value != this.properties.default_message_notifications) newSettings.default_message_notifications = value
-			}, contentFilter, {
-				defaultIndex: this.properties.default_message_notifications
-			})
-
 			guildSettings.addCheckboxInput("Enable premium (boost level) progress bar", value => {
 				if (value != this.properties.premium_progress_bar_enabled) newSettings.premium_progress_bar_enabled = value
 			}, { initState: this.properties.premium_progress_bar_enabled })
 
 			guildSettings.addTextInput("Preferred locale", value => {
-				if (value == this.properties.preferred_locale) return
-				if (value.length != 5) return alert("Please use a valid locale code (e.g. en-US)")
-				newSettings.preferred_locale = value
-			}, { initText: this.properties.locale })
+				if (value != this.properties.preferred_locale) {
+					if (value.length != 5) return alert("Please use a valid locale code (e.g. en-US)")
+					newSettings.preferred_locale = value
+				}
+
+				if (Object.keys(newSettings).length > 0) this.updateSettings(newSettings)
+			}, { initText: this.properties.preferred_locale })
+
+			if (this.properties.features.includes("VANITY_URL")) {
+				const vanityRes = await fetch(this.info.api + "/guilds/" + this.id + "/vanity-url", {
+					headers: this.headers
+				})
+				const vanityJson = await vanityRes.json()
+
+				guildSettings.addTextInput("Vanity URL", value => {
+					if (value != vanityJson.code) this.updateVanity(value)
+				}, { initText: vanityJson.code || "" })
+			}
 
 			const guildFeatures = settings.addButton("Server features")
 			const features = [
@@ -179,8 +191,6 @@ class Guild {
 			guildFeatures.addCheckboxInput("Enable community", value => {
 				if (value) features.push("COMMUNITY")
 				else features.splice(features.indexOf("COMMUNITY"), 1)
-
-				this.updateSettings({features})
 			}, { initState: features.includes("COMMUNITY") })
 			guildFeatures.addCheckboxInput("Disable all server invites", value => {
 				if (value) features.push("INVITES_DISABLED")
@@ -189,12 +199,25 @@ class Guild {
 			guildFeatures.addCheckboxInput("Show server in Server discovery", value => {
 				if (value) features.push("DISCOVERABLE")
 				else features.splice(features.indexOf("DISCOVERABLE"), 1)
+
+				this.updateSettings({features})
 			}, { initState: features.includes("DISCOVERABLE") })
 
-			/*const guildWidget = settings.addButton("Widget")
-			guildWidget.addCheckboxInput("Enable widget", value => {
-				if (value != )
-			}, { initState: this.properties. })*/
+			/*fetch(this.info.api + "/guilds/" + this.id + "/widget", {
+				headers: this.headers
+			}).then(async res => {
+				const json = await res.json()
+				const widget = settings.addButton("Widget")
+
+				let newWidget = json
+				widget.addCheckboxInput("Enable widget", value => {
+					newWidget.enabled = value
+				}, { initState: json.enabled })
+				widget.addCheckboxInput("Widget channel", value => {
+					newWidget.channel_id = value
+					this.updateWidget(newWidget)
+				}, { initChannel: json.channel_id })
+			})*/
 		}
 
 		const roles = settings.addButton("Roles")
@@ -682,7 +705,7 @@ class Guild {
 		])
 		profileDialog.show()
 	}
-	async updateSettings(json) {
+	updateSettings(json) {
 		fetch(this.info.api + "/guilds/" + this.id, {
 			method: "PATCH",
 			headers: this.headers,
@@ -711,6 +734,20 @@ class Guild {
 				})
 			})
 		}
+	}
+	updateWidget(json) {
+		fetch(this.info.api + "/guilds/" + this.id + "/widget", {
+			method: "PATCH",
+			headers: this.headers,
+			body: JSON.stringify(json)
+		})
+	}
+	updateVanity(code) {
+		fetch(this.info.api + "/guilds/" + this.id + "/vanity-url", {
+			method: "PATCH",
+			headers: this.headers,
+			body: JSON.stringify({ code })
+		})
 	}
 }
 

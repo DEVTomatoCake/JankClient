@@ -198,8 +198,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ❌ | enabled* | boolean
-| ❌ | channel_id* | string
+| 🟨 | enabled* | boolean
+| 🟨 | channel_id* | string
 
 #### Welcome screen
 

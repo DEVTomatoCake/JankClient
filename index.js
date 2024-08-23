@@ -132,7 +132,9 @@ app.use("/", async (req, res) => {
 	if (reqPath == "register") return res.sendFile(path.join(__dirname, "webpage", "register.html"))
 	if (/^connections[\w-]{1,64}callback$/.test(reqPath)) return res.sendFile(path.join(__dirname, "webpage", "connections.html"))
 
-	if (req.query.instance && reqPath.startsWith("invite")) {
+	if (reqPath.startsWith("invite")) {
+		if (!req.query.instance) return res.status(400).send("No instance query parameter provided!")
+
 		if (needsEmbed(req.get("User-Agent"))) await inviteres(res, reqPath, req.query)
 		else res.sendFile(path.join(__dirname, "webpage", "invite.html"))
 		return

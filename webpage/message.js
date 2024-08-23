@@ -259,9 +259,9 @@ class Message {
 			if (ignoredblock) {
 				if (premessage?.author !== this.author) {
 					const span = document.createElement("span")
-					span.textContent = "You have this user blocked, click to hide these messages."
-					div.append(span)
 					span.classList.add("blocked")
+					span.textContent = "You have blocked this user, click to hide these messages."
+					div.append(span)
 					span.onclick = () => {
 						const scroll = this.channel.infinite.scrollTop
 						let next = this
@@ -290,7 +290,7 @@ class Message {
 					}
 
 					const span = document.createElement("span")
-					span.textContent = "You have this user blocked, click to see " + count + " blocked messages."
+					span.textContent = "You have blocked this user, click to show " + count + " blocked messages."
 					span.onclick = () => {
 						const scroll = this.channel.infinite.scrollTop
 						const func = this.channel.infinite.snapBottom()

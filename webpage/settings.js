@@ -61,6 +61,7 @@ class CheckboxInput {
 		div.append(label)
 
 		const input = document.createElement("input")
+		input.id = this.elemId
 		input.type = "checkbox"
 		input.checked = this.value
 		input.oninput = this.onChange.bind(this)
