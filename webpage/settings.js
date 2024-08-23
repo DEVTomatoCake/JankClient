@@ -1,73 +1,9 @@
 "use strict"
 
-class PermissionToggle {
-	constructor(roleJSON, permissions, owner) {
-		this.rolejson = roleJSON
-		this.permissions = permissions
-		this.owner = owner
-	}
-	generateHTML() {
-		const div = document.createElement("div")
-		div.classList.add("setting")
-
-		const name = document.createElement("span")
-		name.textContent = this.rolejson.readableName
-		name.classList.add("settingsname")
-		div.append(name)
-		div.append(this.generateCheckbox())
-
-		const p = document.createElement("p")
-		p.innerText = this.rolejson.description
-		div.appendChild(p)
-		return div
-	}
-	generateCheckbox() {
-		const div = document.createElement("div")
-		div.classList.add("tritoggle")
-		const state = this.permissions.getPermission(this.rolejson.name)
-
-		const on = document.createElement("input")
-		on.type = "radio"
-		on.name = this.rolejson.name
-		div.append(on)
-		if (state == 1) on.checked = true
-
-		on.addEventListener("click", () => {
-			this.permissions.setPermission(this.rolejson.name, 1)
-			this.owner.changed()
-		})
-		const no = document.createElement("input")
-		no.type = "radio"
-		no.name = this.rolejson.name
-		div.append(no)
-		if (state == 0) no.checked = true
-
-		no.addEventListener("click", () => {
-			this.permissions.setPermission(this.rolejson.name, 0)
-			this.owner.changed()
-		})
-
-		if (this.permissions.hasDeny) {
-			const off = document.createElement("input")
-			off.type = "radio"
-			off.name = this.rolejson.name
-			div.append(off)
-			if (state == -1) off.checked = true
-
-			off.addEventListener("click", () => {
-				this.permissions.setPermission(this.rolejson.name, -1)
-				this.owner.changed()
-			})
-		}
-		return div
-	}
-	submit() {}
-}
-
 class TextInput {
 	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5), initText = "" } = {}) {
 		this.label = label
-		this.textContent = initText
+		this.value = initText
 		this.owner = owner
 		this.onSubmit = onSubmit
 		this.elemId = id
@@ -82,7 +18,7 @@ class TextInput {
 
 		const input = document.createElement("input")
 		input.id = this.elemId
-		input.value = this.textContent
+		input.value = this.value
 		input.type = "text"
 		input.oninput = this.onChange.bind(this)
 		this.input = new WeakRef(input)
@@ -92,23 +28,69 @@ class TextInput {
 	}
 	onChange() {
 		this.owner.changed()
-		const value = this.input.deref().value
-		this.onchange(value)
-		this.textContent = value
+		const input = this.input.deref()
+		if (input) {
+			const value = input.value
+			this.onchange(value)
+			this.value = value
+		}
 	}
 	onchange = () => {}
 	watchForChange(func) {
 		this.onchange = func
 	}
 	submit() {
-		this.onSubmit(this.textContent)
+		this.onSubmit(this.value)
+	}
+}
+
+class CheckboxInput {
+	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5), initState = false } = {}) {
+		this.label = label
+		this.value = initState
+		this.owner = owner
+		this.onSubmit = onSubmit
+		this.elemId = id
+	}
+	generateHTML() {
+		const div = document.createElement("div")
+
+		const label = document.createElement("label")
+		label.setAttribute("for", this.elemId)
+		label.textContent = this.label
+		div.append(label)
+
+		const input = document.createElement("input")
+		input.type = "checkbox"
+		input.checked = this.value
+		input.oninput = this.onChange.bind(this)
+		this.input = new WeakRef(input)
+		div.append(input)
+
+		return div
+	}
+	onChange() {
+		this.owner.changed()
+		const input = this.input.deref()
+		if (input) {
+			const value = input.checked
+			this.onchange(value)
+			this.value = value
+		}
+	}
+	onchange = () => {}
+	watchForChange(func) {
+		this.onchange = func
+	}
+	submit() {
+		this.onSubmit(this.value)
 	}
 }
 
 class MDInput {
 	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5), initText = "" } = {}) {
 		this.label = label
-		this.textContent = initText
+		this.value = initText
 		this.owner = owner
 		this.onSubmit = onSubmit
 		this.elemId = id
@@ -125,7 +107,7 @@ class MDInput {
 
 		const input = document.createElement("textarea")
 		input.id = this.elemId
-		input.value = this.textContent
+		input.value = this.value
 		input.oninput = this.onChange.bind(this)
 		this.input = new WeakRef(input)
 		div.append(input)
@@ -134,16 +116,20 @@ class MDInput {
 	}
 	onChange() {
 		this.owner.changed()
-		const value = this.input.deref().value
-		this.onchange(value)
-		this.textContent = value
+		const input = this.input.deref()
+		if (input) {
+			const value = input.value
+			this.value = value
+			this.onchange(value)
+			this.colorContent = value
+		}
 	}
 	onchange = () => {}
 	watchForChange(func) {
 		this.onchange = func
 	}
 	submit() {
-		this.onSubmit(this.textContent)
+		this.onSubmit(this.value)
 	}
 }
 
@@ -155,6 +141,9 @@ class SelectInput {
 		this.onSubmit = onSubmit
 		this.options = options
 		this.elemId = id
+	}
+	get value() {
+		return this.index
 	}
 	generateHTML() {
 		const div = document.createElement("div")
@@ -180,9 +169,12 @@ class SelectInput {
 	}
 	onChange() {
 		this.owner.changed()
-		const value = this.select.deref().selectedIndex
-		this.onchange(value)
-		this.index = value
+		const select = this.select.deref()
+		if (select) {
+			const value = select.selectedIndex
+			this.onchange(value)
+			this.index = value
+		}
 	}
 	onchange = () => {}
 	watchForChange(func) {
@@ -194,11 +186,12 @@ class SelectInput {
 }
 
 class FileInput {
-	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5)} = {}) {
+	constructor(label, onSubmit, owner, { clear = false, id = "random-" + Math.random().toString(36).slice(5) } = {}) {
 		this.label = label
 		this.owner = owner
 		this.onSubmit = onSubmit
 		this.elemId = id
+		this.clear = clear
 	}
 	generateHTML() {
 		const div = document.createElement("div")
@@ -215,18 +208,34 @@ class FileInput {
 		this.input = new WeakRef(input)
 		div.append(input)
 
+		if (this.clear) {
+			const button = document.createElement("button")
+			button.textContent = "Clear"
+			button.onclick = () => {
+				if (this.onchange) this.onchange([])
+				this.value = null
+				this.owner.changed()
+			}
+			div.append(button)
+		}
+
 		return div
 	}
 	onChange() {
 		this.owner.changed()
-		if (this.onchange) this.onchange(this.input.deref().files)
+		const input = this.input.deref()
+		if (this.onchange && input) {
+			this.value = input.files
+			this.onchange(input.files)
+		}
 	}
 	onchange = null
 	watchForChange(func) {
 		this.onchange = func
 	}
 	submit() {
-		this.onSubmit(this.input.deref().files)
+		const input = this.input.deref()
+		if (input) this.onSubmit(input.files)
 	}
 }
 
@@ -239,6 +248,7 @@ class HtmlArea {
 		if (this.html instanceof Function) return this.html()
 		return this.html
 	}
+	watchForChange() {}
 }
 
 class ButtonInput {
@@ -333,8 +343,8 @@ class Options {
 		this.options.push(select)
 		return select
 	}
-	addFileInput(label, onSubmit) {
-		const FI = new FileInput(label, onSubmit, this)
+	addFileInput(label, onSubmit, { clear = false } = {}) {
+		const FI = new FileInput(label, onSubmit, this, { clear })
 		this.options.push(FI)
 		return FI
 	}
@@ -363,6 +373,12 @@ class Options {
 		this.options.push(htmlarea)
 		return htmlarea
 	}
+	addCheckboxInput(label, onSubmit, { initState = false } = {}) {
+		const box = new CheckboxInput(label, onSubmit, this, { initState })
+		this.options.push(box)
+		return box
+	}
+	html = new WeakMap()
 	generateHTML() {
 		const div = document.createElement("div")
 		div.classList.add("titlediv")
@@ -380,7 +396,13 @@ class Options {
 		const spacingContainer = document.createElement("div")
 		spacingContainer.classList.add("settings-space")
 		for (const thing of this.options) {
-			spacingContainer.append(thing.generateHTML())
+			const divd = document.createElement("div")
+			if (!(thing instanceof Options)) divd.classList.add("optionElement")
+
+			const html = thing.generateHTML()
+			divd.append(html)
+			this.html.set(thing, new WeakRef(divd))
+			spacingContainer.append(divd)
 		}
 		container.append(spacingContainer)
 
@@ -388,7 +410,8 @@ class Options {
 		return div
 	}
 	changed() {
-		if (this.owner instanceof Options) {
+		// eslint-disable-next-line no-use-before-define
+		if (this.owner instanceof Options || this.owner instanceof Form) {
 			this.owner.changed()
 			return
 		}
@@ -415,6 +438,7 @@ class Options {
 			})
 		}
 	}
+	watchForChange() {}
 	submit() {
 		this.haschanged = false
 		for (const thing of this.options) thing.submit()
@@ -474,43 +498,9 @@ class Buttons {
 		this.warndiv = html
 		this.buttonList.parentElement.append(html)
 	}
+	watchForChange() {}
 	save() {}
 	submit() {}
-}
-
-// eslint-disable-next-line no-unused-vars
-class RoleList extends Buttons {
-	constructor(permissions, guild, onchange, channel = false) {
-		super("Roles")
-		this.guild = guild
-		this.permissions = permissions
-		this.channel = channel
-		this.onchange = onchange
-
-		const options = new Options("", this)
-		if (channel) this.permission = new Permissions("0", "0")
-		else this.permission = new Permissions("0")
-
-		for (const thing of Permissions.info) {
-			options.addPermissionToggle(thing, this.permission)
-		}
-		for (const i of permissions) {
-			this.buttons.push([i[0].getObject().name, i[0].id])
-		}
-		this.options = options
-	}
-	handleString(str) {
-		this.curid = str
-		const perm = this.permissions.find(p => p[0].id == str)[1]
-		this.permission.deny = perm.deny
-		this.permission.allow = perm.allow
-		this.options.name = SnowFlake.getSnowFlakeFromID(str, Role).getObject().name
-		this.options.haschanged = false
-		return this.options.generateHTML()
-	}
-	save() {
-		this.onchange(this.curid, this.permission)
-	}
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -549,5 +539,114 @@ class Settings extends Buttons {
 		this.html.close()
 		this.html.remove()
 		this.html = null
+	}
+}
+
+class Form {
+	required = new WeakSet()
+	constructor(name, owner, onSubmit, { ltr = false, submitText = "Submit", fetchURL = "", headers = {}, method = "POST" } = {}) {
+		this.name = name
+		this.method = method
+		this.submitText = submitText
+		this.options = new Options("", this, { ltr })
+		this.owner = owner
+		this.fetchURL = fetchURL
+		this.headers = headers
+		this.ltr = ltr
+		this.onSubmit = onSubmit
+	}
+	addSelect(label, formName, selections, { defaultIndex = 0, required = false } = {}) {
+		const select = this.options.addSelect(label, () => {}, selections, { defaultIndex })
+		this.names.set(formName, select)
+		if (required) this.required.add(select)
+	}
+	addFileInput(label, formName, { required = false } = {}) {
+		const FI = this.options.addFileInput(label, () => {}, {})
+		this.names.set(formName, FI)
+		if (required) this.required.add(FI)
+	}
+	addTextInput(label, formName, { initText = "", required = false } = {}) {
+		const textInput = this.options.addTextInput(label, () => {}, { initText })
+		this.names.set(formName, textInput)
+		if (required) this.required.add(textInput)
+	}
+	addColorInput(label, formName, { initColor = "", required = false } = {}) {
+		const colorInput = this.options.addColorInput(label, () => {}, { initColor })
+		this.names.set(formName, colorInput)
+		if (required) this.required.add(colorInput)
+	}
+	addMDInput(label, formName, { initText = "", required = false } = {}) {
+		const mdInput = this.options.addMDInput(label, () => {}, { initText })
+		this.names.set(formName, mdInput)
+		if (required) this.required.add(mdInput)
+	}
+	addCheckboxInput(label, formName, { initState = false, required = false } = {}) {
+		const box = this.options.addCheckboxInput(label, () => {}, { initState })
+		this.names.set(formName, box)
+		if (required) this.required.add(box)
+	}
+	generateHTML() {
+		const div = document.createElement("div")
+		div.append(this.options.generateHTML())
+		const button = document.createElement("button")
+		button.onclick = () => {
+			this.submit()
+		}
+		button.textContent = this.submitText
+		div.append(button)
+		return div
+	}
+	onSubmit
+	watchForChange(func) {
+		this.onSubmit = func
+	}
+
+	changed() {}
+	submit() {
+		const build = {}
+		for (const thing of this.names.keys()) {
+			const input = this.names.get(thing)
+			build[thing] = input.value
+		}
+		if (this.fetchURL === "") {
+			fetch(this.fetchURL, {
+				method: this.method,
+				body: JSON.stringify(build)
+			}).then(_ => _.json()).then(json => {
+				if (json.errors) {
+					this.errors(json.errors)
+				}
+			})
+		} else {
+			this.onSubmit(build)
+		}
+		console.warn("needs to be implemented")
+	}
+	errors(errors) {
+		for (const error of errors) {
+			const elm = this.names.get(error)
+			if (elm) {
+				const ref = this.options.html.get(elm)
+				if (ref && ref.deref()) {
+					const html = ref.deref()
+					this.makeError(html, error._errors[0].message)
+				}
+			}
+		}
+	}
+	makeError(e, message) {
+		let element = e.getElementsByClassName("suberror")[0]
+		if (element) {
+			element.classList.remove("suberror")
+			setTimeout(() => {
+				element.classList.add("suberror")
+			}, 100)
+		} else {
+			const div = document.createElement("div")
+			div.classList.add("suberror", "suberrora")
+			e.append(div)
+			element = div
+		}
+		element.textContent = message
 	}
 }

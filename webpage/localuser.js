@@ -601,28 +601,22 @@ class LocalUser {
 			["Create server",
 				["vdiv",
 					["title", "Create a server"],
-					["fileupload", "Icon:", function(event) {
-							const reader = new FileReader()
-							const target = event.target
-							reader.readAsDataURL(target.files[0])
-							reader.onload = () => {
-								fields.icon = reader.result
-							}
-						}],
-					["textbox", "Name:", "", function(event) {
-							const target = event.target
-							fields.name = target.value
-						}],
-					["button", "", "submit", () => {
-							this.makeGuild(fields).then(_ => {
-								if (_.message) {
-									alert(_.errors.name._errors[0].message)
-								} else {
-									full.hide()
-								}
-							})
+					["fileupload", "Icon:", event => {
+						const reader = new FileReader()
+						reader.readAsDataURL(event.target.files[0])
+						reader.onload = () => {
+							fields.icon = reader.result
 						}
-					]
+					}],
+					["textbox", "Name:", "", event => {
+						fields.name = event.target.value
+					}],
+					["button", "", "submit", () => {
+						this.makeGuild(fields).then(_ => {
+							if (_.message) alert(_.errors.name._errors[0].message)
+							else full.hide()
+						})
+					}]
 				]
 			]
 		]])
@@ -664,15 +658,15 @@ class LocalUser {
 		const guilds = document.createElement("div")
 		guilds.id = "discovery-guild-content"
 
-		json.guildids.values().forEach(guild => {
+		json.guilds.forEach(guild => {
 			const content = document.createElement("div")
 			content.classList.add("discovery-guild")
 
-			if (guild.banner) {
+			if (guild.discovery_splash) {
 				const banner = document.createElement("img")
 				banner.classList.add("banner")
 				banner.crossOrigin = "anonymous"
-				banner.src = this.info.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256"
+				banner.src = this.info.cdn + "/discovery-splashes/" + guild.id + "/" + guild.discovery_splash + ".png?size=256"
 				banner.alt = ""
 				banner.loading = "lazy"
 				content.appendChild(banner)
@@ -763,7 +757,7 @@ class LocalUser {
 			document.getElementById("typing-plural").textContent = typingUsers.length > 1 ? "are" : "is"
 		} else document.getElementById("typing").classList.add("hidden")
 	}
-	updatepfp(file) {
+	updateProfileImage(property = "", file = null) {
 		if (file) {
 			const reader = new FileReader()
 			reader.readAsDataURL(file)
@@ -772,7 +766,7 @@ class LocalUser {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({
-						avatar: reader.result
+						[property]: reader.result
 					})
 				})
 			}
@@ -781,30 +775,7 @@ class LocalUser {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
-					avatar: null
-				})
-			})
-		}
-	}
-	updatebanner(file) {
-		if (file) {
-			const reader = new FileReader()
-			reader.readAsDataURL(file)
-			reader.onload = () => {
-				fetch(this.info.api + "/users/@me", {
-					method: "PATCH",
-					headers: this.headers,
-					body: JSON.stringify({
-						banner: reader.result
-					})
-				})
-			}
-		} else {
-			fetch(this.info.api + "/users/@me", {
-				method: "PATCH",
-				headers: this.headers,
-				body: JSON.stringify({
-					banner: null
+					[property]: null
 				})
 			})
 		}
@@ -856,44 +827,36 @@ class LocalUser {
 		const profileRight = userOptions.addOptions("")
 		profileRight.addHTMLArea(hypotheticalProfile)
 
-		const finput = profileLeft.addFileInput("Upload avatar:", () => {
-			if (avatarFile) this.updatepfp(avatarFile)
-		})
-		finput.watchForChange(value => {
+		const avatarInput = profileLeft.addFileInput("Upload avatar:", () => {
+			if (avatarFile) this.updateProfileImage("avatar", avatarFile)
+		}, { clear: true })
+		avatarInput.watchForChange(value => {
 			if (value.length > 0) {
 				avatarFile = value[0]
 				const blob = URL.createObjectURL(avatarFile)
 				hypouser.avatar = blob
-				hypouser.hypotheticalpfp = true
-				regen()
+			} else {
+				avatarFile = null
+				hypouser.avatar = null
 			}
-		})
-
-		profileLeft.addButtonInput("Clear avatar", "Clear", () => {
-			avatarFile = null
-			hypouser.avatar = void 0
-			profileLeft.changed()
+			hypouser.hypotheticalpfp = true
 			regen()
 		})
 
 		let bannerFile
-		const binput = profileLeft.addFileInput("Upload banner:", () => {
-			if (bannerFile !== void 0) this.updatebanner(bannerFile)
-		})
-		binput.watchForChange(value => {
+		const bannerInput = profileLeft.addFileInput("Upload banner:", () => {
+			if (bannerFile !== void 0) this.updateProfileImage("banner", bannerFile)
+		}, { clear: true })
+		bannerInput.watchForChange(value => {
 			if (value.length > 0) {
 				bannerFile = value[0]
 				const blob = URL.createObjectURL(bannerFile)
 				hypouser.banner = blob
-				hypouser.hypotheticalbanner = true
-				regen()
+			} else {
+				bannerFile = null
+				hypouser.banner = null
 			}
-		})
-
-		profileLeft.addButtonInput("Clear banner", "Clear", () => {
-			bannerFile = null
-			hypouser.banner = void 0
-			profileLeft.changed()
+			hypouser.hypotheticalbanner = true
 			regen()
 		})
 

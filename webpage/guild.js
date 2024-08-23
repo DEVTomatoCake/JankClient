@@ -11,7 +11,7 @@ class Guild {
 			guild.markAsRead()
 		})
 
-		Guild.contextmenu.addbutton("Create Invite", async (event, guild) => {
+		Guild.contextmenu.addbutton("Create invite", async (event, guild) => {
 			if (Object.keys(guild.channelids).length == 0) return alert("No channels to create invite for")
 
 			let res = await fetch(guild.info.api + "/channels/" + (guild.prevchannel ? guild.prevchannel.id : Object.keys(guild.channelids)[0]) + "/invites", {
@@ -28,7 +28,7 @@ class Guild {
 				console.error("Unable to create invite", json)
 			}
 
-			const full = new Dialog(["vdiv",
+			const dialog = new Dialog(["vdiv",
 				["html", inviteCreateError],
 				["button",
 					"",
@@ -49,7 +49,7 @@ class Guild {
 					}
 				]
 			])
-			full.show()
+			dialog.show()
 		})
 
 		Guild.contextmenu.addbutton("Settings", (event, guild) => {
@@ -72,17 +72,97 @@ class Guild {
 			guild.confirmDelete()
 		}, null, g => g.properties.owner_id == g.member.user.id)
 	}
+
 	generateSettings() {
 		const settings = new Settings("Settings for " + this.properties.name)
-		const s1 = settings.addButton("roles")
-		const permlist = []
-		for (const thing of this.roles) {
-			permlist.push([thing.snowflake, thing.permissions])
+
+		if (this.member.hasPermission("MANAGE_GUILD")) {
+			const guildSettings = settings.addButton("Server settings")
+			guildSettings.addTextInput("Name", value => {
+				if (value.trim() && this.properties.name.trim() != value.trim()) this.updateSettings({name: value.trim()})
+			}, { initText: this.properties.name })
+			guildSettings.addTextInput("Description", value => {
+				if (value.trim() && this.properties.description?.trim() != value.trim()) this.updateSettings({description: value.trim()})
+			}, { initText: this.properties.description || "" })
+
+			let iconFile
+			const iconInput = guildSettings.addFileInput("Upload icon:", () => {
+				if (iconFile !== void 0) this.updateGuildImage("icon", iconFile)
+			}, { clear: true })
+			iconInput.watchForChange(value => {
+				if (value.length > 0) iconFile = value[0]
+				else iconFile = null
+			})
+
+			let bannerFile
+			const bannerInput = guildSettings.addFileInput("Upload banner:", () => {
+				if (bannerFile !== void 0) this.updateGuildImage("banner", bannerFile)
+			}, { clear: true })
+			bannerInput.watchForChange(value => {
+				if (value.length > 0) bannerFile = value[0]
+				else bannerFile = null
+			})
+
+			let splashFile
+			const splashInput = guildSettings.addFileInput("Upload splash:", () => {
+				if (splashFile !== void 0) this.updateGuildImage("splash", splashFile)
+			}, { clear: true })
+			splashInput.watchForChange(value => {
+				if (value.length > 0) splashFile = value[0]
+				else splashFile = null
+			})
+
+			let discoverySplashFile
+			const discoverySplashInput = guildSettings.addFileInput("Upload discovery splash:", () => {
+				if (discoverySplashFile !== void 0) this.updateGuildImage("discovery_splash", discoverySplashFile)
+			}, { clear: true })
+			discoverySplashInput.watchForChange(value => {
+				if (value.length > 0) discoverySplashFile = value[0]
+				else discoverySplashFile = null
+			})
+
+			guildSettings.addCheckboxInput("Enable premium (boost level) progress bar", value => {
+				if (value != this.properties.premium_progress_bar_enabled) this.updateSettings({premium_progress_bar_enabled: value})
+			}, { initState: this.properties.premium_progress_bar_enabled })
 		}
-		s1.options.push(new RoleList(permlist, this, this.updateRolePermissions.bind(this)))
+
+		const guildFeatures = settings.addButton("Guild features")
+		const features = [
+			...(this.properties.features.includes("COMMUNITY") ? ["COMMUNITY"] : []),
+			...(this.properties.features.includes("INVITES_DISABLED") ? ["INVITES_DISABLED"] : []),
+			...(this.properties.features.includes("DISCOVERABLE") ? ["DISCOVERABLE"] : [])
+		]
+
+		guildFeatures.addCheckboxInput("Enable community", value => {
+			if (value) features.push("COMMUNITY")
+			else features.splice(features.indexOf("COMMUNITY"), 1)
+
+			this.updateSettings({features})
+		}, { initState: features.includes("COMMUNITY") })
+		guildFeatures.addCheckboxInput("Disable all server invites", value => {
+			if (value) features.push("INVITES_DISABLED")
+			else features.splice(features.indexOf("INVITES_DISABLED"), 1)
+		}, { initState: features.includes("INVITES_DISABLED") })
+		guildFeatures.addCheckboxInput("Show server in Guild discovery", value => {
+			if (value) features.push("DISCOVERABLE")
+			else features.splice(features.indexOf("DISCOVERABLE"), 1)
+		}, { initState: features.includes("DISCOVERABLE") })
+
+		const roles = settings.addButton("Roles")
+		const permlist = []
+		for (const role of this.roles) {
+			permlist.push([role.snowflake, role.permissions])
+		}
+		roles.options.push(new RoleList(permlist, this, this.updateRolePermissions.bind(this)))
+
 		settings.show()
 	}
 
+	/**
+	 * @param {guildjson|-1} json
+	 * @param {LocalUser} owner
+	 * @param {memberjson|User|null} member
+	 */
 	constructor(json, owner, member) {
 		if (json == -1 || member === null) return
 
@@ -552,6 +632,36 @@ class Guild {
 			]
 		])
 		profileDialog.show()
+	}
+	async updateSettings(json) {
+		fetch(this.info.api + "/guilds/" + this.id, {
+			method: "PATCH",
+			headers: this.headers,
+			body: JSON.stringify(json)
+		})
+	}
+	updateGuildImage(property = "", file = null) {
+		if (file) {
+			const reader = new FileReader()
+			reader.readAsDataURL(file)
+			reader.onload = () => {
+				fetch(this.info.api + "/guilds/" + this.id, {
+					method: "PATCH",
+					headers: this.headers,
+					body: JSON.stringify({
+						[property]: reader.result
+					})
+				})
+			}
+		} else {
+			fetch(this.info.api + "/guilds/" + this.id, {
+				method: "PATCH",
+				headers: this.headers,
+				body: JSON.stringify({
+					[property]: null
+				})
+			})
+		}
 	}
 }
 

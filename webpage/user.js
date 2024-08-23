@@ -170,11 +170,10 @@ class User {
 
 		const prom = this.getUserProfile()
 		this.resolvingBadge = prom
-		await prom
+		const resolved = await prom
 
-		const badges = prom.badges
 		this.resolvingBadge = false
-		for (const badge of badges) {
+		for (const badge of resolved.badges) {
 			this.localuser.badges.set(badge.id, badge)
 		}
 		return this.localuser.badges.get(id)
@@ -243,9 +242,9 @@ class User {
 		for (const thing of document.getElementsByClassName("userid:" + this.id)) thing.src = this.getpfpsrc()
 	}
 	getpfpsrc() {
-		if (this.hypotheticalpfp) return this.avatar
+		if (this.hypotheticalpfp && this.avatar) return this.avatar
 
-		if (this.avatar === null) return this.info.cdn + "/embed/avatars/" + ((this.id >>> 22) % 6) + ".png?size=64"
+		if (this.avatar === null) return this.info.cdn + "/embed/avatars/" + ((this.id.replace("#clone", "") >>> 22) % 6) + ".png?size=64"
 		return this.info.cdn + "/avatars/" + this.id.replace("#clone", "") + "/" + this.avatar + ".png?size=64"
 	}
 	async buildprofile(x, y, guild) {
@@ -442,7 +441,7 @@ class User {
 		return new User(await res.json(), localuser)
 	}
 	block() {
-		fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
+		fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 			method: "PUT",
 			headers: this.owner.headers,
 			body: JSON.stringify({
@@ -450,6 +449,7 @@ class User {
 			})
 		})
 		this.relationshipType = 2
+
 		const channel = this.localuser.channelfocus
 		if (channel) {
 			for (const thing of channel.messages) {
@@ -458,11 +458,12 @@ class User {
 		}
 	}
 	unblock() {
-		fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
+		fetch(this.info.api + "/users/@me/relationships/" + this.id, {
 			method: "DELETE",
 			headers: this.owner.headers
 		})
 		this.relationshipType = 0
+
 		const channel = this.localuser.channelfocus
 		if (channel) {
 			for (const thing of channel.messages) {

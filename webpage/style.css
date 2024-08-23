@@ -897,6 +897,7 @@ button:hover, button:focus {
 input[type="file"] {
 	background-color: transparent;
 	box-shadow: none;
+	width: min-content;
 }
 
 select {
@@ -1302,7 +1303,7 @@ span {
 
 .discovery-guild {
 	width: 220px;
-	height: 175px;
+	height: 185px;
 	margin: 5px;
 	padding: 5px;
 	background: var(--discovery-bg);
@@ -1317,12 +1318,15 @@ span {
 }
 
 .discovery-guild .banner {
-	width: 215px;
+	position: relative;
+	opacity: 1;
+	width: 220px;
+	border-radius: 5px;
 }
 
 .discovery-guild p {
 	overflow-wrap: anywhere;
-	max-width: 215px;
+	max-width: 220px;
 }
 
 .date-separator {
@@ -2197,4 +2201,10 @@ small.edited {
 
 .topMessage.compact {
 	margin-top: 0;
+}
+
+.optionElement {
+	margin-top: 10px;
+	border-radius: .03in;
+	box-shadow: .01in .01in .1in #00000059;
 }

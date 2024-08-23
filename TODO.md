@@ -173,11 +173,11 @@ List of properties which should be editable somewhere, and handled if necessary 
 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
-| ❌ | name | string
-| ❌ | banner | string┃null
-| ❌ | splash | string┃null
-| ❌ | description | string
-| ❌ | features | [string]
+| ✅ | name | string
+| ⚙️ | banner | string┃null
+| ⚙️ | splash | string┃null
+| ✅ | description | string
+| ✅ | features | [string] | Can only modify COMMUNITY, INVITES_DISABLED, DISCOVERABLE
 | ❌ | verification_level | integer
 | ❌ | default_message_notifications | integer
 | ❌ | system_channel_flags | integer
@@ -186,10 +186,9 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ❌ | afk_timeout | integer
 | ❌ | afk_channel_id | string
 | ❌ | preferred_locale | string
-| ❌ | premium_progress_bar_enabled | boolean
-| ❌ | discovery_splash | string
-| ❌ | icon | string┃null
-| ❌ | region | string
+| ⚙️ | premium_progress_bar_enabled | boolean
+| ✅ | discovery_splash | string
+| ✅ | icon | string┃null
 | ❌ | system_channel_id | string
 | ❌ | rules_channel_id | string
 

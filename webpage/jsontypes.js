@@ -124,7 +124,7 @@
  * @property {string} discriminator
  * @property {string} id
  * @property {number} public_flags
- * @property {string} avatar
+ * @property {string|null} avatar
  * @property {string} accent_color
  * @property {string} banner
  * @property {string} bio

@@ -37,6 +37,9 @@ const global = {
 	User: "writable",
 	Settings: "writable",
 	SnowFlake: "writable",
+	Buttons: "writable",
+	Options: "writable",
+	PermissionToggle: "writable",
 
 	thisuser: "writable",
 	setTheme: "writeable",
