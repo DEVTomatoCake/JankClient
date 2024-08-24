@@ -6,11 +6,11 @@ const view = new DataView(buffer, 0)
 let i = 0
 
 const write16 = numb => {
-	view.setUint16(i,numb)
+	view.setUint16(i, numb)
 	i += 2
 }
 const write8 = numb => {
-	view.setUint8(i,numb)
+	view.setUint8(i, numb)
 	i += 1
 }
 

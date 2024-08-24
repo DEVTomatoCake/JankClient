@@ -73,7 +73,7 @@
 	--button-bg: color-mix(in srgb, #303030 80%, var(--accent-color));
 	--button-hover: #282832;
 
-	--channels-bg: color-mix(in srgb,#2a2a2a 90%, var(--accent-color));
+	--channels-bg: color-mix(in srgb, #2a2a2a 90%, var(--accent-color));
 	--channel-hover: color-mix(in srgb, #121212 70%, var(--accent-color));
 	--channel-active: #4e4e55;
 

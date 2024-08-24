@@ -1,12 +1,12 @@
 "use strict"
 
-const buttonStyles = {
-	1: "primary",
-	2: "secondary",
-	3: "success",
-	4: "danger",
-	5: "url"
-}
+const buttonStyles = [
+	"primary",
+	"secondary",
+	"success",
+	"danger",
+	"url"
+]
 
 // eslint-disable-next-line no-unused-vars
 class Component {
@@ -85,7 +85,7 @@ class Component {
 		const buttonElement = document.createElement("button")
 
 		if (component.disabled) buttonElement.disabled = true
-		if (component.style) buttonElement.classList.add("b-" + buttonStyles[component.style])
+		if (component.style) buttonElement.classList.add("b-" + buttonStyles[component.style - 1])
 
 		if (component.emoji) {
 			if (component.emoji.id) {

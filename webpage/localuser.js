@@ -3,8 +3,8 @@
 const supportsCompression = "DecompressionStream" in window
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
-let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-while (chars.length < 256) chars += chars
+let charsSecret = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+while (charsSecret.length < 256) charsSecret += charsSecret
 
 let fixsvgtheme
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,14 +14,14 @@ document.addEventListener("DOMContentLoaded", () => {
 	document.body.append(dud)
 	const css = window.getComputedStyle(dud)
 
-	const fixsvgtheme_ = () => {
+	const fixsvgthemeFunc = () => {
 		if (css.color == last) return
 		last = css.color
 
-		const thing = css.color.replace("rgb(", "").replace(")", "").split(",")
-		const r = Number.parseInt(thing[0]) / 255
-		const g = Number.parseInt(thing[1]) / 255
-		const b = Number.parseInt(thing[2]) / 255
+		const rgbParts = css.color.replace("rgb(", "").replace(")", "").split(",")
+		const r = Number.parseInt(rgbParts[0]) / 255
+		const g = Number.parseInt(rgbParts[1]) / 255
+		const b = Number.parseInt(rgbParts[2]) / 255
 		const max = Math.max(r, g, b)
 		const min = Math.min(r, g, b)
 		const l = (max + min) / 2
@@ -46,9 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		document.documentElement.style.setProperty("--invert", invert)
 		document.documentElement.style.setProperty("--brightness", brightness)
 	}
-	fixsvgtheme = fixsvgtheme_
-	setTimeout(fixsvgtheme_, 100)
-	fixsvgtheme_()
+	fixsvgtheme = fixsvgthemeFunc
+	setTimeout(fixsvgthemeFunc, 100)
+	fixsvgthemeFunc()
 })
 
 // eslint-disable-next-line no-unused-vars
@@ -1045,7 +1045,7 @@ class LocalUser {
 				crypto.getRandomValues(randomBytes)
 				let secret = "" // Cannot use .map()
 				for (const byte of randomBytes) {
-					secret += chars.charAt(byte)
+					secret += charsSecret.charAt(byte)
 				}
 
 				let password = ""
