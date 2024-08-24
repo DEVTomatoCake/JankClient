@@ -14,10 +14,10 @@ class Member {
 		else this.user = new User(memberjson.user, owner.localuser)
 
 		this.owner = owner
-		for (const thing of Object.keys(memberjson)) {
-			if (thing == "guild" || thing == "owner") continue
+		for (const key of Object.keys(memberjson)) {
+			if (key == "guild" || key == "owner") continue
 
-			if (thing == "roles") {
+			if (key == "roles") {
 				for (const strrole of memberjson.roles) {
 					const role = SnowFlake.getSnowFlakeFromID(strrole, Role).getObject()
 					this.roles.push(role)
@@ -25,7 +25,7 @@ class Member {
 				continue
 			}
 
-			this[thing] = memberjson[thing]
+			this[key] = memberjson[key]
 		}
 
 		if (SnowFlake.getSnowFlakeFromID(this.id, User)) this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject()

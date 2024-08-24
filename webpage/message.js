@@ -63,6 +63,7 @@ class Message {
 
 		Message.contextmenu.addbutton("Edit", (event, msg) => {
 			msg.channel.editing = msg
+
 			const markdown = document.getElementById("typebox").markdown
 			markdown.txt = msg.content.rawString.split("")
 			markdown.boxupdate(document.getElementById("typebox"))
@@ -170,14 +171,14 @@ class Message {
 	}
 	reactionToggle(emoji) {
 		let remove = false
-		for (const thing of this.reactions) {
-			if (thing.emoji.name == emoji) {
-				remove = thing.me
+		for (const reaction of this.reactions) {
+			if (reaction.emoji.name == emoji) {
+				remove = reaction.me
 				break
 			}
 		}
 		fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" +
-			(encodeURIComponent(typeof emoji == "string" ? emoji : (emoji.name + ":" + emoji.id))) + "/@me", {
+			encodeURIComponent(typeof emoji == "string" ? emoji : (emoji.name + ":" + emoji.id)) + "/@me", {
 			method: remove ? "DELETE" : "PUT",
 			headers: this.headers
 		})
@@ -203,8 +204,8 @@ class Message {
 	}
 	getimages() {
 		const build = []
-		for (const thing of this.attachments) {
-			if (thing.content_type.startsWith("image/")) build.push(thing)
+		for (const attachment of this.attachments) {
+			if (attachment.content_type.startsWith("image/")) build.push(attachment)
 		}
 		return build
 	}

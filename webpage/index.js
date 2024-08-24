@@ -48,8 +48,11 @@ const showAccountSwitcher = () => {
 		userinfo.addEventListener("click", () => {
 			thisuser.unload()
 			thisuser.swapped = true
-			document.getElementById("loading").classList.remove("doneloading")
-			document.getElementById("loading").classList.add("loading")
+
+			const loading = document.getElementById("loading")
+			loading.classList.remove("doneloading")
+			loading.classList.add("loading")
+
 			thisuser = new LocalUser(thing)
 			users.currentuser = thing.uid
 			localStorage.setItem("userinfos", JSON.stringify(users))
@@ -57,8 +60,9 @@ const showAccountSwitcher = () => {
 			thisuser.initwebsocket().then(() => {
 				thisuser.loaduser()
 				thisuser.init()
-				document.getElementById("loading").classList.add("doneloading")
-				document.getElementById("loading").classList.remove("loading")
+
+				loading.classList.add("doneloading")
+				loading.classList.remove("loading")
 			})
 			userinfo.remove()
 		})
@@ -144,7 +148,6 @@ const requestTestNotif = async () => {
 }
 
 let images = []
-let replyingto = null
 
 const emojiConversions = {
 	":D": "😄",
@@ -198,7 +201,7 @@ typebox.addEventListener("keyup", event => {
 		} else {
 			if (content == "" && images.length == 0) return
 
-			replyingto = thisuser.channelfocus.replyingto
+			const replyingto = thisuser.channelfocus.replyingto
 			const replying = replyingto
 			if (replyingto) replyingto.div.classList.remove("replying")
 

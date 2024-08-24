@@ -24,7 +24,8 @@ const registertry = async event => {
 		return
 	}
 
-	const email = document.getElementById("email").value
+	const usernameElem = document.getElementById("uname")
+	const emailElem = document.getElementById("email")
 	const apiUrl = new URL(JSON.parse(localStorage.getItem("instanceEndpoints")).api).toString()
 
 	const res = await fetch(apiUrl + "/auth/register", {
@@ -34,8 +35,8 @@ const registertry = async event => {
 		},
 		body: JSON.stringify({
 			date_of_birth: document.getElementById("birthdate").value,
-			email,
-			username: document.getElementById("uname").value,
+			email: emailElem.value,
+			username: usernameElem.value,
 			password: document.getElementById("pass1").value,
 			consent: document.getElementById("tos-check").checked,
 			captcha_key: event.srcElement[7].value
@@ -62,15 +63,15 @@ const registertry = async event => {
 			capt.append(capty)
 		}
 	} else if (json.token) {
-		adduser({serverurls: JSON.parse(localStorage.getItem("instanceEndpoints")), email, token: json.token}).username = document.getElementById("uname").value
+		adduser({serverurls: JSON.parse(localStorage.getItem("instanceEndpoints")), email: emailElem.value, token: json.token}).username = usernameElem.value
 		/*localStorage.setItem("userinfos", JSON.stringify({
 			currentuser: email + apiUrl,
 			users: {
 				[email + apiUrl]: {
-					email,
+					email: emailElem.value,
 					pfpsrc: null,
 					serverurls: JSON.parse(localStorage.getItem("instanceEndpoints")),
-					username: document.getElementById("uname").value,
+					username: usernameElem.value,
 					token: json.token
 				}
 			},
@@ -88,8 +89,8 @@ const registertry = async event => {
 		console.log(json)
 		if (json.errors.consent) error(document.getElementById("tos-check"), json.errors.consent._errors[0].message)
 		else if (json.errors.password) error(document.getElementById("pass1"), "Password: " + json.errors.password._errors[0].message)
-		else if (json.errors.username) error(document.getElementById("uname"), "Username: " + json.errors.username._errors[0].message)
-		else if (json.errors.email) error(document.getElementById("email"), "Email: " + json.errors.email._errors[0].message)
+		else if (json.errors.username) error(usernameElem, "Username: " + json.errors.username._errors[0].message)
+		else if (json.errors.email) error(emailElem, "Email: " + json.errors.email._errors[0].message)
 		else if (json.errors.date_of_birth) error(document.getElementById("birthdate"), "Date of Birth: " + json.errors.date_of_birth._errors[0].message)
 		else document.getElementById("wrong").textContent = json.errors ? json.errors[Object.keys(json.errors)[0]]._errors[0].message : json.message
 	}
@@ -102,17 +103,16 @@ document.addEventListener("DOMContentLoaded", () => {
 		const pingRes = await fetch(JSON.parse(localStorage.getItem("instanceEndpoints")).api + "/ping")
 		const tosPage = (await pingRes.json()).instance.tosPage
 
-		const TOSa = document.getElementById("TOSa")
+		const tosLink = document.getElementById("TOSa")
+		const tosCheck = document.getElementById("tos-check")
 		if (tosPage) {
-			TOSa.href = tosPage
-
-			document.getElementById("tos-check").disabled = false
-			document.getElementById("tos-check").checked = false
+			tosLink.href = tosPage
+			tosCheck.removeAttribute("disabled")
+			tosCheck.removeAttribute("checked")
 		} else {
-			TOSa.textContent = "This instance has no Terms of Service."
-
-			document.getElementById("tos-check").disabled = true
-			document.getElementById("tos-check").checked = true
+			tosLink.textContent = "This instance has no Terms of Service."
+			tosCheck.setAttribute("disabled", "")
+			tosCheck.setAttribute("checked", "")
 		}
 	}
 	checkInstance.alt()

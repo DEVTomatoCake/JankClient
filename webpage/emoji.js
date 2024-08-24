@@ -162,16 +162,16 @@ class Emoji {
 			}
 		})
 
-		for (const thing of Emoji.emojis) {
+		for (const category of Emoji.emojis) {
 			const select = document.createElement("div")
 			select.classList.add("emojiSelect")
-			select.append(MarkDown.renderTwemoji(thing.emojis[0].emoji, 26))
+			select.append(MarkDown.renderTwemoji(category.emojis[0].emoji, 26))
 			selection.append(select)
 
 			const clickEvent = () => {
-				title.textContent = thing.name
+				title.textContent = category.name
 				body.innerHTML = ""
-				for (const emojit of thing.emojis) {
+				for (const emojit of category.emojis) {
 					const emojiElem = document.createElement("span")
 					emojiElem.classList.add("emojiSelect")
 

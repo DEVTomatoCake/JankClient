@@ -103,8 +103,8 @@ class LocalUser {
 		setTheme(this.settings.theme)
 
 		if (!this.settings.view_nsfw_guilds) ready.d.guilds = ready.d.guilds.filter(guild => !guild.nsfw)
-		for (const thing of ready.d.guilds) {
-			const guild = new Guild(thing, this, members[thing.id])
+		for (const guildJSON of ready.d.guilds) {
+			const guild = new Guild(guildJSON, this, members[guildJSON.id])
 			this.guildids.set(guild.id, guild)
 		}
 
@@ -255,32 +255,35 @@ class LocalUser {
 			console.log("WebSocket closed with code " + event.code)
 
 			this.unload()
-			document.getElementById("loading").classList.remove("doneloading")
-			document.getElementById("loading").classList.add("loading")
+			const loading = document.getElementById("loading")
+			loading.classList.remove("doneloading")
+			loading.classList.add("loading")
 
 			this.fetchingmembers = new Map()
 			this.noncemap = new Map()
 			this.noncebuild = new Map()
 
+			const loadDesc = document.getElementById("load-desc")
 			if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code))) {
 				if (this.connectionSucceed != 0 && Date.now() > this.connectionSucceed + 20000) this.errorBackoff = 0
-				else this.errorBackoff = Math.min(this.errorBackoff + 1, 60)
+				else this.errorBackoff = Math.min(this.errorBackoff + 1, 64)
 				this.connectionSucceed = 0
 
-				document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar instance, retrying in <b>" + Math.round(0.2 + (this.errorBackoff * 2.8)) + "</b> seconds..."
+				loadDesc.innerHTML = "Unable to connect to the Spacebar instance, retrying in <b>" + Math.round(0.2 + (this.errorBackoff * 2.8)) + "</b> seconds..."
 
+				const loadAdditional = document.getElementById("load-additional")
 				switch (this.errorBackoff) { // try to recover from bad domain
-					case 3:
+					case 4:
 						const newURLsWellKnown = await getAPIURLs(this.info.wellknown)
 						if (newURLsWellKnown) {
 							this.info = newURLsWellKnown
 							this.serverurls = newURLsWellKnown
 							this.userinfo.json.serverurls = this.info
 							this.userinfo.updateLocal()
-							document.getElementById("load-additional").textContent += "Server URLs have been updated to \"" + this.info.wellknown + "\""
-						} else document.getElementById("load-additional").textContent += "Unable to load connection info from \"" + this.info.wellknown + "\" (server offline or no internet?)"
+							loadAdditional.textContent += "Server URLs have been updated to \"" + this.info.wellknown + "\""
+						} else loadAdditional.textContent += "Unable to load connection info from \"" + this.info.wellknown + "\" (server offline or no internet?)"
 						break
-					/*case 4:
+					case 10:
 						const urlOrigin = new URL(this.info.wellknown).origin
 						const newURLsOrigin = await getAPIURLs(urlOrigin)
 						if (newURLsOrigin) {
@@ -288,37 +291,25 @@ class LocalUser {
 							this.serverurls = newURLsOrigin
 							this.userinfo.json.serverurls = this.info
 							this.userinfo.updateLocal()
-							document.getElementById("load-additional").textContent += "Server URLs have been updated to \"" + urlOrigin + "\""
-						} else document.getElementById("load-additional").textContent += "Unable to load connection info from \"" + urlOrigin + "\" (server offline or no internet?)"
+							loadAdditional.textContent += "Server URLs have been updated to \"" + urlOrigin + "\""
+						} else loadAdditional.textContent += "Unable to load connection info from \"" + urlOrigin + "\" (server offline or no internet?)"
 						break
-					case 5:
-						const breakappart = new URL(this.info.wellknown).origin.split(".")
-						const urlDomain = "https://" + breakappart.at(-2) + "." + breakappart.at(-1)
-						const newURLsDomain = await getAPIURLs(urlDomain)
-						if (newURLsDomain) {
-							this.info = newURLsDomain
-							this.serverurls = newURLsDomain
-							this.userinfo.json.serverurls = this.info
-							this.userinfo.updateLocal()
-							document.getElementById("load-additional").textContent += "Server URLs have been updated to \"" + urlDomain + "\""
-						} else document.getElementById("load-additional").textContent += "Unable to load connection info from \"" + urlDomain + "\" (server offline or no internet?)"
-						break*/
 				}
 
 				setTimeout(() => {
 					if (this.swapped) return
-					document.getElementById("load-desc").textContent = "Retrying..."
+					loadDesc.textContent = "Retrying..."
 
 					this.initwebsocket().then(() => {
 						this.loaduser()
 						this.init()
-						document.getElementById("loading").classList.add("doneloading")
-						document.getElementById("loading").classList.remove("loading")
+						loading.classList.add("doneloading")
+						loading.classList.remove("loading")
 
-						document.getElementById("load-desc").textContent = "This shouldn't take long"
+						loadDesc.textContent = "This shouldn't take long"
 					})
 				}, 200 + (this.errorBackoff * 2800))
-			} else document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar instance. Please try logging out and back in."
+			} else if (!this.swapped) loadDesc.textContent = "Unable to connect to the Spacebar instance. Please try logging out and back in."
 		})
 
 		await promise
@@ -1361,7 +1352,6 @@ class LocalUser {
 	}
 
 	waitingmembers = new Map()
-	presences = new Map()
 	async resolvemember(id, guildid) {
 		if (guildid == "@me") return
 
@@ -1378,6 +1368,7 @@ class LocalUser {
 	fetchingmembers = new Map()
 	noncemap = new Map()
 	noncebuild = new Map()
+	presences = new Map()
 	async gotChunk(chunk) {
 		for (const thing of chunk.presences) {
 			this.presences.set(thing.user.id, thing)
@@ -1403,12 +1394,12 @@ class LocalUser {
 			res = r
 		})
 		setTimeout(res, 10)
-		await promise //allow for more to be sent at once
+		await promise // allow for more to be sent at once
 
 		if (this.ws) {
-			this.waitingmembers.forEach(async (value, guildid) => {
+			this.waitingmembers.forEach(async (value, guildId) => {
 				const keys = value.keys()
-				if (this.fetchingmembers.has(guildid)) return
+				if (this.fetchingmembers.has(guildId)) return
 
 				const build = []
 				for (const key of keys) {
@@ -1416,8 +1407,8 @@ class LocalUser {
 					if (build.length == 100) break
 				}
 
-				if (!build.length) {
-					this.waitingmembers.delete(guildid)
+				if (build.length == 0) {
+					this.waitingmembers.delete(guildId)
 					return
 				}
 
@@ -1433,19 +1424,16 @@ class LocalUser {
 					op: 8,
 					d: {
 						user_ids: build,
-						guild_id: guildid,
+						guild_id: guildId,
 						limit: 100,
 						nonce,
 						presences: true
 					}
 				}))
-				this.fetchingmembers.set(guildid, true)
+				this.fetchingmembers.set(guildId, true)
 				const prom = await promise2
 
-				const data = prom[0]
-				for (const thing of data) {
-					value.get(thing.id)(thing)
-					value.delete(thing.id)
+				for (const thing of prom[0]) {
 					if (value.has(thing.id)) {
 						value.get(thing.id)(thing)
 						value.delete(thing.id)
@@ -1457,7 +1445,8 @@ class LocalUser {
 						value.delete(thing)
 					}
 				}
-				this.fetchingmembers.delete(guildid)
+
+				this.fetchingmembers.delete(guildId)
 				this.getmembers()
 			})
 		}

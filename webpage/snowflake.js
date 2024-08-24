@@ -8,26 +8,22 @@ class SnowFlake {
 		SnowFlake.SnowFlakes.get(a[1]).delete(a[0])
 	})
 	constructor(id, obj) {
-		if (!obj) {
-			this.id = id
-			return
-		}
-		if (!SnowFlake.SnowFlakes.get(obj.constructor)) SnowFlake.SnowFlakes.set(obj.constructor, new Map())
-
-		if (SnowFlake.SnowFlakes.get(obj.constructor).get(id)) {
-			const snowflake = SnowFlake.SnowFlakes.get(obj.constructor).get(id).deref()
-			snowflake.obj = obj
-
-			if (snowflake) {
-				snowflake.obj = obj
-				// eslint-disable-next-line no-constructor-return
-				return snowflake
-			}
-			SnowFlake.SnowFlakes.get(obj.constructor).delete(id)
-		}
 		this.id = id
-		SnowFlake.SnowFlakes.get(obj.constructor).set(id, new WeakRef(this))
-		SnowFlake.FinalizationRegistry.register(this, [id, obj.constructor])
+		if (!obj) return
+
+		const className = obj.constructor
+		if (!SnowFlake.SnowFlakes.get(className)) SnowFlake.SnowFlakes.set(className, new Map())
+
+		if (SnowFlake.SnowFlakes.get(className).get(id)) {
+			const snowflake = SnowFlake.SnowFlakes.get(className).get(id).deref()
+			snowflake.obj = obj
+			if (snowflake) return
+
+			SnowFlake.SnowFlakes.get(className).delete(id)
+		}
+
+		SnowFlake.SnowFlakes.get(className).set(id, new WeakRef(this))
+		SnowFlake.FinalizationRegistry.register(this, [id, className])
 		this.obj = obj
 	}
 	static clear() {
@@ -61,12 +57,7 @@ class SnowFlake {
 		return false
 	}
 	getUnixTime() {
-		try {
-			return Number((BigInt(this.id) >> 22n) + 1420070400000n)
-		} catch {
-			console.error("Snowflake is corrupted, it's " + this.id + " when it should be a number.", this)
-			return 0
-		}
+		return Number((BigInt(this.id) >> 22n) + 1420070400000n)
 	}
 	toString() {
 		return this.id

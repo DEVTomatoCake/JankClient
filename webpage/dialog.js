@@ -221,14 +221,14 @@ class Dialog {
 				table.appendChild(content)
 
 				let shown
-				for (const thing of array[1]) {
+				for (const tab of array[1]) {
 					const button = document.createElement("button")
-					button.textContent = thing[0]
+					button.textContent = tab[0]
 					td.appendChild(button)
 
 					const tdcontent = document.createElement("td")
 					tdcontent.colSpan = array[1].length
-					this.tohtml(thing[1], tdcontent)
+					this.tohtml(tab[1], tdcontent)
 					content.appendChild(tdcontent)
 					if (shown) tdcontent.hidden = true
 					else shown = tdcontent

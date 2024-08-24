@@ -174,11 +174,11 @@ class Guild {
 				const vanityRes = await fetch(this.info.api + "/guilds/" + this.id + "/vanity-url", {
 					headers: this.headers
 				})
-				const vanityJson = await vanityRes.json()
+				const vanityJSON = await vanityRes.json()
 
 				guildSettings.addTextInput("Vanity URL", value => {
-					if (value != vanityJson.code) this.updateVanity(value)
-				}, { initText: vanityJson.code || "" })
+					if (value != vanityJSON.code) this.updateVanity(value)
+				}, { initText: vanityJSON.code || "" })
 			}
 
 			const guildFeatures = settings.addButton("Server features")
@@ -206,17 +206,17 @@ class Guild {
 			/*const widgetRes = await fetch(this.info.api + "/guilds/" + this.id + "/widget", {
 				headers: this.headers
 			})
-			const widgetJson = await widgetRes.json()
+			const widgetJSON = await widgetRes.json()
 
 			const widget = settings.addButton("Widget")
-			let newWidget = widgetJson
+			let newWidget = widgetJSON
 			widget.addCheckboxInput("Enable widget", value => {
 				newWidget.enabled = value
-			}, { initState: widgetJson.enabled })
+			}, { initState: widgetJSON.enabled })
 			widget.addCheckboxInput("Widget channel", value => {
 				newWidget.channel_id = value
 				this.updateWidget(newWidget)
-			}, { initChannel: widgetJson.channel_id })*/
+			}, { initChannel: widgetJSON.channel_id })*/
 		}
 
 		const roles = settings.addButton("Roles")
@@ -290,27 +290,27 @@ class Guild {
 	calculateReorder() {
 		let position = -1
 		const build = []
-		for (const thing of this.headchannels) {
+		for (const channel of this.headchannels) {
 			const thisthing = {
-				id: thing.id,
+				id: channel.id,
 				position: void 0,
 				parent_id: void 0
 			}
 
-			if (thing.position <= position) {
+			if (channel.position <= position) {
 				thisthing.position = position + 1
-				thing.position = thisthing.position
+				channel.position = thisthing.position
 			}
-			position = thing.position
-			if (thing.move_id && thing.move_id != thing.parent_id) {
-				thing.parent_id = thing.move_id
-				thisthing.parent_id = thing.parent_id.id
-				thing.move_id = null
+			position = channel.position
+			if (channel.move_id && channel.move_id != channel.parent_id) {
+				channel.parent_id = channel.move_id
+				thisthing.parent_id = channel.parent_id.id
+				channel.move_id = null
 			}
 			if (thisthing.position || thisthing.parent_id) build.push(thisthing)
 
-			if (thing.children.length > 0) {
-				const things = thing.calculateReorder()
+			if (channel.children.length > 0) {
+				const things = channel.calculateReorder()
 				for (const thing2 of things) {
 					build.push(thing2)
 				}
@@ -359,8 +359,8 @@ class Guild {
 		const build = document.createElement("div")
 		if (this.id == "@me") build.classList.add("dm-container")
 
-		for (const thing of this.headchannels) {
-			const createdChannel = thing.createGuildHTML(this.isAdmin())
+		for (const channel of this.headchannels) {
+			const createdChannel = channel.createGuildHTML(this.isAdmin())
 			if (createdChannel) build.appendChild(createdChannel)
 		}
 		return build
@@ -369,13 +369,17 @@ class Guild {
 		return this.member.isAdmin()
 	}
 	async markAsRead() {
-		const build = {read_states: []}
-		for (const thing of this.channels) {
-			if (thing.hasunreads) {
-				build.read_states.push({channel_id: thing.id, message_id: thing.lastmessageid, read_state_type: 0})
-				thing.lastreadmessageid = thing.lastmessageid
-				thing.myhtml.classList.remove("cunread")
-			}
+		const build = {
+			read_states: []
+		}
+		for (const channel of this.channels.filter(ch => ch.hasunreads)) {
+			build.read_states.push({
+				channel_id: channel.id,
+				message_id: channel.lastmessageid,
+				read_state_type: 0
+			})
+			channel.lastreadmessageid = channel.lastmessageid
+			channel.myhtml.classList.remove("cunread")
 		}
 		this.unreads()
 		fetch(this.info.api + "/read-states/ack-bulk", {
@@ -384,9 +388,9 @@ class Guild {
 			body: JSON.stringify(build)
 		})
 	}
-	hasRole(r) {
-		if (r instanceof Role) r = r.id
-		return this.member.hasRole(r)
+	hasRole(role) {
+		if (role instanceof Role) role = role.id
+		return this.member.hasRole(role)
 	}
 	loadChannel(id) {
 		if (id && this.channelids[id]) {

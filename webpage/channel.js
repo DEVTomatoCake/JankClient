@@ -574,10 +574,11 @@ class Channel {
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "#" + this.name
 
+		const topic = document.getElementById("channelTopic")
 		if (this.topic) {
-			document.getElementById("channelTopic").innerHTML = new MarkDown(this.topic, this).makeHTML().innerHTML
-			document.getElementById("channelTopic").removeAttribute("hidden")
-		} else document.getElementById("channelTopic").setAttribute("hidden", "")
+			topic.innerHTML = new MarkDown(this.topic, this).makeHTML().innerHTML
+			topic.removeAttribute("hidden")
+		} else topic.setAttribute("hidden", "")
 
 		const loading = document.getElementById("loadingdiv")
 		Channel.regenLoadingMessages()
