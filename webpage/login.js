@@ -63,28 +63,24 @@ const getBulkUsers = () => {
 	return json
 }
 
-const setDefaults = () => {
-	const userinfos = getBulkInfo()
-	if (!userinfos) {
-		localStorage.setItem("userinfos", JSON.stringify({
-			currentuser: null,
-			users: {},
-			preferences: {
-				theme: window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark",
-				notifications: false,
-				notisound: "three"
-			},
-			accent_color: window.matchMedia("(prefers-color-scheme: light)").matches ? "#f0f0f0" : "#242443"
-		}))
-		return
-	}
-
+const userinfos = getBulkInfo()
+if (userinfos) {
 	if (userinfos.accent_color === void 0 && userinfos.preferences.theme == "light") userinfos.accent_color = "#f0f0f0"
 	else if (userinfos.accent_color === void 0) userinfos.accent_color = "#242443"
 
 	localStorage.setItem("userinfos", JSON.stringify(userinfos))
+} else {
+	localStorage.setItem("userinfos", JSON.stringify({
+		currentuser: null,
+		users: {},
+		preferences: {
+			theme: window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark",
+			notifications: false,
+			notisound: "three"
+		},
+		accent_color: window.matchMedia("(prefers-color-scheme: light)").matches ? "#f0f0f0" : "#242443"
+	}))
 }
-setDefaults()
 
 const adduser = user => {
 	user = new SpecialUser(user)
