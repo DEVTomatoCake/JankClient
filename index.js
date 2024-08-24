@@ -100,14 +100,15 @@ const inviteres = async (res, reqPath, query) => {
 		const urls = await getAPIURLs(query.instance)
 		await fetch(urls.api + "/invites/" + code).then(response => response.json()).then(json => {
 			title = json.guild.name
-			description = json.inviter.username + " has invited you to " + json.guild.name + (json.guild.description ? json.guild.description + "\n" : "")
-			if (json.guild.icon) icon = urls.cdn + "/icons/" + json.guild.id + "/" + json.guild.icon + ".png"
+			description = (json.inviter ? json.inviter.username : "Someone") + " has invited you to " + json.guild.name + (json.guild.description ? " - " + json.guild.description : "")
+			if (json.guild.icon) icon = urls.cdn + "/icons/" + json.guild.id + "/" + json.guild.icon + "." + (json.guild.icon.startsWith("a_") ? "gif" : "png")
 		})
 
 		const html =
 			"<!DOCTYPE html>" +
 			"<html lang=\"en\">" +
 			"<head>" +
+				"<meta charset=\"utf-8\">" +
 				"<title>" + encode(title) + "</title>" +
 				"<meta content=\"" + encode(title) + "\" property=\"og:title\">" +
 				"<meta content=\"" + encode(description) + "\" property=\"og:description\">" +
@@ -115,13 +116,11 @@ const inviteres = async (res, reqPath, query) => {
 			"</head>" +
 			"</html>"
 
-		res.type("html")
+		res.set("Content-Type", "text/html")
 		res.send(html)
-		return true
 	} catch (e) {
 		console.error(e)
 	}
-	return false
 }
 
 app.use("/", async (req, res) => {
@@ -162,5 +161,5 @@ app.use("/", async (req, res) => {
 
 const PORT = process.env.PORT || 25512
 app.listen(PORT, () => {
-	console.log("Started Jank Client on http://localhost:" + PORT)
+	console.warn("Started Jank Client on http://localhost:" + PORT)
 })

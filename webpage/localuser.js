@@ -350,8 +350,9 @@ class LocalUser {
 					const messageAcked = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
 					console.warn(messageAcked)
 
-					messageAcked.channel.lastreadmessageid = messageAcked.snowflake
-					messageAcked.channel.guild.unreads()
+					const messageAckedChannel = SnowFlake.getSnowFlakeFromID(json.d.channel_id, Channel).getObject()
+					messageAckedChannel.lastreadmessageid = messageAcked.snowflake
+					messageAckedChannel.guild.unreads()
 
 					if (messageAcked.channel.myhtml === null) console.warn("Message acked but no channel HTML found, channel " + messageAcked.channel.id + " " + messageAcked.channel.name)
 					else {

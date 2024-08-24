@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		const container = document.createElement("dialog")
 		container.classList.add("accountSwitcher")
 
-		for (const specialuser of Object.values(joinable)) {
+		for (const specialuser of joinable) {
 			const userinfo = document.createElement("div")
 			userinfo.classList.add("flexltr", "switchtable")
 

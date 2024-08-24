@@ -223,6 +223,7 @@ typebox.addEventListener("keydown", event => {
 })
 
 document.addEventListener("paste", event => {
+	if (event.clipboardData.files.length == 0) return
 	event.preventDefault()
 
 	Array.from(event.clipboardData.files).forEach(file => {
