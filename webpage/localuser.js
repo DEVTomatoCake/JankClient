@@ -102,6 +102,7 @@ class LocalUser {
 		localStorage.setItem("theme", this.settings.theme)
 		setTheme(this.settings.theme)
 
+		if (!this.settings.view_nsfw_guilds) ready.d.guilds = ready.d.guilds.filter(guild => !guild.nsfw)
 		for (const thing of ready.d.guilds) {
 			const guild = new Guild(thing, this, members[thing.id])
 			this.guildids.set(guild.id, guild)
@@ -356,6 +357,7 @@ class LocalUser {
 					break
 				case "MESSAGE_ACK":
 					const messageAcked = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+					console.warn(messageAcked)
 
 					messageAcked.channel.lastreadmessageid = messageAcked.snowflake
 					messageAcked.channel.guild.unreads()
@@ -800,6 +802,10 @@ class LocalUser {
 		})
 	}
 	updateSettings(settings = {}) {
+		this.settings = {
+			...this.settings,
+			...settings
+		}
 		fetch(this.info.api + "/users/@me/settings", {
 			method: "PATCH",
 			headers: this.headers,
@@ -918,20 +924,74 @@ class LocalUser {
 		})
 
 		const userSettings = settings.addButton("Account settings")
+		const newSettings = {}
 
 		userSettings.addTextInput("Locale:", value => {
-			if (value == this.settings.locale) return
-			if (value.length != 5) return alert("Please use a valid locale code (e.g. en-US)")
-			this.updateSettings({locale: value})
+			if (value != this.settings.locale) {
+				if (value.length != 5) return alert("Please use a valid locale code (e.g. en-US)")
+				newSettings.locale = value
+			}
 		}, { initText: this.settings.locale })
 
 		const status = ["online", "invisible", "idle", "dnd"]
 		userSettings.addSelect("Status:", value => {
-			if (value == this.settings.status) return
-			this.updateSettings({status: status[value]})
+			if (status[value] != this.settings.status) newSettings.status = status[value]
 		}, status, {
 			defaultIndex: status.indexOf(this.settings.status)
 		})
+
+		let reRender = false
+		userSettings.addCheckboxInput("Animate emojis", value => {
+			if (value != this.settings.animate_emoji) {
+				newSettings.animate_emoji = value
+				reRender = true
+			}
+		}, { initState: this.settings.animate_emoji })
+		userSettings.addCheckboxInput("Animate stickers", value => {
+			if (value != this.settings.animate_stickers) {
+				newSettings.animate_stickers = value
+				reRender = true
+			}
+		}, { initState: this.settings.animate_stickers })
+		userSettings.addCheckboxInput("Convert emojis (:D -> 😀)", value => {
+			if (value != this.settings.convert_emoticons) newSettings.convert_emoticons = value
+		}, { initState: this.settings.convert_emoticons })
+		userSettings.addCheckboxInput("Developer mode", value => {
+			if (value != this.settings.developer_mode) newSettings.developer_mode = value
+		}, { initState: this.settings.developer_mode })
+		userSettings.addCheckboxInput("Enable & play TTS command", value => {
+			if (value != this.settings.enable_tts_command) newSettings.enable_tts_command = value
+		}, { initState: this.settings.enable_tts_command })
+		userSettings.addCheckboxInput("Compact message display", value => {
+			if (value != this.settings.message_display_compact) {
+				newSettings.message_display_compact = value
+				reRender = true
+			}
+		}, { initState: this.settings.message_display_compact })
+		userSettings.addCheckboxInput("Render embeds", value => {
+			if (value != this.settings.render_embeds) {
+				newSettings.render_embeds = value
+				reRender = true
+			}
+		}, { initState: this.settings.render_embeds })
+		userSettings.addCheckboxInput("Render reactions", value => {
+			if (value != this.settings.render_reactions) {
+				newSettings.render_reactions = value
+				reRender = true
+			}
+		}, { initState: this.settings.render_reactions })
+		userSettings.addCheckboxInput("Display NSFW guilds", value => {
+			if (value != this.settings.view_nsfw_guilds) newSettings.view_nsfw_guilds = value
+
+			this.updateSettings(newSettings)
+
+			reRender = false
+			if (reRender && this.channelfocus) {
+				for (const thing of this.channelfocus.messages) {
+					thing[1].generateMessage()
+				}
+			}
+		}, { initState: this.settings.view_nsfw_guilds })
 
 		const tas = settings.addButton("Themes & sounds")
 
@@ -1140,7 +1200,9 @@ class LocalUser {
 						fields.description = event.target.value
 					}],
 					["vdiv",
-						json.icon ? ["img", this.info.cdn + "/app-icons/" + appId + "/" + json.icon + ".png?size=256", [128, 128]] : ["text", "No icon"],
+						json.icon
+							? ["img", this.info.cdn + "/app-icons/" + appId + "/" + json.icon + "." + (json.icon.startsWith("a_") ? "gif" : "png") + "?size=128", [128, 128]]
+							: ["text", "No icon"],
 						["fileupload", "Application icon:", event => {
 							const reader = new FileReader()
 							reader.readAsDataURL(event.target.files[0])
@@ -1156,6 +1218,17 @@ class LocalUser {
 					}],
 					["textbox", "Terms of Service URL:", json.terms_of_service_url || "", event => {
 						fields.terms_of_service_url = event.target.value
+					}],
+					["textbox", "Tags (comma-separated):", json.tags?.join(", ") || "", event => {
+						fields.tags = event.target.value.split(",").map(tag => tag.trim())
+					}]
+				],
+				["hdiv",
+					["textbox", "Interactions endpoint URL:", json.interactions_endpoint_url || "", event => {
+						fields.interactions_endpoint_url = event.target.value
+					}],
+					["textbox", "Role connection verification URL:", json.role_connections_verification_url || "", event => {
+						fields.role_connections_verification_url = event.target.value
 					}]
 				],
 				["hdiv",

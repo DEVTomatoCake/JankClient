@@ -50,29 +50,29 @@ List of properties which should be editable somewhere, and handled if necessary 
 | --- | --- | --- | ---
 | ⚙️ | status | string - one of: dnd┃idle┃invisible┃online
 | ⛔ | afk_timeout | integer | Where is this used?
-| 🗨️ | animate_emoji | boolean
-| ❌ | animate_stickers | integer | 0 = enabled, 1 = only on focus, 2 = disabled
-| 🗨️ | convert_emoticons | boolean
+| ✅ | animate_emoji | boolean
+| ⚙️ | animate_stickers | integer | 0 = enabled, 1 = only on focus, 2 = disabled
+| ✅ | convert_emoticons | boolean
 | ❌ | custom_status | object - one of: 1: object: emoji_id: string, emoji_name: string, expires_at: integer, text: string; 2: null
 | ⛔ | default_guilds_restricted | boolean | What's this for?
-| 🗨️ | developer_mode | boolean
+| ✅ | developer_mode | boolean
 | ⛔ | disable_games_tab | boolean | No use in SB
-| 🗨️ | enable_tts_command | boolean
+| ✅ | enable_tts_command | boolean
 | ❌ | explicit_content_filter | integer | 0 = disabled, 1 = only members without roles, 2 = everyone
 | ❌ | gif_auto_play | boolean
 | ❌ | guild_folders | array of object: color*: integer, guild_ids*: [string], id*: integer, name*: string, guild_positions: [string]
 | ⛔ | inline_attachment_media | boolean | What's this for?
 | ⛔ | inline_embed_media | boolean | What's this for?
 | ✅ | locale | string
-| 🗨️ | message_display_compact | boolean
-| 🗨️ | render_embeds | boolean
-| 🗨️ | render_reactions | boolean
+| ✅ | message_display_compact | boolean
+| ✅ | render_embeds | boolean
+| ✅ | render_reactions | boolean
 | ⛔ | restricted_guilds | [string] | What's this for?
 | ⛔ | show_current_game | boolean | Not possible in Web
 | ⛔ | stream_notifications_enabled | boolean | What's this for?
 | ✅ | theme | string - one of: dark┃light
 | ⛔ | timezone_offset | integer | Where is this used?
-| ❌ | view_nsfw_guilds | boolean
+| ✅ | view_nsfw_guilds | boolean
 
 #### Connections
 
@@ -311,7 +311,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
 | ✅ | name | string: Constraints: Max 100 chars
-| 🗨️ | type | number: Allowed: 0┃1┃10┃11┃12┃13┃14┃15┃2┃255┃3┃33┃34┃35┃4┃5┃6┃64┃7┃8┃9 | Which conversion is possible?
+| 🗨️ | type | number: Allowed: 0┃1┃10┃11┃12┃13┃14┃15┃2┃3┃4┃5┃6┃7┃8┃9 | Technically, every conversion is possible
 | ✅ | topic | string
 | ❌ | icon | string┃null
 | ❌ | bitrate | integer
@@ -347,12 +347,12 @@ List of properties which should be editable somewhere, and handled if necessary 
 | --- | --- | --- | ---
 | ✅ | description | string
 | ✅ | icon | string
-| ❌ | interactions_endpoint_url | string
+| ✅ | interactions_endpoint_url | string
 | ❌ | max_participants | integer┃null
 | ✅ | name | string
 | ✅ | privacy_policy_url | string
-| ❌ | role_connections_verification_url | string
-| ❌ | tags | [string]
+| ✅ | role_connections_verification_url | string
+| ✅ | tags | [string]
 | ✅ | terms_of_service_url | string
 | ✅ | bot_public | boolean
 | ✅ | bot_require_code_grant | boolean
