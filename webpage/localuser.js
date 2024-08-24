@@ -1056,19 +1056,27 @@ class LocalUser {
 
 		const devPortal = settings.addButton("Developer Portal")
 
-		let appName = ""
-		devPortal.addTextInput("Name:", value => {
-			appName = value
+		const teamsRes = await fetch(this.info.api + "/teams", {
+			headers: this.headers
+		})
+		const teams = await teamsRes.json()
+
+		const newApplication = {}
+		devPortal.addTextInput("Name", value => {
+			newApplication.name = value
+		})
+		devPortal.addSelect("Team", value => {
+			newApplication.team_id = value == 0 ? void 0 : teams[value - 1].id
+		}, ["Personal", ...teams.map(team => team.name)], {
+			defaultIndex: 0
 		})
 		devPortal.addButtonInput("", "Create application", async () => {
-			if (appName.trim().length == 0) return alert("Please enter a name for the application.")
+			if (!newApplication.name || newApplication.name.trim().length == 0) return alert("Please enter a name for the application.")
 
 			const res = await fetch(this.info.api + "/applications", {
 				method: "POST",
 				headers: this.headers,
-				body: JSON.stringify({
-					name: appName
-				})
+				body: JSON.stringify(newApplication)
 			})
 			const json = await res.json()
 			this.manageApplication(json.id)
@@ -1082,18 +1090,25 @@ class LocalUser {
 			json.forEach(application => {
 				const container = document.createElement("div")
 
-				if (application.cover_image || application.icon) {
+				const appIcon = application.cover_image || application.icon
+				if (appIcon) {
 					const cover = document.createElement("img")
 					cover.crossOrigin = "anonymous"
-					cover.src = this.info.cdn + "/app-icons/" + application.id + "/" + (application.cover_image || application.icon) + ".png?size=256"
+					cover.src = this.info.cdn + "/app-icons/" + application.id + "/" + appIcon + "." + (appIcon.startsWith("a_") ? "gif" : "png") + "?size=256"
 					cover.alt = ""
 					cover.loading = "lazy"
 					container.appendChild(cover)
 				}
 
 				const name = document.createElement("h2")
-				name.textContent = application.name + (application.bot ? " (Bot)" : "")
+				name.textContent = application.name + (application.bot ? " (has bot)" : "")
 				container.appendChild(name)
+
+				if (application.team) {
+					const team = document.createElement("p")
+					team.textContent = "Team: " + application.team.name
+					container.appendChild(team)
+				}
 
 				container.addEventListener("click", async () => {
 					this.manageApplication(application.id)

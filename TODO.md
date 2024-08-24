@@ -311,7 +311,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
 | ✅ | name | string: Constraints: Max 100 chars
-| ❌ | type | number: Allowed: 0┃1┃10┃11┃12┃13┃14┃15┃2┃255┃3┃33┃34┃35┃4┃5┃6┃64┃7┃8┃9 | Which conversion is possible?
+| 🗨️ | type | number: Allowed: 0┃1┃10┃11┃12┃13┃14┃15┃2┃255┃3┃33┃34┃35┃4┃5┃6┃64┃7┃8┃9 | Which conversion is possible?
 | ✅ | topic | string
 | ❌ | icon | string┃null
 | ❌ | bitrate | integer
@@ -337,7 +337,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | Status | Field | Type | Notes
 | --- | --- | --- | ---
 | ✅ | name* | string
-| ❌ | team_id | string or integer
+| ✅ | team_id | string or integer
 
 #### Application edit
 

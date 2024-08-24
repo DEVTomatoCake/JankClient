@@ -169,28 +169,30 @@ class Channel {
 	constructor(json, owner) {
 		if (json == -1) return
 
+		this.name = json.name
 		this.type = json.type
+		this.topic = json.topic
+		this.icon = json.icon
+		this.bitrate = json.bitrate
+		this.user_limit = json.user_limit
+		this.rate_limit_per_user = json.rate_limit_per_user
+		this.position = json.position
+		this.nsfw = json.nsfw
+		this.rtc_region = json.rtc_region
+		this.default_auto_archive_duration = json.default_auto_archive_duration
+		this.default_reaction_emoji = json.default_reaction_emoji
+		this.flags = json.flags
+		this.default_thread_rate_limit_per_user = json.default_thread_rate_limit_per_user
+		this.video_quality_mode = json.video_quality_mode
+
 		this.owner = owner
 		this.headers = this.owner.headers
-		this.name = json.name
 		this.snowflake = new SnowFlake(json.id, this)
 		this.parent_id = new SnowFlake(json.parent_id, void 0)
 		this.parent = null
 		this.children = []
 		this.guild_id = json.guild_id
 		this.messageids = new Map()
-		this.topic = json.topic
-		this.nsfw = json.nsfw
-		this.rtc_region = json.rtc_region
-		this.bitrate = json.bitrate
-		this.user_limit = json.user_limit
-		this.rate_limit_per_user = json.rate_limit_per_user
-		this.default_auto_archive_duration = json.default_auto_archive_duration
-		this.default_reaction_emoji = json.default_reaction_emoji
-		this.default_thread_rate_limit_per_user = json.default_thread_rate_limit_per_user
-		this.flags = json.flags
-		this.video_quality_mode = json.video_quality_mode
-		this.position = json.position
 		this.lastreadmessageid = null
 		this.lastmessageid = json.last_message_id ? SnowFlake.getSnowFlakeFromID(json.last_message_id, Message) : null
 		this.setUpInfiniteScroller()
