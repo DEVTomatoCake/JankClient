@@ -145,12 +145,11 @@ class Channel {
 				if (this.idToNext.has(snowflake)) return this.idToNext.get(snowflake)?.id
 				if (this.lastmessage.id != id) {
 					await this.grabAfter(id)
-					return this.idToNext.get(snowflake)?.id
+					return this.idToNext.get(snowflake)?.id || this.lastmessage.id
 				}
 			}
 		}, async id => {
 			const message = this.messages.get(id)
-			console.warn(message)
 
 			try {
 				if (message) return message.buildhtml()

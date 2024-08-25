@@ -201,16 +201,15 @@ typebox.addEventListener("keyup", event => {
 		} else {
 			if (content == "" && images.length == 0) return
 
-			const replyingto = thisuser.channelfocus.replyingto
-			const replying = replyingto
+			const replyingto = channel.replyingto
 			if (replyingto) replyingto.div.classList.remove("replying")
 
 			channel.replyingto = null
 			channel.sendMessage(content, {
 				attachments: images,
-				replyingto: replying
+				replyingto
 			})
-			thisuser.channelfocus.makereplybox()
+			channel.makereplybox()
 		}
 
 		images = []
@@ -235,8 +234,10 @@ document.addEventListener("paste", event => {
 })
 
 if (screen.width <= 600) {
+	const mobileBack = document.getElementById("mobileback")
+
 	const collapse = () => {
-		document.getElementById("mobileback").removeAttribute("hidden")
+		mobileBack.removeAttribute("hidden")
 
 		document.getElementById("channels").parentElement.classList.add("collapse")
 		document.getElementById("servers").parentElement.classList.add("collapse")
@@ -247,8 +248,8 @@ if (screen.width <= 600) {
 		collapse()
 	})
 
-	document.getElementById("mobileback").addEventListener("click", () => {
-		document.getElementById("mobileback").setAttribute("hidden", "")
+	mobileBack.addEventListener("click", () => {
+		mobileBack.setAttribute("hidden", "")
 
 		document.getElementById("channels").parentElement.classList.remove("collapse")
 		document.getElementById("servers").parentElement.classList.remove("collapse")

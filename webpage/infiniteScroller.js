@@ -90,7 +90,7 @@ class InfiniteScroller {
 			}
 		}
 	}
-	async watchForTop(already = false, fragement = new DocumentFragment()) {
+	async watchForTop(already = false, fragment = new DocumentFragment()) {
 		if (!this.scroll) return false
 
 		try {
@@ -109,7 +109,7 @@ class InfiniteScroller {
 						return false
 					}
 					again = true
-					fragement.prepend(html)
+					fragment.prepend(html)
 					this.HTMLElements.unshift([html, nextid])
 					this.scrollTop += this.averageheight
 				}
@@ -124,7 +124,7 @@ class InfiniteScroller {
 				}
 			}
 
-			if (again) await this.watchForTop(true, fragement)
+			if (again) await this.watchForTop(true, fragment)
 			return again
 		} finally {
 			if (!already) {
@@ -132,11 +132,11 @@ class InfiniteScroller {
 					this.scrollTop = 1
 					this.scroll.scrollTop = 10
 				}
-				this.scroll.prepend(fragement, fragement)
+				this.scroll.prepend(fragment, fragment)
 			}
 		}
 	}
-	async watchForBottom(already = false, fragement = new DocumentFragment()) {
+	async watchForBottom(already = false, fragment = new DocumentFragment()) {
 		if (!this.scroll) return false
 
 		try {
@@ -152,10 +152,10 @@ class InfiniteScroller {
 				if (nextid) {
 					again = true
 					const html = await this.getHTMLFromID(nextid)
-					fragement.appendChild(html)
+					fragment.appendChild(html)
 					this.HTMLElements.push([html, nextid])
 					this.scrollBottom += this.averageheight
-				} else console.warn("huh")
+				}
 			}
 			if (scrollBottom > this.maxDist) {
 				const html = this.HTMLElements.pop()
@@ -166,11 +166,11 @@ class InfiniteScroller {
 				}
 			}
 
-			if (again) await this.watchForBottom(true, fragement)
+			if (again) await this.watchForBottom(true, fragment)
 			return again
 		} finally {
 			if (!already) {
-				this.scroll.append(fragement)
+				this.scroll.append(fragment)
 				if (this.scrollBottom < 30) this.scroll.scrollTop = this.scroll.scrollHeight
 			}
 		}

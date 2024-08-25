@@ -359,16 +359,12 @@ small.subtext {
 	overflow-y: scroll;
 	scrollbar-width: none;
 }
-#neunence::-webkit-scrollbar, #neunence::-webkit-scrollbar-button {
+#neunence::-webkit-scrollbar, #servers::-webkit-scrollbar, #neunence::-webkit-scrollbar-button {
 	display: none;
 }
 
 #servers {
 	vertical-align: top;
-}
-
-#servers::-webkit-scrollbar {
-	display: none;
 }
 
 .blankserver {

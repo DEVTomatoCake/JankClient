@@ -244,8 +244,7 @@ class Message {
 		else this.generateMessage()
 	}
 	generateMessage(premessage, ignoredblock = false) {
-		if (!this.div) return console.warn("no div for message " + this.id)
-			console.log(this.div)
+		if (!this.div) return
 		if (!premessage) premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
 
 		const div = this.div
