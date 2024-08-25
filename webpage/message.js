@@ -224,7 +224,7 @@ class Message {
 	}
 	deleteEvent() {
 		if (this.div) {
-			this.div.innerHTML = ""
+			this.div.remove()
 			this.div = void 0
 		}
 

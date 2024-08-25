@@ -61,10 +61,15 @@ class Embed {
 			}
 
 			const a = document.createElement("a")
-			a.textContent = this.json.author.name
-			if (this.json.author.url) a.href = this.json.author.url
 			a.classList.add("username")
+			a.textContent = this.json.author.name
+			if (this.json.author.url) {
+				a.target = "_blank"
+				a.rel = "noreferrer noopener"
+				a.href = this.json.author.url
+			}
 			authorline.append(a)
+
 			embedElem.append(authorline)
 		}
 

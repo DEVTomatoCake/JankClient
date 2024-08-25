@@ -94,15 +94,16 @@ const encode = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g,
 const inviteres = async (res, reqPath, query) => {
 	try {
 		const code = reqPath.replace("invite", "")
-		let title = ""
-		let description = ""
-		let icon = ""
 		const urls = await getAPIURLs(query.instance)
-		await fetch(urls.api + "/invites/" + code).then(response => response.json()).then(json => {
-			title = json.guild.name
-			description = (json.inviter ? json.inviter.username : "Someone") + " has invited you to " + json.guild.name + (json.guild.description ? " - " + json.guild.description : "")
-			if (json.guild.icon) icon = urls.cdn + "/icons/" + json.guild.id + "/" + json.guild.icon + "." + (json.guild.icon.startsWith("a_") ? "gif" : "png")
-		})
+
+		const inviteRes = await fetch(urls.api + "/invites/" + code)
+		const json = await inviteRes.json()
+
+		const title = json.guild.name
+		const description = (json.inviter ? json.inviter.username : "Someone") + " has invited you to " + json.guild.name + (json.guild.description ? " - " + json.guild.description : "")
+
+		let icon = urls.cdn + "/embed/avatars/" + ((json.guild.id >>> 22) % 6) + ".png?size=256"
+		if (json.guild.icon) icon = urls.cdn + "/icons/" + json.guild.id + "/" + json.guild.icon + "." + (json.guild.icon.startsWith("a_") ? "gif" : "png") + "?size=256"
 
 		const html =
 			"<!DOCTYPE html>" +

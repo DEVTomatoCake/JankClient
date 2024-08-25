@@ -2198,3 +2198,8 @@ small.edited {
 	border-radius: .03in;
 	box-shadow: .01in .01in .1in #00000059;
 }
+
+.updates {
+	display: flex;
+	flex-direction: column;
+}

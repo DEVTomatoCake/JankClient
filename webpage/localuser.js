@@ -1459,11 +1459,7 @@ class LocalUser {
 		if (!userInfo.instances) userInfo.instances = {}
 		const wellknown = this.info.wellknown
 		if (!userInfo.instances[wellknown]) {
-			const pingRes = await fetch(this.info.api + "/ping", {
-				headers: {
-					Accept: "application/json"
-				}
-			})
+			const pingRes = await fetch(this.info.api + "/ping")
 			const pingJSON = await pingRes.json()
 			userInfo.instances[wellknown] = pingJSON
 			localStorage.setItem("userinfos", JSON.stringify(userInfo))
@@ -1475,5 +1471,54 @@ class LocalUser {
 	pageTitle(channelName = "", guildName = "") {
 		document.getElementById("channelname").textContent = channelName
 		document.getElementsByTagName("title")[0].textContent = channelName + (guildName ? " | " + guildName : "") + " | " + this.instancePing.name + " | Jank Client (Tomato fork)"
+	}
+	async showUpdates() {
+		const res = await fetch(this.info.api + "/updates?platform=web")
+		const json = await res.json()
+
+		const container = document.createElement("div")
+		container.classList.add("updates")
+
+		const date = document.createElement("small")
+		date.textContent = "Released: " + new Date(json.pub_date).toLocaleString()
+		container.appendChild(date)
+
+		const url = document.createElement("a")
+		url.href = json.url
+		url.textContent = json.url
+		url.target = "_blank"
+		url.rel = "noopener noreferrer"
+		container.appendChild(url)
+
+		container.appendChild(document.createElement("br"))
+		container.appendChild(new MarkDown(json.notes, this).makeHTML())
+
+		const dialog = new Dialog(["vdiv",
+			["title", "Update: " + json.name],
+			["html", container]
+		])
+		dialog.show()
+	}
+	async instanceStats() {
+		const res = await fetch(this.info.api + "/policies/stats", {
+			headers: this.headers
+		})
+		const json = await res.json()
+
+		const dialog = new Dialog(["vdiv",
+			["title", "Instance stats: " + this.instancePing.name],
+			["text", "Registered users: " + json.counts.user],
+			["text", "Servers: " + json.counts.guild],
+			["text", "Messages: " + json.counts.message],
+			["text", "Members: " + json.counts.members]
+		])
+		dialog.show()
+	}
+	async gifSearch() {
+		const res = await fetch(this.info.api + "/gifs/search?q=hello&media_format=gif&locale=de", {
+			headers: this.headers
+		})
+		const json = await res.json()
+		console.log(json)
 	}
 }

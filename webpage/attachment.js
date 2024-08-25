@@ -117,6 +117,8 @@ class Attachment {
 		const nametd = document.createElement("td")
 		if (src) {
 			const a = document.createElement("a")
+			a.target = "_blank"
+			a.rel = "noreferrer noopener"
 			a.href = src
 			a.textContent = this.filename
 			nametd.append(a)
