@@ -159,14 +159,14 @@ class InfiniteScroller {
 		}
 
 		if (again) await this.watchForBottom()
-			return again
+		return again
 	}
 	watchtime = false
 	async watchForChange() {
 		if (this.currrunning) {
 			this.watchtime = true
 			if (this.changePromise) return await this.changePromise
-			else return false
+			return false
 		} else {
 			this.watchtime = false
 			this.currrunning = true

@@ -133,7 +133,7 @@ class Channel {
 	}
 
 	setUpInfiniteScroller() {
-		this.infinite = new InfiniteScroller((async (id, offset) => {
+		this.infinite = new InfiniteScroller(async (id, offset) => {
 			const snowflake = this.messages.get(id).snowflake
 			if (offset == 1) {
 				if (this.idToPrev.has(snowflake)) return this.idToPrev.get(snowflake)?.id
@@ -148,22 +148,23 @@ class Channel {
 					return this.idToNext.get(snowflake)?.id
 				}
 			}
-		}), (async id => {
+		}, async id => {
 			const message = this.messages.get(id)
+			console.warn(message)
 
 			try {
 				if (message) return message.buildhtml()
 			} catch (e) {
 				console.error(e)
 			}
-		}), (id => {
+		}, id => {
 			const message = this.messages.get(id)
 			try {
 				if (message) message.deleteDiv()
 			} catch (e) {
 				console.error(e)
 			}
-		}), this.readbottom.bind(this))
+		}, this.readbottom.bind(this))
 	}
 
 	constructor(json, owner) {
