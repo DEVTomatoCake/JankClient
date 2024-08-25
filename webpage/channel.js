@@ -23,7 +23,7 @@ class Channel {
 			channel.deleteChannel()
 		}, null, channel => channel.isAdmin())
 
-		this.contextmenu.addbutton("Make invite", (event, channel) => {
+		this.contextmenu.addbutton("Create invite", (event, channel) => {
 			channel.createInvite()
 		}, null, channel => channel.hasPermission("CREATE_INSTANT_INVITE") && channel.type != 4)
 	}

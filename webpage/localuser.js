@@ -806,13 +806,11 @@ class LocalUser {
 			body: JSON.stringify(settings)
 		})
 	}
-	async changeDiscriminator(discriminator = "") {
+	async updateAccount(json) {
 		const res = await fetch(this.info.api + "/users/@me", {
 			method: "PATCH",
 			headers: this.headers,
-			body: JSON.stringify({
-				discriminator
-			})
+			body: JSON.stringify(json)
 		})
 		return await res.json()
 	}
@@ -886,7 +884,7 @@ class LocalUser {
 			regen()
 		})
 
-		const bioBox = profileLeft.addMDInput("Bio:", () => {}, { initText: this.user.bio.rawString })
+		const bioBox = profileLeft.addMDInput("Bio", () => {}, { initText: this.user.bio.rawString })
 		bioBox.watchForChange(value => {
 			newbio = value
 			hypouser.bio = new MarkDown(value, this)
@@ -905,17 +903,37 @@ class LocalUser {
 		profileLeft.addButtonInput("", "Change discriminator", () => {
 			const update = new Dialog(["vdiv",
 				["title", "Change discriminator"],
-				["textbox", "New discriminator:", "", e => {
-						disc = e.target.value
-					}],
+				["textbox", "New discriminator:", "", event => {
+					disc = event.target.value
+				}],
 				["button", "", "submit", () => {
-						this.changeDiscriminator(disc).then(json => {
-							if (json.message) alert(json.errors.discriminator._errors[0].message)
-							else update.hide()
-						})
-					}]])
+					if (!disc || disc.length != 4) return alert("Please enter a valid 4-digit discriminator")
+
+					this.updateAccount({discriminator: disc}).then(json => {
+						if (json.message) alert(json.errors.discriminator._errors[0].message)
+						else update.hide()
+					})
+				}]])
 			update.show()
 		})
+
+		const baseData = settings.addButton("Account data")
+		const newBaseData = {}
+		baseData.addTextInput("Username", value => {
+			if (value) newBaseData.username = value
+		}, { initText: this.user.username })
+		baseData.addTextInput("Email", value => {
+			if (value) newBaseData.email = value
+		}, { initText: this.user.email })
+		baseData.addTextInput("New password (leave empty to keep current)", value => {
+			if (value) newBaseData.new_password = value
+		}, { fieldType: "password" })
+		baseData.addTextInput("Current password", value => {
+			if (!value) return alert("You must enter your current password to change these settings!")
+			newBaseData.password = value
+
+			this.updateAccount(newBaseData)
+		}, { fieldType: "password" })
 
 		const userSettings = settings.addButton("Account settings")
 		const newSettings = {}

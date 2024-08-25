@@ -1,9 +1,10 @@
 "use strict"
 
 class TextInput {
-	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5), initText = "" } = {}) {
+	constructor(label, onSubmit, owner, { id = "random-" + Math.random().toString(36).slice(5), initText = "", fieldType = "text" } = {}) {
 		this.label = label
 		this.value = initText
+		this.type = fieldType
 		this.owner = owner
 		this.onSubmit = onSubmit
 		this.elemId = id
@@ -19,7 +20,7 @@ class TextInput {
 		const input = document.createElement("input")
 		input.id = this.elemId
 		input.value = this.value
-		input.type = "text"
+		input.type = this.type
 		input.oninput = this.onChange.bind(this)
 		this.input = new WeakRef(input)
 		div.append(input)
@@ -350,8 +351,8 @@ class Options {
 		this.options.push(FI)
 		return FI
 	}
-	addTextInput(label, onSubmit, { initText = "" } = {}) {
-		const textInput = new TextInput(label, onSubmit, this, { initText })
+	addTextInput(label, onSubmit, { initText = "", fieldType = "text" } = {}) {
+		const textInput = new TextInput(label, onSubmit, this, { initText, fieldType })
 		this.options.push(textInput)
 		return textInput
 	}

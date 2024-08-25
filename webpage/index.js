@@ -213,10 +213,16 @@ typebox.addEventListener("keyup", event => {
 			})
 
 		if (channel.editing) {
+			if (content.length == 0 && images.length == 0) {
+				if (confirm("Do you want to delete this message?")) channel.editing.delete()
+				channel.editing = null
+				return
+			}
+
 			channel.editing.edit(content)
 			channel.editing = null
 		} else {
-			if (content == "" && images.length == 0) return
+			if (content.length == 0 && images.length == 0) return
 
 			const replyingto = channel.replyingto
 			if (replyingto) replyingto.div.classList.remove("replying")

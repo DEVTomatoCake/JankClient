@@ -26,8 +26,8 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | bio | string - Constraints: Max 1024 chars
 | ✅ | accent_color | integer
 | ✅ | banner | string┃null
-| ❌ | new_password | string
-| ❌ | email | string
+| ✅ | new_password | string
+| ✅ | email | string
 | ✅ | discriminator | string
 
 #### User profile

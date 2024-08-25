@@ -19,10 +19,12 @@ class Guild {
 				headers: guild.headers
 			})
 			let json = await res.json()
-			console.log(json)
+
+			const params = new URLSearchParams()
+			params.set("instance", this.info.wellknown)
 
 			const inviteCreateError = document.createElement("span")
-			if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(guild.info.api).origin + "/invite/" + json.code
+			if (res.ok) inviteCreateError.textContent = "Invite created: " + location.origin + "/invite/" + json.code + "?" + params.toString()
 			else {
 				inviteCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
 				console.error("Unable to create invite", json)
@@ -39,9 +41,8 @@ class Guild {
 							headers: guild.headers
 						})
 						json = await res.json()
-						console.log(json)
 
-						if (res.ok) inviteCreateError.textContent = "Invite created: " + new URL(guild.info.api).origin + "/invite/" + json.code
+						if (res.ok) inviteCreateError.textContent = "Invite created: " + location.origin + "/invite/" + json.code + "?" + params.toString()
 						else {
 							inviteCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
 							console.error("Unable to create invite", json)
