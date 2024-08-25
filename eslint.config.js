@@ -20,7 +20,6 @@ const global = {
 	Contextmenu: "writeable",
 	Direct: "writable",
 	Embed: "writeable",
-	emojis: "writable",
 	Dialog: "writable",
 	Guild: "writable",
 	InfiniteScroller: "writable",

@@ -436,7 +436,7 @@ class MarkDown {
 				}
 			}
 
-			if (txt[i + 1]?.trim() && (!txt[i - 1] || txt[i - 1] != "\\")) {
+			if (txt[i].trim() && txt[i + 1]?.trim() && (!txt[i - 1] || txt[i - 1] != "\\")) {
 				let searchInput = txt[i]
 				for (let k = 1; k < 8; k++) {
 					if (txt[i + k]?.trim()) searchInput += txt[i + k]
@@ -580,7 +580,7 @@ class MarkDown {
 			MarkDown.toCodePoint(emoji.length == 3 && emoji.charAt(1) == "\uFE0F" ? emoji.charAt(0) + emoji.charAt(2) : emoji) + ".png"
 		img.width = size
 		img.height = size
-		img.alt = "Emoji: " + (Object.keys(emojis)[Object.values(emojis).findIndex(e => e == emoji)] || emoji)
+		img.alt = "Emoji " + emoji
 
 		let firstFail = true
 		img.addEventListener("error", () => {
