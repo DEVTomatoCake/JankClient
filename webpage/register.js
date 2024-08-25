@@ -100,18 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	document.getElementById("register").addEventListener("submit", registertry)
 
 	checkInstance.alt = async () => {
-		const pingRes = await fetch(JSON.parse(localStorage.getItem("instanceEndpoints")).api + "/ping", {
-			headers: {
-				Accept: "application/json"
-			}
-		})
+		const pingRes = await fetch(JSON.parse(localStorage.getItem("instanceEndpoints")).api + "/ping")
 		const pingJSON = await pingRes.json()
-
-		const userInfo = getBulkInfo()
-		if (!userInfo.instances) userInfo.instances = {}
-		userInfo.instances[JSON.parse(localStorage.getItem("instanceEndpoints")).wellknown] = pingJSON
-		localStorage.setItem("userInfo", JSON.stringify(userInfo))
-
 		const tosPage = pingJSON.instance.tosPage
 
 		const tosCheck = document.getElementById("tos-check")

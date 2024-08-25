@@ -436,17 +436,26 @@ class MarkDown {
 				}
 			}
 
-			if (!txt[i - 1] || txt[i - 1] != "\\") {
-				const searchInput = txt[i] + (txt[i + 1]?.trim() || "") + (txt[i + 2]?.trim() || "")
-				if (/^(\u00a9|\u00ae|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])$/.test(searchInput)) {
-					i++
-					if (!searchInput.includes("\uFE0E")) {
+			if (txt[i + 1]?.trim() && (!txt[i - 1] || txt[i - 1] != "\\")) {
+				let searchInput = txt[i]
+				for (let k = 1; k < 8; k++) {
+					if (txt[i + k]?.trim()) searchInput += txt[i + k]
+					else break
+				}
+
+				let foundEmoji = false
+				while (searchInput.length > 1) {
+					if (/^\u00a9|\u00ae|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]$/.test(searchInput)) {
 						appendcurrent()
 						span.appendChild(MarkDown.renderTwemoji(searchInput, isEmojiOnly ? 48 : 22))
-					}
 
-					continue
+						i += searchInput.length
+						foundEmoji = true
+						break
+					}
+					searchInput = searchInput.substring(0, searchInput.length - 1)
 				}
+				if (foundEmoji) continue
 			}
 
 			if (txt[i] == "<" && (txt[i + 1] == "#" || txt[i + 1] == "@")) {
@@ -474,28 +483,25 @@ class MarkDown {
 						let mentionText = parts[2]
 						if (build[1] == "#") {
 							if (thisuser.lookingguild?.channelids[parts[2]]) mentionText = thisuser.lookingguild.channelids[parts[2]].name
-							else {
+							else
 								thisuser.guildids.values().forEach(guild => {
 									if (guild.channelids[parts[2]]) mentionText = guild.channelids[parts[2]].name
 								})
-							}
 
 							mentionElem.textContent = "#" + mentionText
 						} else if (build[1] == "@") {
 							if (build[2] == "&") {
 								if (thisuser.lookingguild?.roleids[parts[2]]) mentionText = thisuser.lookingguild.roleids[parts[2]].name
-								else {
+								else
 									thisuser.guildids.values().forEach(guild => {
 										if (guild.roleids[parts[2]]) mentionText = guild.roleids[parts[2]].name
 									})
-								}
 							} else if (User.userids[parts[2]]) mentionText = User.userids[parts[2]].username
 
 							mentionElem.textContent = "@" + mentionText
 						}
 
 						span.appendChild(mentionElem)
-
 						continue
 					}
 				}
@@ -525,15 +531,17 @@ class MarkDown {
 					i = j
 
 					const parts = build.join("").match(/^\[(.+)\]\((https?:.+?)( ('|").+('|"))?\)$/)
-					const linkElem = document.createElement("a")
-					linkElem.href = parts[2]
-					linkElem.textContent = parts[1]
-					linkElem.target = "_blank"
-					linkElem.rel = "noopener noreferrer"
-					linkElem.title = (parts[3] ? parts[3].substring(2, parts[3].length - 1) + "\n\n" : "") + parts[2]
-					span.appendChild(linkElem)
+					if (parts) {
+						const linkElem = document.createElement("a")
+						linkElem.href = parts[2]
+						linkElem.textContent = parts[1]
+						linkElem.target = "_blank"
+						linkElem.rel = "noopener noreferrer"
+						linkElem.title = (parts[3] ? parts[3].substring(2, parts[3].length - 1) + "\n\n" : "") + parts[2]
+						span.appendChild(linkElem)
 
-					continue
+						continue
+					}
 				}
 			}
 
@@ -543,9 +551,9 @@ class MarkDown {
 		appendcurrent()
 		return span
 	}
-	static unspoil(e) {
-		e.target.classList.remove("spoiler")
-		e.target.classList.add("unspoiled")
+	static unspoil(event) {
+		event.target.classList.remove("spoiler")
+		event.target.classList.add("unspoiled")
 	}
 	static toCodePoint(unicodeSurrogates) {
 		// Modified by TomatoCake from https://github.com/twitter/twemoji/blob/81040856868a62d378e9afdb56aa6e8ae2418435/twemoji.js#L570-L588
