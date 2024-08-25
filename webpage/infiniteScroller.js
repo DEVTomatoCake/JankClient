@@ -15,6 +15,7 @@ class InfiniteScroller {
 	async getDiv(initialId) {
 		const div = document.createElement("div")
 		div.classList.add("messagecontainer")
+
 		const scroll = document.createElement("div")
 		scroll.classList.add("flexttb")
 		div.appendChild(scroll)
@@ -68,6 +69,8 @@ class InfiniteScroller {
 		this.needsupdate = false
 	}
 	async firstElement(id) {
+		if (!this.scroll) return
+
 		const html = await this.getHTMLFromID(id)
 		this.scroll.appendChild(html)
 		this.HTMLElements.push([html, id])
@@ -88,7 +91,7 @@ class InfiniteScroller {
 		}
 	}
 	async watchForTop(already = false, fragement = new DocumentFragment()) {
-		if (!this.scroll) return
+		if (!this.scroll) return false
 
 		try {
 			let again = false
@@ -133,33 +136,44 @@ class InfiniteScroller {
 			}
 		}
 	}
-	async watchForBottom() {
+	async watchForBottom(already = false, fragement = new DocumentFragment()) {
 		if (!this.scroll) return false
 
-		let again = false
-		const scrollBottom = this.scrollBottom
-		if (scrollBottom < this.minDist) {
-			const previd = this.HTMLElements.at(-1)[1]
-			const nextid = await this.getIDFromOffset(previd, -1)
-			if (nextid) {
-				again = true
-				const html = await this.getHTMLFromID(nextid)
-				this.scroll.appendChild(html)
-				this.HTMLElements.push([html, nextid])
-				this.scrollBottom += 60
-				if (scrollBottom < 30) this.scroll.scrollTop = this.scroll.scrollHeight
+		try {
+			let again = false
+			const scrollBottom = this.scrollBottom
+			if (scrollBottom < (already ? this.fillDist : this.minDist)) {
+				let nextid
+				const lastelm = this.HTMLElements.at(-1)
+				if (lastelm) {
+					const previd = lastelm[1]
+					nextid = await this.getIDFromOffset(previd, -1)
+				}
+				if (nextid) {
+					again = true
+					const html = await this.getHTMLFromID(nextid)
+					fragement.appendChild(html)
+					this.HTMLElements.push([html, nextid])
+					this.scrollBottom += this.averageheight
+				} else console.warn("huh")
+			}
+			if (scrollBottom > this.maxDist) {
+				const html = this.HTMLElements.pop()
+				if (html) {
+					await this.destroyFromID(html[1])
+					this.scrollBottom -= this.averageheight
+					again = true
+				}
+			}
+
+			if (again) await this.watchForBottom(true, fragement)
+			return again
+		} finally {
+			if (!already) {
+				this.scroll.append(fragement)
+				if (this.scrollBottom < 30) this.scroll.scrollTop = this.scroll.scrollHeight
 			}
 		}
-
-		if (scrollBottom > this.maxDist) {
-			again = true
-			const html = this.HTMLElements.pop()
-			await this.destroyFromID(html[1])
-			this.scrollBottom -= 60
-		}
-
-		if (again) await this.watchForBottom()
-		return again
 	}
 	watchtime = false
 	async watchForChange() {
@@ -196,7 +210,7 @@ class InfiniteScroller {
 				res(false)
 			} finally {
 				setTimeout(() => {
-					delete this.changePromise
+					this.changePromise = void 0
 					this.currrunning = false
 					if (this.watchtime) this.watchForChange()
 				}, 300)
@@ -247,7 +261,8 @@ class InfiniteScroller {
 			await this.destroyFromID(thing[1])
 		}
 		this.HTMLElements = []
-		clearTimeout(this.timeout)
+		if (this.timeout) clearTimeout(this.timeout)
+
 		if (this.div) this.div.remove()
 		this.scroll = null
 		this.div = null
