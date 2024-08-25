@@ -61,7 +61,8 @@ class MarkDown {
 			}
 		}
 
-		const isEmojiOnly = /^((<a?:\w+:\d+>|\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]) *)+$/.test(txt.join(""))
+		// |[\u2000-\u3300] matches currency symbols, ...
+		const isEmojiOnly = /^((<a?:\w+:\d+>|\u00a9|\u00ae|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]) *)+$/.test(txt.join(""))
 
 		for (let i = 0; i < txt.length; i++) {
 			if (txt[i] == "\n" || i == 0) {
@@ -436,12 +437,12 @@ class MarkDown {
 			}
 
 			if (!txt[i - 1] || txt[i - 1] != "\\") {
-				const twEmoji = emojiRegex.exec(txt[i] + (txt[i + 1] || "") + (txt[i + 2] || ""))
-				if (twEmoji) {
+				const searchInput = txt[i] + (txt[i + 1]?.trim() || "") + (txt[i + 2]?.trim() || "")
+				if (/^(\u00a9|\u00ae|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])$/.test(searchInput)) {
 					i++
-					if (twEmoji[2] != "\uFE0E") {
+					if (!searchInput.includes("\uFE0E")) {
 						appendcurrent()
-						span.appendChild(MarkDown.renderTwemoji(twEmoji[1], isEmojiOnly ? 48 : 22))
+						span.appendChild(MarkDown.renderTwemoji(searchInput, isEmojiOnly ? 48 : 22))
 					}
 
 					continue

@@ -118,7 +118,7 @@ const minify = async () => {
 	await minifyFile("./webpage/direct.js", generateJSOptions(["Group", "Direct"]))
 	await minifyFile("./webpage/embed.js", generateJSOptions(["Embed"]))
 	await minifyFile("./webpage/emoji.js", generateJSOptions(["Emoji"]))
-	await minifyFile("./webpage/emojis.js", generateJSOptions(["emojis", "emojiRegex"]))
+	await minifyFile("./webpage/emojis.js", generateJSOptions(["emojis"]))
 	await minifyFile("./webpage/guild.js", generateJSOptions(["Guild"]))
 	await minifyFile("./webpage/index.js", generateJSOptions(["requestTestNotif"]))
 	await minifyFile("./webpage/invite.js", generateJSOptions())

@@ -21,7 +21,6 @@ const global = {
 	Direct: "writable",
 	Embed: "writeable",
 	emojis: "writable",
-	emojiRegex: "writable",
 	Dialog: "writable",
 	Guild: "writable",
 	InfiniteScroller: "writable",
