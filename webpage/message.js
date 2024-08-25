@@ -433,8 +433,6 @@ class Message {
 				if (compactLayout) div.classList.add("compact")
 			} else div.classList.remove("topMessage")
 
-			text.appendChild(texttxt)
-
 			const messagedwrap = document.createElement("div")
 			messagedwrap.classList.add("flexttb")
 
@@ -450,6 +448,7 @@ class Message {
 			messagedwrap.appendChild(messaged)
 
 			texttxt.appendChild(messagedwrap)
+			text.appendChild(texttxt)
 			build.appendChild(text)
 
 			if (this.attachments && this.attachments.length > 0) {
@@ -523,25 +522,24 @@ class Message {
 		const snapBottom = this.channel.infinite.snapBottom()
 
 		reactdiv.innerHTML = ""
-		for (const thing of this.reactions) {
+		for (const reaction of this.reactions) {
 			const reactionContainer = document.createElement("div")
 			reactionContainer.classList.add("reaction")
-			if (thing.me) reactionContainer.classList.add("meReacted")
+			if (reaction.me) reactionContainer.classList.add("meReacted")
 
 			const count = document.createElement("span")
-			count.textContent = thing.count
+			count.textContent = reaction.count
 			count.classList.add("reactionCount")
 			reactionContainer.appendChild(count)
 
-			if (thing.emoji.id) {
-				const emo = new Emoji(thing.emoji, this.guild)
-				const emoji = emo.getHTML(false)
-				reactionContainer.appendChild(emoji)
-			} else reactionContainer.appendChild(MarkDown.renderTwemoji(thing.emoji.name))
+			if (reaction.emoji.id) {
+				const emoji = new Emoji(reaction.emoji, this.guild)
+				reactionContainer.appendChild(emoji.getHTML(false))
+			} else reactionContainer.appendChild(MarkDown.renderTwemoji(reaction.emoji.name))
 
 			reactdiv.appendChild(reactionContainer)
 			reactionContainer.addEventListener("click", () => {
-				this.reactionToggle(thing.emoji.name)
+				this.reactionToggle(reaction.emoji.name)
 			})
 		}
 
@@ -568,17 +566,17 @@ class Message {
 	}
 	reactionRemove(emoji, userId) {
 		for (const i in this.reactions) {
-			const thing = this.reactions[i]
-			if ((thing.emoji.id && thing.emoji.id == emoji.id) || (!thing.emoji.id && thing.emoji.name == emoji.name)) {
-				thing.count--
-				if (thing.count == 0) {
+			const reaction = this.reactions[i]
+			if ((reaction.emoji.id && reaction.emoji.id == emoji.id) || (!reaction.emoji.id && reaction.emoji.name == emoji.name)) {
+				reaction.count--
+				if (reaction.count == 0) {
 					this.reactions.splice(i, 1)
 					this.updateReactions()
 					return
 				}
 
 				if (this.localuser.user.id == userId) {
-					thing.me = false
+					reaction.me = false
 					this.updateReactions()
 					return
 				}
@@ -591,8 +589,8 @@ class Message {
 	}
 	reactionRemoveEmoji(emoji) {
 		for (const i in this.reactions) {
-			const thing = this.reactions[i]
-			if ((thing.emoji.id && thing.emoji.id == emoji.id) || (!thing.emoji.id && thing.emoji.name == emoji.name)) {
+			const reaction = this.reactions[i]
+			if ((reaction.emoji.id && reaction.emoji.id == emoji.id) || (!reaction.emoji.id && reaction.emoji.name == emoji.name)) {
 				this.reactions.splice(i, 1)
 				this.updateReactions()
 				break

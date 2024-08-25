@@ -117,17 +117,17 @@ class LocalUser {
 			this.guildids.get(guildSettings.guild_id).notisetting(guildSettings)
 		}
 
-		for (const thing of ready.d.read_state.entries) {
-			const guild = this.resolveChannelFromID(thing.id)?.guild
+		for (const readState of ready.d.read_state.entries) {
+			const guild = this.resolveChannelFromID(readState.id)?.guild
 			if (!guild) continue
 
-			this.guildids.get(guild.id).channelids[thing.channel_id].readStateInfo(thing)
+			this.guildids.get(guild.id).channelids[readState.channel_id].readStateInfo(readState)
 		}
 
-		for (const thing of ready.d.relationships) {
-			const user = new User(thing.user, this)
-			user.nickname = thing.nickname
-			user.relationshipType = thing.type
+		for (const relationships of ready.d.relationships) {
+			const user = new User(relationships.user, this)
+			user.nickname = relationships.nickname
+			user.relationshipType = relationships.type
 		}
 	}
 	outoffocus() {

@@ -179,8 +179,8 @@ class Member {
 	hasPermission(name) {
 		if (this.isAdmin()) return true
 
-		for (const thing of this.roles) {
-			if (thing.permissions.getPermission(name)) return true
+		for (const role of this.roles) {
+			if (role.permissions.getPermission(name)) return true
 		}
 		return false
 	}

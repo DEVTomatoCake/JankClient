@@ -157,9 +157,10 @@ class SelectInput {
 		const select = document.createElement("select")
 		select.id = this.elemId
 		select.onchange = this.onChange.bind(this)
-		for (const thing of this.options) {
+		for (const value of this.options) {
 			const option = document.createElement("option")
-			option.textContent = thing
+			option.value = value
+			option.textContent = value
 			select.appendChild(option)
 		}
 		this.select = new WeakRef(select)

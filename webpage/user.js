@@ -129,17 +129,17 @@ class User {
 	constructor(userjson, owner) {
 		this.owner = owner
 
-		for (const thing of Object.keys(userjson)) {
-			if (thing == "bio") {
-				this.bio = new MarkDown(userjson[thing], this.localuser)
+		for (const key of Object.keys(userjson)) {
+			if (key == "bio") {
+				this.bio = new MarkDown(userjson[key], this.localuser)
 				continue
 			}
-			if (thing == "id") {
-				this.snowflake = new SnowFlake(userjson[thing], this)
+			if (key == "id") {
+				this.snowflake = new SnowFlake(userjson[key], this)
 				continue
 			}
 
-			this[thing] = userjson[thing]
+			this[key] = userjson[key]
 		}
 		this.hypotheticalpfp = false
 	}
@@ -239,7 +239,8 @@ class User {
 		this.avatar = update
 		this.hypotheticalpfp = false
 
-		for (const thing of document.getElementsByClassName("userid:" + this.id)) thing.src = this.getpfpsrc()
+		for (const elem of document.getElementsByClassName("userid:" + this.id))
+			elem.src = this.getpfpsrc()
 	}
 	getpfpsrc() {
 		if (this.hypotheticalpfp && this.avatar) return this.avatar
@@ -452,8 +453,8 @@ class User {
 
 		const channel = this.localuser.channelfocus
 		if (channel) {
-			for (const thing of channel.messages) {
-				thing[1].generateMessage()
+			for (const msg of channel.messages) {
+				msg[1].generateMessage()
 			}
 		}
 	}
@@ -466,8 +467,8 @@ class User {
 
 		const channel = this.localuser.channelfocus
 		if (channel) {
-			for (const thing of channel.messages) {
-				thing[1].generateMessage()
+			for (const msg of channel.messages) {
+				msg[1].generateMessage()
 			}
 		}
 	}

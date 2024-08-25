@@ -281,8 +281,8 @@ class Channel {
 	createGuildHTML(admin = false) {
 		if (!this.hasPermission("VIEW_CHANNEL")) {
 			let quit = true
-			for (const thing of this.children) {
-				if (thing.hasPermission("VIEW_CHANNEL")) quit = false
+			for (const channel of this.children) {
+				if (channel.hasPermission("VIEW_CHANNEL")) quit = false
 			}
 			if (quit) return
 		}

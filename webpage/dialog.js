@@ -164,13 +164,13 @@ class Dialog {
 				fieldset.appendChild(legend)
 
 				let i = 0
-				for (const thing of array[2]) {
+				for (const value of array[2]) {
 					const div2 = document.createElement("div")
 					const input = document.createElement("input")
 					input.classList.add("radio")
 					input.type = "radio"
 					input.name = array[1]
-					input.value = thing
+					input.value = value
 
 					if (i == array[4]) input.checked = true
 					i++
@@ -179,7 +179,7 @@ class Dialog {
 					label.appendChild(input)
 
 					const span = document.createElement("span")
-					span.textContent = thing
+					span.textContent = value
 					label.appendChild(span)
 					div2.appendChild(label)
 					fieldset.appendChild(div2)
@@ -199,9 +199,10 @@ class Dialog {
 				label.textContent = array[1]
 				parent.append(label)
 
-				for (const thing of array[2]) {
+				for (const value of array[2]) {
 					const option = document.createElement("option")
-					option.textContent = thing
+					option.value = value
+					option.textContent = value
 					select.appendChild(option)
 				}
 				select.selectedIndex = array[4]

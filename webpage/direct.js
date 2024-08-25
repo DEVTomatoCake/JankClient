@@ -163,6 +163,7 @@ class Direct extends Guild {
 		this.roleids = new Map()
 		this.prevchannel = void 0
 		this.properties.name = "Direct Messages"
+
 		for (const thing of json) {
 			const temp = new Group(thing, this)
 			this.channels.push(temp)
@@ -189,6 +190,6 @@ class Direct extends Guild {
 		return false
 	}
 	unreaddms() {
-		for (const thing of this.channels) thing.unreads()
+		for (const channel of this.channels) channel.unreads()
 	}
 }

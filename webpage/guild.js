@@ -283,8 +283,8 @@ class Guild {
 		}
 
 		this.headchannels = []
-		for (const thing of this.channels) {
-			if (thing.resolveparent(this)) this.headchannels.push(thing)
+		for (const channel of this.channels) {
+			if (channel.resolveparent(this)) this.headchannels.push(channel)
 		}
 	}
 	calculateReorder() {
@@ -402,9 +402,9 @@ class Guild {
 			return
 		}
 
-		for (const thing of this.channels) {
-			if (thing.children.length == 0) {
-				thing.getHTML()
+		for (const channel of this.channels) {
+			if (channel.children.length == 0) {
+				channel.getHTML()
 				return
 			}
 		}
@@ -414,13 +414,13 @@ class Guild {
 	}
 	updateChannel(json) {
 		SnowFlake.getSnowFlakeFromID(json.id, Channel).getObject().updateChannel(json)
-		for (const thing of this.channels) {
-			thing.children = []
+		for (const channel of this.channels) {
+			channel.children = []
 		}
 
 		this.headchannels = []
-		for (const thing of this.channels) {
-			if (thing.resolveparent(this)) this.headchannels.push(thing)
+		for (const channel of this.channels) {
+			if (channel.resolveparent(this)) this.headchannels.push(channel)
 		}
 	}
 	createChannelpac(json) {

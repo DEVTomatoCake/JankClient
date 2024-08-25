@@ -273,9 +273,9 @@ class Permissions {
 
 		Permissions.map = {}
 		let i = 0
-		for (const thing of Permissions.info) {
-			Permissions.map[i] = thing
-			Permissions.map[thing.name] = i
+		for (const perm of Permissions.info) {
+			Permissions.map[i] = perm
+			Permissions.map[perm.name] = i
 			i++
 		}
 	}

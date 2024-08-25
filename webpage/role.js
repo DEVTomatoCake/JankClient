@@ -5,12 +5,12 @@ class Role {
 		this.headers = owner.headers
 		this.info = owner.info
 
-		for (const thing of Object.keys(json)) {
-			if (thing == "id") {
+		for (const key of Object.keys(json)) {
+			if (key == "id") {
 				this.snowflake = new SnowFlake(json.id, this)
 				continue
 			}
-			this[thing] = json[thing]
+			this[key] = json[key]
 		}
 		this.permissions = new Permissions(json.permissions)
 		this.owner = owner
@@ -110,8 +110,8 @@ class RoleList extends Buttons {
 		if (channel) this.permission = new Permissions("0", "0")
 		else this.permission = new Permissions("0")
 
-		for (const thing of Permissions.info) {
-			options.addPermissionToggle(thing, this.permission)
+		for (const perm of Permissions.info) {
+			options.addPermissionToggle(perm, this.permission)
 		}
 		for (const i of permissions) {
 			this.buttons.push([i[0].getObject().name, i[0].id])
