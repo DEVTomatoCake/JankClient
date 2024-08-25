@@ -1783,8 +1783,7 @@ img.svgtheme,
 }
 
 .emojiTitle {
-	padding: .03in;
-	padding-left: .1in;
+	padding: .03in .03in .03in .1in;
 	border-bottom: solid var(--black);
 	width: 100%;
 	box-sizing: border-box;
@@ -1809,10 +1808,8 @@ img.svgtheme,
 }
 
 .reactionCount {
-	font-size: .125in;
-	padding: 0 .01in;
-	padding-left: .02in;
-	padding-right: .05in;
+	font-size: 13.5px;
+	padding: 0 .05in 0 .02in;
 }
 
 .reaction {
@@ -1828,11 +1825,6 @@ img.svgtheme,
 	background: var(--code-bg);
 }
 
-.reaction span {
-	flex-grow: 0;
-	flex-shrink: 0;
-	font-size: 13px;
-}
 .meReacted {
 	border: 2px solid var(--mention-color);
 	background: var(--mention-bg);

@@ -68,6 +68,8 @@ class LocalUser {
 			"Content-Type": "application/json; charset=UTF-8",
 			Authorization: this.userinfo.token
 		}
+
+		this.pingEndpoint()
 	}
 
 	badges = new Map()
@@ -385,7 +387,7 @@ class LocalUser {
 					}
 					break
 				case "TYPING_START":
-					if (this.initialized) this.typingStart(json)
+					if (this.initialized) this.typingStart(json.d)
 					break
 				case "USER_UPDATE":
 					if (this.initialized) {
@@ -732,10 +734,10 @@ class LocalUser {
 		}
 	}
 	typing = new Map()
-	async typingStart(typing) {
-		if (this.channelfocus.id == typing.d.channel_id) {
-			const guild = this.guildids.get(typing.d.guild_id)
-			const member = await Member.new(typing.d.member, guild)
+	async typingStart(typing = {}) {
+		if (this.channelfocus.id == typing.channel_id) {
+			const guild = this.guildids.get(typing.guild_id)
+			const member = await Member.new(typing.member, guild)
 			if (!member || member.id == this.user.id) return
 
 			this.typing.set(member, Date.now())
@@ -804,7 +806,7 @@ class LocalUser {
 			body: JSON.stringify(settings)
 		})
 	}
-	async changeDiscriminator(discriminator) {
+	async changeDiscriminator(discriminator = "") {
 		const res = await fetch(this.info.api + "/users/@me", {
 			method: "PATCH",
 			headers: this.headers,
@@ -1432,8 +1434,8 @@ class LocalUser {
 					}
 				}))
 				this.fetchingmembers.set(guildId, true)
-				const prom = await promise2
 
+				const prom = await promise2
 				for (const thing of prom[0]) {
 					if (value.has(thing.id)) {
 						value.get(thing.id)(thing)
@@ -1451,5 +1453,27 @@ class LocalUser {
 				this.getmembers()
 			})
 		}
+	}
+	async pingEndpoint() {
+		const userInfo = getBulkInfo()
+		if (!userInfo.instances) userInfo.instances = {}
+		const wellknown = this.info.wellknown
+		if (!userInfo.instances[wellknown]) {
+			const pingRes = await fetch(this.info.api + "/ping", {
+				headers: {
+					Accept: "application/json"
+				}
+			})
+			const pingJSON = await pingRes.json()
+			userInfo.instances[wellknown] = pingJSON
+			localStorage.setItem("userinfos", JSON.stringify(userInfo))
+		}
+		this.instancePing = userInfo.instances[wellknown].instance
+
+		this.pageTitle("Loading...")
+	}
+	pageTitle(channelName = "", guildName = "") {
+		document.getElementById("channelname").textContent = channelName
+		document.getElementsByTagName("title")[0].textContent = channelName + (guildName ? " | " + guildName : "") + " | " + this.instancePing.name + " | Jank Client (Tomato fork)"
 	}
 }

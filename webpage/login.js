@@ -210,7 +210,7 @@ const setInstance = async url => {
 
 	const attempt = async aurl => {
 		const loginURL = handleEndpoint(aurl.toString())
-		const info = await fetch(loginURL + (aurl.pathname.includes("api") ? "" : "api") + "/policies/instance/domains")
+		const info = await fetch(loginURL + "/policies/instance/domains")
 			.then(x => x.json())
 
 		return {
@@ -221,9 +221,6 @@ const setInstance = async url => {
 			login: loginURL
 		}
 	}
-	try {
-		return await attempt(url)
-	} catch {}
 
 	const wellKnown = await fetch(url.origin + "/.well-known/spacebar")
 		.then(x => x.json())
@@ -282,7 +279,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	instancein.addEventListener("keydown", () => {
 		verify.textContent = "Waiting to check Instance"
 		if (timeout) clearTimeout(timeout)
-		timeout = setTimeout(checkInstance, 1000)
+		timeout = setTimeout(checkInstance, 800)
 	})
 
 	if (localStorage.getItem("instanceEndpoints")) instancein.value = JSON.parse(localStorage.getItem("instanceEndpoints")).wellknown

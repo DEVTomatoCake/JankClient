@@ -100,17 +100,30 @@ document.addEventListener("DOMContentLoaded", () => {
 	document.getElementById("register").addEventListener("submit", registertry)
 
 	checkInstance.alt = async () => {
-		const pingRes = await fetch(JSON.parse(localStorage.getItem("instanceEndpoints")).api + "/ping")
-		const tosPage = (await pingRes.json()).instance.tosPage
+		const pingRes = await fetch(JSON.parse(localStorage.getItem("instanceEndpoints")).api + "/ping", {
+			headers: {
+				Accept: "application/json"
+			}
+		})
+		const pingJSON = await pingRes.json()
 
-		const tosLink = document.getElementById("TOSa")
+		const userInfo = getBulkInfo()
+		if (!userInfo.instances) userInfo.instances = {}
+		userInfo.instances[JSON.parse(localStorage.getItem("instanceEndpoints")).wellknown] = pingJSON
+		localStorage.setItem("userInfo", JSON.stringify(userInfo))
+
+		const tosPage = pingJSON.instance.tosPage
+
 		const tosCheck = document.getElementById("tos-check")
 		if (tosPage) {
-			tosLink.href = tosPage
+			document.getElementById("tos-accept").removeAttribute("hidden")
+			document.getElementById("tos-notos").setAttribute("hidden", "")
+			document.getElementById("TOSa").href = tosPage
 			tosCheck.removeAttribute("disabled")
 			tosCheck.removeAttribute("checked")
 		} else {
-			tosLink.textContent = "This instance has no Terms of Service."
+			document.getElementById("tos-accept").setAttribute("hidden", "")
+			document.getElementById("tos-notos").removeAttribute("hidden")
 			tosCheck.setAttribute("disabled", "")
 			tosCheck.setAttribute("checked", "")
 		}

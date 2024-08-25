@@ -134,7 +134,7 @@ class Emoji {
 			selection.append(select)
 
 			const clickEvent = () => {
-				title.textContent = guild.name
+				title.textContent = guild.properties.name
 				body.innerHTML = ""
 				for (const emojit of guild.emojis) {
 					const emojiElem = document.createElement("div")

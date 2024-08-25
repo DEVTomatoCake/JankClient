@@ -79,7 +79,7 @@ class Group extends Channel {
 
 		this.buildmessages()
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
-		document.getElementById("channelname").textContent = "@" + this.name
+		this.localuser.pageTitle("@" + this.name)
 		document.getElementById("channelTopic").setAttribute("hidden", "")
 		document.getElementById("typebox").contentEditable = true
 	}

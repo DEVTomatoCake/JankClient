@@ -572,7 +572,7 @@ class Channel {
 		const prom = this.infinite.delete()
 
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
-		document.getElementById("channelname").textContent = "#" + this.name
+		this.localuser.pageTitle("#" + this.name, this.guild.properties.name)
 
 		const topic = document.getElementById("channelTopic")
 		if (this.topic) {
