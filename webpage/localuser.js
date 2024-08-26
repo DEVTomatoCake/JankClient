@@ -73,6 +73,7 @@ class LocalUser {
 	}
 
 	badges = new Map()
+	userMap = new Map()
 	noteCache = new Map()
 
 	connectionSucceed = 0
@@ -144,7 +145,6 @@ class LocalUser {
 		this.guildids = new Map()
 		if (this.ws) this.ws.close(1000)
 		SnowFlake.clear()
-		User.clear()
 	}
 	lastSequence = null
 	swapped = false
@@ -391,7 +391,7 @@ class LocalUser {
 					break
 				case "USER_UPDATE":
 					if (this.initialized) {
-						const user = SnowFlake.getSnowFlakeFromID(json.d.id, User).getObject()
+						const user = this.userMap.get(json.d.id)
 						if (user) user.userupdate(json.d)
 					}
 					break
@@ -985,35 +985,35 @@ class LocalUser {
 					form.setValue("secret", secret)
 				})
 			}
+
+			security.addButtonInput("", "Change password", () => {
+				const form = security.addSubForm("Change password", () => {
+					security.returnFromSub()
+				}, {
+					fetchURL: this.info.api + "/users/@me",
+					headers: this.headers,
+					method: "PATCH"
+				})
+				form.addTextInput("Old password:", "password", { fieldType: "password" })
+				if (this.mfa_enabled) form.addTextInput("MFA Code:", "code")
+
+				let in1 = ""
+				form.addTextInput("New password:", "").watchForChange(value => {
+					in1 = value
+				})
+
+				let in2 = ""
+				const passwordRepeat = form.addTextInput("New password again:", "")
+				passwordRepeat.watchForChange(value => {
+					in2 = value
+				})
+				form.setValue("new_password", () => {
+					if (in1 == in2) return in1
+					throw new FormError(passwordRepeat, "Passwords don't match")
+				})
+			})
 		}
 		securityUpdate()
-
-		security.addButtonInput("", "Change password", () => {
-			const form = security.addSubForm("Change password", () => {
-				security.returnFromSub()
-			}, {
-				fetchURL: this.info.api + "/users/@me",
-				headers: this.headers,
-				method: "PATCH"
-			})
-			form.addTextInput("Old password:", "password", { fieldType: "password" })
-			if (this.mfa_enabled) form.addTextInput("MFA Code:", "code")
-
-			let in1 = ""
-			form.addTextInput("New password:", "").watchForChange(value => {
-				in1 = value
-			})
-
-			let in2 = ""
-			const passwordRepeat = form.addTextInput("New password again:", "")
-			passwordRepeat.watchForChange(value => {
-				in2 = value
-			})
-			form.setValue("new_password", () => {
-				if (in1 == in2) return in1
-				throw new FormError(passwordRepeat, "Passwords don't match")
-			})
-		})
 
 		const userSettings = settings.addButton("Account settings")
 		const newSettings = {}
@@ -1045,7 +1045,7 @@ class LocalUser {
 				reRender = true
 			}
 		}, { initState: this.settings.animate_stickers })
-		userSettings.addCheckboxInput("Convert emojis (:D -> 😀)", value => {
+		userSettings.addCheckboxInput("Convert emojis (:D -> 😄)", value => {
 			if (value != this.settings.convert_emoticons) newSettings.convert_emoticons = value
 		}, { initState: this.settings.convert_emoticons })
 		userSettings.addCheckboxInput("Developer mode", value => {

@@ -1,5 +1,7 @@
 "use strict"
 
+// https://www.russellcottrell.com/greek/utilities/SurrogatePairCalculator.htm
+
 const emojiData = require("./EmojiList/data-by-group.json")
 
 const fs = require("node:fs")

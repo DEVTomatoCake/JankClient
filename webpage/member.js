@@ -10,7 +10,8 @@ class Member {
 	 * @param {Guild} owner
 	 */
 	constructor(memberjson, owner) {
-		if (User.userids[memberjson.id]) this.user = User.userids[memberjson.id]
+		this.owner = owner
+		if (this.localuser.userMap.has(memberjson.id)) this.user = this.localuser.userMap.get(memberjson.id)
 		else this.user = new User(memberjson.user, owner.localuser)
 
 		this.owner = owner
@@ -28,7 +29,7 @@ class Member {
 			this[key] = memberjson[key]
 		}
 
-		if (SnowFlake.getSnowFlakeFromID(this.id, User)) this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject()
+		if (this.localuser.userMap.has(this?.id)) this.user = this.localuser.userMap.get(this.id)
 	}
 	get guild() {
 		return this.owner
@@ -46,7 +47,7 @@ class Member {
 	 */
 	static async new(memberjson, owner) {
 		let user
-		if (User.userids[memberjson.id]) user = User.userids[memberjson.id]
+		if (owner.localuser.userMap.has(memberjson.id)) user = owner.localuser.userMap.get(memberjson.id)
 		else user = new User(memberjson.user, owner.localuser)
 
 		if (user.members.has(owner)) {

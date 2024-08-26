@@ -103,20 +103,15 @@ class User {
 		}, null, (user, member) => member && member.guild && member.guild.member.hasPermission("BAN_MEMBERS") && user.id != member.guild.member.user.id && user.id != member.guild.owner_id)
 	}
 
-	static userids = {}
-	static clear() {
-		this.userids = {}
-	}
-
 	/**
-	 * @param {userjson} userjson
+	 * @param {User|userjson} userjson
 	 * @param {LocalUser} owner
 	 */
 	static checkuser(userjson, owner) {
-		if (User.userids[userjson.id]) return User.userids[userjson.id]
+		if (owner.userMap.has(userjson.id)) return owner.userMap.get(userjson.id)
 
 		const tempuser = new User(userjson, owner)
-		User.userids[userjson.id] = tempuser
+		owner.userMap.set(userjson.id, tempuser)
 		return tempuser
 	}
 
