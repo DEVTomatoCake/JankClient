@@ -93,7 +93,7 @@ class PermissionToggle {
 		}
 		return div
 	}
-    watchForChange() {}
+	watchForChange() {}
 	submit() {}
 }
 

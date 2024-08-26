@@ -1422,6 +1422,7 @@ video {
 
 .flexspace {
 	gap: .1in;
+	box-sizing: border-box;
 }
 
 .settings-space {
@@ -1689,6 +1690,7 @@ textarea:focus-visible,
 	justify-content: space-evenly;
 	padding: .075in;
 	box-sizing: border-box;
+	pointer-events: none;
 }
 
 @keyframes goout {
@@ -1829,6 +1831,8 @@ img.svgtheme,
 .Buttons {
 	background: var(--primary-bg);
 	position: relative;
+	box-sizing: border-box;
+	width: 100%;
 	height: 100%;
 	display: flex;
 	align-content: stretch;
@@ -2197,9 +2201,24 @@ small.edited {
 	margin-top: 10px;
 	border-radius: .03in;
 	box-shadow: .01in .01in .1in #00000059;
+	max-height: 100%;
 }
 
 .updates {
 	display: flex;
 	flex-direction: column;
+}
+
+.FormSettings {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: .1in;
+}
+
+.clickable {
+	cursor: pointer;
+}
+.clickable:hover {
+	text-decoration: underline;
 }

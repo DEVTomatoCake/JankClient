@@ -327,6 +327,8 @@ class ColorInput {
 
 class Options {
 	haschanged = false
+	html = new WeakMap();
+	container = new WeakRef(document.createElement("div"));
 	constructor(name, owner, { ltr = false } = {}) {
 		this.name = name
 		this.options = []
@@ -339,78 +341,170 @@ class Options {
 	addOptions(name, { ltr = false } = {}) {
 		const options = new Options(name, this, { ltr })
 		this.options.push(options)
+		this.generate(options)
 		return options
 	}
 	addSelect(label, onSubmit, selections, { defaultIndex = 0 } = {}) {
 		const select = new SelectInput(label, onSubmit, selections, this, { defaultIndex })
 		this.options.push(select)
+		this.generate(select)
 		return select
 	}
 	addFileInput(label, onSubmit, { clear = false } = {}) {
 		const FI = new FileInput(label, onSubmit, this, { clear })
 		this.options.push(FI)
+		this.generate(FI)
 		return FI
 	}
 	addTextInput(label, onSubmit, { initText = "", fieldType = "text" } = {}) {
 		const textInput = new TextInput(label, onSubmit, this, { initText, fieldType })
 		this.options.push(textInput)
+		this.generate(textInput)
 		return textInput
 	}
 	addMDInput(label, onSubmit, { initText = "" } = {}) {
 		const mdInput = new MDInput(label, onSubmit, this, { initText })
 		this.options.push(mdInput)
+		this.generate(mdInput)
 		return mdInput
 	}
 	addButtonInput(label, textContent, onSubmit) {
 		const button = new ButtonInput(label, textContent, onSubmit, this)
 		this.options.push(button)
+		this.generate(button)
 		return button
 	}
 	addColorInput(label, onSubmit, { initColor = "" } = {}) {
 		const colorInput = new ColorInput(label, onSubmit, this, { initColor })
 		this.options.push(colorInput)
+		this.generate(colorInput)
 		return colorInput
 	}
 	addHTMLArea(html, submit = () => {}) {
 		const htmlarea = new HtmlArea(html, submit)
 		this.options.push(htmlarea)
+		this.generate(htmlarea)
 		return htmlarea
 	}
 	addCheckboxInput(label, onSubmit, { initState = false } = {}) {
 		const box = new CheckboxInput(label, onSubmit, this, { initState })
 		this.options.push(box)
+		this.generate(box)
 		return box
 	}
-	html = new WeakMap()
+	addSubOptions(name, { ltr = false } = {}) {
+		const options = new Options(name, this, { ltr });
+		this.subOptions = options;
+		const container = this.container.deref();
+		if (container) {
+			this.generateContainter();
+		}
+		else {
+			throw Error("Tried to make a subOptions when the options weren't rendered");
+		}
+		return options;
+	}
+	addSubForm(name, onSubmit, { ltr = false, submitText = "Submit", fetchURL = "", headers = {}, method = "POST", traditionalSubmit = false } = {}) {
+		const options = new Form(name, this, onSubmit, { ltr, submitText, fetchURL, headers, method, traditionalSubmit });
+		this.subOptions = options;
+		const container = this.container.deref();
+		if (container) {
+			this.generateContainter();
+		}
+		else {
+			throw Error("Tried to make a subForm when the options weren't rendered");
+		}
+		return options;
+	}
+	returnFromSub() {
+		this.subOptions = undefined;
+		this.generateContainter();
+	}
+	addText(str) {
+		const text = new SettingsText(str);
+		this.options.push(text);
+		this.generate(text);
+		return text;
+	}
+	title = new WeakRef(document.createElement("h2"));
+	addTitle(str) {
+		const text = new SettingsTitle(str);
+		this.options.push(text);
+		this.generate(text);
+		return text;
+	}
+	generate(elm) {
+		const container = this.container.deref();
+		if (container) {
+			const div = document.createElement("div");
+			if (!(elm instanceof Options)) {
+				div.classList.add("optionElement");
+			}
+			const html = elm.generateHTML();
+			div.append(html);
+			this.html.set(elm, new WeakRef(div));
+			container.append(div);
+		}
+	}
 	generateHTML() {
 		const div = document.createElement("div")
 		div.classList.add("titlediv")
 
-		if (this.name != "") {
-			const title = document.createElement("h2")
-			title.textContent = this.name
-			div.append(title)
-			title.classList.add("settingstitle")
-		}
-
+		const title = document.createElement("h2");
+		title.textContent = this.name;
+		div.append(title);
+		if (this.name !== "")
+			title.classList.add("settingstitle");
+		this.title = new WeakRef(title);
 		const container = document.createElement("div")
 		container.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace")
+		this.container = new WeakRef(container);
 
 		const spacingContainer = document.createElement("div")
 		spacingContainer.classList.add("settings-space")
-		for (const thing of this.options) {
-			const divd = document.createElement("div")
-			if (!(thing instanceof Options)) divd.classList.add("optionElement")
-
-			const html = thing.generateHTML()
-			divd.append(html)
-			this.html.set(thing, new WeakRef(divd))
-			spacingContainer.append(divd)
-		}
+		this.generateContainter();
 		container.append(spacingContainer)
 
 		div.append(container)
 		return div
+	}
+	generateContainter() {
+		const container = this.container.deref();
+		if (container) {
+			const title = this.title.deref();
+			if (title)
+				title.innerHTML = "";
+			container.innerHTML = "";
+			if (this.subOptions) {
+				container.append(this.subOptions.generateHTML()); //more code needed, though this is enough for now
+				if (title) {
+					const name = document.createElement("span");
+					name.innerText = this.name;
+					name.classList.add("clickable");
+					name.onclick = () => {
+						this.returnFromSub();
+					};
+					title.append(name, " > ", this.subOptions.name);
+				}
+			}
+			else {
+				for (const thing of this.options) {
+					this.generate(thing);
+				}
+				if (title) {
+					title.innerText = this.name;
+				}
+			}
+			if (title && title.innerText !== "") {
+				title.classList.add("settingstitle");
+			}
+			else if (title) {
+				title.classList.remove("settingstitle");
+			}
+		}
+		else {
+			console.warn("tried to generate container, but it did not exist");
+		}
 	}
 	changed() {
 		// eslint-disable-next-line no-use-before-define
@@ -439,6 +533,15 @@ class Options {
 				div.remove()
 				this.submit()
 			})
+		}
+	}
+	removeAll() {
+		while (this.options.length) {
+			this.options.pop();
+		}
+		const container = this.container.deref();
+		if (container) {
+			container.innerHTML = "";
 		}
 	}
 	watchForChange() {}
@@ -491,8 +594,10 @@ class Buttons {
 	}
 	generateHTMLArea(buttonInfo, htmlarea) {
 		let html
-		if (buttonInfo instanceof Options) html = buttonInfo.generateHTML()
-		else html = this.handleString(buttonInfo)
+		if (buttonInfo instanceof Options) {
+			buttonInfo.subOptions = undefined
+			html = buttonInfo.generateHTML()
+		} else html = this.handleString(buttonInfo)
 
 		htmlarea.innerHTML = ""
 		htmlarea.append(html)
@@ -504,6 +609,32 @@ class Buttons {
 	watchForChange() {}
 	save() {}
 	submit() {}
+}
+
+class SettingsText {
+	constructor(text) {
+		this.text = text;
+	}
+	generateHTML() {
+		const span = document.createElement("span");
+		span.innerText = this.text;
+		return span;
+	}
+	watchForChange() { }
+	submit() { }
+}
+
+class SettingsTitle {
+	constructor(text) {
+		this.text = text;
+	}
+	generateHTML() {
+		const span = document.createElement("h2");
+		span.innerText = this.text;
+		return span;
+	}
+	watchForChange() { }
+	submit() { }
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -546,8 +677,12 @@ class Settings extends Buttons {
 }
 
 class Form {
+	names = new Map();
+	headers = {};
 	required = new WeakSet()
-	constructor(name, owner, onSubmit, { ltr = false, submitText = "Submit", fetchURL = "", headers = {}, method = "POST" } = {}) {
+	values = {};
+	constructor(name, owner, onSubmit, { ltr = false, submitText = "Submit", fetchURL = "", headers = {}, method = "POST", traditionalSubmit = false } = {}) {
+		this.traditionalSubmit = traditionalSubmit;
 		this.name = name
 		this.method = method
 		this.submitText = submitText
@@ -558,67 +693,112 @@ class Form {
 		this.ltr = ltr
 		this.onSubmit = onSubmit
 	}
+	setValue(key, value) {
+		this.values[key] = value;
+	}
 	addSelect(label, formName, selections, { defaultIndex = 0, required = false } = {}) {
 		const select = this.options.addSelect(label, () => {}, selections, { defaultIndex })
 		this.names.set(formName, select)
 		if (required) this.required.add(select)
+		return select
 	}
 	addFileInput(label, formName, { required = false } = {}) {
 		const FI = this.options.addFileInput(label, () => {}, {})
 		this.names.set(formName, FI)
 		if (required) this.required.add(FI)
+		return FI
 	}
 	addTextInput(label, formName, { initText = "", required = false } = {}) {
 		const textInput = this.options.addTextInput(label, () => {}, { initText })
 		this.names.set(formName, textInput)
 		if (required) this.required.add(textInput)
+		return textInput
 	}
 	addColorInput(label, formName, { initColor = "", required = false } = {}) {
 		const colorInput = this.options.addColorInput(label, () => {}, { initColor })
 		this.names.set(formName, colorInput)
 		if (required) this.required.add(colorInput)
+		return colorInput
 	}
 	addMDInput(label, formName, { initText = "", required = false } = {}) {
 		const mdInput = this.options.addMDInput(label, () => {}, { initText })
 		this.names.set(formName, mdInput)
 		if (required) this.required.add(mdInput)
+		return mdInput
 	}
 	addCheckboxInput(label, formName, { initState = false, required = false } = {}) {
 		const box = this.options.addCheckboxInput(label, () => {}, { initState })
 		this.names.set(formName, box)
 		if (required) this.required.add(box)
+		return box
 	}
 	generateHTML() {
 		const div = document.createElement("div")
 		div.append(this.options.generateHTML())
-		const button = document.createElement("button")
-		button.onclick = () => {
-			this.submit()
+		div.classList.add("FormSettings");
+		if (!this.traditionalSubmit) {
+			const button = document.createElement("button");
+			button.onclick = _ => {
+				this.submit();
+			};
+			button.textContent = this.submitText;
+			div.append(button);
 		}
-		button.textContent = this.submitText
-		div.append(button)
 		return div
 	}
-	onSubmit
+	addText(str) {
+		this.options.addText(str);
+	}
+	addTitle(str) {
+		this.options.addTitle(str);
+	}
 	watchForChange(func) {
 		this.onSubmit = func
 	}
 
-	changed() {}
+	changed() {
+		if (this.traditionalSubmit) {
+			this.owner.changed();
+		}
+	}
 	submit() {
 		const build = {}
-		for (const thing of this.names.keys()) {
-			const input = this.names.get(thing)
-			build[thing] = input.value
+		for (const key of Object.keys(this.values)) {
+			const thing = this.values[key];
+			if (thing instanceof Function) {
+				try {
+					build[key] = thing();
+				}
+				catch (e) {
+					const elm = this.options.html.get(e[0]);
+					if (elm) {
+						const html = elm.deref();
+						if (html) {
+							this.makeError(html, e[1]);
+						}
+					}
+					return;
+				}
+			}
+			else {
+				build[key] = thing;
+			}
 		}
-		if (this.fetchURL === "") {
+		for (const thing of this.names.keys()) {
+			if (thing === "")
+				continue;
+			const input = this.names.get(thing);
+			build[thing] = input.value;
+		}
+		if (this.fetchURL !== "") {
 			fetch(this.fetchURL, {
 				method: this.method,
-				body: JSON.stringify(build)
+				body: JSON.stringify(build),
+				headers: this.headers
 			}).then(_ => _.json()).then(json => {
-				if (json.errors) {
-					this.errors(json.errors)
-				}
+				if (json.errors && this.errors(json.errors))
+					return;
+				this.onSubmit(json);
 			})
 		} else {
 			this.onSubmit(build)
@@ -626,15 +806,36 @@ class Form {
 		console.warn("needs to be implemented")
 	}
 	errors(errors) {
-		for (const error of errors) {
+		if (!(errors instanceof Object)) {
+			return;
+		}
+		;
+		for (const error of Object.keys(errors)) {
 			const elm = this.names.get(error)
 			if (elm) {
 				const ref = this.options.html.get(elm)
 				if (ref && ref.deref()) {
 					const html = ref.deref()
-					this.makeError(html, error._errors[0].message)
+					this.makeError(html, errors[error]._errors[0].message);
+					return true;
 				}
 			}
+		}
+		return false;
+	}
+	error(formElm, errorMessage) {
+		const elm = this.names.get(formElm);
+		if (elm) {
+			const htmlref = this.options.html.get(elm);
+			if (htmlref) {
+				const html = htmlref.deref();
+				if (html) {
+					this.makeError(html, errorMessage);
+				}
+			}
+		}
+		else {
+			console.warn(formElm + " is not a valid form property");
 		}
 	}
 	makeError(e, message) {
