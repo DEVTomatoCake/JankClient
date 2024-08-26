@@ -38,6 +38,7 @@ const global = {
 	Buttons: "writable",
 	Options: "writable",
 	PermissionToggle: "writable",
+	FormError: "writable",
 
 	thisuser: "writable",
 	setTheme: "writeable",

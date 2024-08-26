@@ -815,120 +815,6 @@ class LocalUser {
 		return await res.json()
 	}
 	async showusersettings() {
-		/*
-		const genSecurity = () => {
-			security.removeAll();
-			if (this.mfa_enabled) {
-				security.addButtonInput("", "Disable 2FA", () => {
-					const form = security.addSubForm("2FA Disable", (_) => {
-						if (_.message) {
-							switch (_.code) {
-								case 60008:
-									form.error("code", "Invalid code");
-									break;
-							}
-						}
-						else {
-							this.mfa_enabled = false;
-							security.returnFromSub();
-							genSecurity();
-						}
-					}, {
-						fetchURL: (this.info.api + "/users/@me/mfa/totp/disable"),
-						headers: this.headers
-					});
-					form.addTextInput("Code:", "code", { required: true });
-				});
-			}
-			else {
-				security.addButtonInput("", "Enable 2FA", async () => {
-					let secret = "";
-					for (let i = 0; i < 18; i++) {
-						secret += "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[Math.floor(Math.random() * 32)];
-					}
-					const form = security.addSubForm("2FA Setup", (_) => {
-						if (_.message) {
-							switch (_.code) {
-								case 60008:
-									form.error("code", "Invalid code");
-									break;
-								case 400:
-									form.error("password", "Incorrect password");
-									break;
-							}
-						}
-						else {
-							genSecurity();
-							this.mfa_enabled = true;
-							security.returnFromSub();
-						}
-					}, {
-						fetchURL: (this.info.api + "/users/@me/mfa/totp/enable/"),
-						headers: this.headers
-					});
-					form.addTitle("Copy this secret into your totp(time-based one time password) app");
-					form.addText(`Your secret is: ${secret} and it's 6 digits, with a 30 second token period`);
-					form.addTextInput("Account Password:", "password", { required: true, password: true });
-					form.addTextInput("Code:", "code", { required: true });
-					form.setValue("secret", secret);
-				});
-			}
-			security.addButtonInput("", "Change discriminator", () => {
-				const form = security.addSubForm("Change Discriminator", (_) => { security.returnFromSub(); }, {
-					fetchURL: (this.info.api + "/users/@me/"),
-					headers: this.headers,
-					method: "PATCH"
-				});
-				form.addTextInput("New discriminator:", "discriminator");
-			});
-			security.addButtonInput("", "Change email", () => {
-				const form = security.addSubForm("Change Email", (_) => { security.returnFromSub(); }, {
-					fetchURL: (this.info.api + "/users/@me/"),
-					headers: this.headers,
-					method: "PATCH"
-				});
-				form.addTextInput("Password:", "password", { password: true });
-				if (this.mfa_enabled) {
-					form.addTextInput("Code:", "code");
-				}
-				form.addTextInput("New email:", "email");
-			});
-			security.addButtonInput("", "Change username", () => {
-				const form = security.addSubForm("Change Username", (_) => { security.returnFromSub(); }, {
-					fetchURL: (this.info.api + "/users/@me/"),
-					headers: this.headers,
-					method: "PATCH"
-				});
-				form.addTextInput("Password:", "password", { password: true });
-				if (this.mfa_enabled) {
-					form.addTextInput("Code:", "code");
-				}
-				form.addTextInput("New username:", "username");
-			});
-			security.addButtonInput("", "Change password", () => {
-				const form = security.addSubForm("Change Password", (_) => { security.returnFromSub(); }, {
-					fetchURL: (this.info.api + "/users/@me/"),
-					headers: this.headers,
-				form.addTextInput("New password:", "").watchForChange(text => {
-					in1 = text;
-				});
-				const copy = form.addTextInput("New password again:", "");
-				copy.watchForChange(text => {
-					in2 = text;
-				});
-				form.setValue("new_password", () => {
-					if (in1 === in2) {
-						return in1;
-					}
-					else {
-						throw [copy, "Passwords don't match"];
-					}
-				});
-			});
-		};
-		genSecurity();
-		*/
-
 		const settings = new Settings("Settings")
 		this.usersettings = settings
 
@@ -1013,41 +899,121 @@ class LocalUser {
 			regen()
 		})
 
-		let disc = ""
-		profileLeft.addButtonInput("", "Change discriminator", () => {
-			const update = new Dialog(["vdiv",
-				["title", "Change discriminator"],
-				["textbox", "New discriminator:", "", event => {
-					disc = event.target.value
-				}],
-				["button", "", "submit", () => {
-					if (!disc || disc.length != 4) return alert("Please enter a valid 4-digit discriminator")
-
-					this.updateAccount({discriminator: disc}).then(json => {
-						if (json.message) alert(json.errors.discriminator._errors[0].message)
-						else update.hide()
-					})
-				}]])
-			update.show()
+		const baseData = settings.addButton("Account user data")
+		const baseDataRequest = {
+			fetchURL: this.info.api + "/users/@me",
+			headers: this.headers,
+			method: "PATCH"
+		}
+		baseData.addButtonInput("", "Change discriminator", () => {
+			const form = baseData.addSubForm("Change discriminator", () => {
+				baseData.returnFromSub()
+			}, baseDataRequest)
+			form.addTextInput("New discriminator:", "discriminator")
+		})
+		baseData.addButtonInput("", "Change email", () => {
+			const form = baseData.addSubForm("Change email address", () => {
+				baseData.returnFromSub()
+			}, baseDataRequest)
+			form.addTextInput("Password:", "password", { fieldType: "password" })
+			if (this.mfa_enabled) form.addTextInput("MFA Code:", "code")
+			form.addTextInput("New email:", "email")
+		})
+		baseData.addButtonInput("", "Change username", () => {
+			const form = baseData.addSubForm("Change username", () => {
+				baseData.returnFromSub()
+			}, baseDataRequest)
+			form.addTextInput("Password:", "password", { fieldType: "password" })
+			if (this.mfa_enabled) form.addTextInput("MFA Code:", "code")
+			form.addTextInput("New username:", "username")
 		})
 
-		const baseData = settings.addButton("Account data")
-		const newBaseData = {}
-		baseData.addTextInput("Username", value => {
-			if (value) newBaseData.username = value
-		}, { initText: this.user.username })
-		baseData.addTextInput("Email", value => {
-			if (value) newBaseData.email = value
-		}, { initText: this.user.email })
-		baseData.addTextInput("New password (leave empty to keep current)", value => {
-			if (value) newBaseData.new_password = value
-		}, { fieldType: "password" })
-		baseData.addTextInput("Current password", value => {
-			if (!value) return alert("You must enter your current password to change these settings!")
-			newBaseData.password = value
+		const security = settings.addButton("Account security")
+		const securityUpdate = () => {
+			if (this.mfa_enabled) {
+				security.addButtonInput("", "Disable MFA", () => {
+					const form = security.addSubForm("Disable MFA", json => {
+						if (json.message) {
+							switch (json.code) {
+								case 60008:
+									form.error("code", "Invalid code")
+									break
+							}
+						} else {
+							this.mfa_enabled = false
+							securityUpdate()
+							security.returnFromSub()
+						}
+					}, {
+						fetchURL: this.info.api + "/users/@me/mfa/totp/disable",
+						headers: this.headers
+					})
+					form.addTextInput("MFA Code:", "code", { required: true })
+				})
+			} else {
+				security.addButtonInput("", "Enable MFA", async () => {
+					const randomBytes = new Uint8Array(32)
+					crypto.getRandomValues(randomBytes)
+					let secret = "" // Cannot use .map()
+					for (const byte of randomBytes) {
+						secret += charsSecret.charAt(byte)
+					}
 
-			this.updateAccount(newBaseData)
-		}, { fieldType: "password" })
+					const form = security.addSubForm("MFA Setup", _ => {
+						if (_.message) {
+							switch (_.code) {
+								case 60008:
+									form.error("code", "Invalid code")
+									break
+								case 400:
+									form.error("password", "Incorrect password")
+									break
+							}
+						} else {
+							this.mfa_enabled = true
+							securityUpdate()
+							security.returnFromSub()
+						}
+					}, {
+						fetchURL: this.info.api + "/users/@me/mfa/totp/enable",
+						headers: this.headers
+					})
+					form.addTitle("Copy this secret into your totp(time-based one time password) app")
+					form.addText("Your secret is: " + secret + " and it's 6 digits, with a 30 second token period")
+					form.addTextInput("Account Password:", "password", { required: true, fieldType: "password" })
+					form.addTextInput("MFA Code:", "code", { required: true })
+					form.setValue("secret", secret)
+				})
+			}
+		}
+		securityUpdate()
+
+		security.addButtonInput("", "Change password", () => {
+			const form = security.addSubForm("Change password", () => {
+				security.returnFromSub()
+			}, {
+				fetchURL: this.info.api + "/users/@me",
+				headers: this.headers,
+				method: "PATCH"
+			})
+			form.addTextInput("Old password:", "password", { fieldType: "password" })
+			if (this.mfa_enabled) form.addTextInput("MFA Code:", "code")
+
+			let in1 = ""
+			form.addTextInput("New password:", "").watchForChange(value => {
+				in1 = value
+			})
+
+			let in2 = ""
+			const passwordRepeat = form.addTextInput("New password again:", "")
+			passwordRepeat.watchForChange(value => {
+				in2 = value
+			})
+			form.setValue("new_password", () => {
+				if (in1 == in2) return in1
+				throw new FormError(passwordRepeat, "Passwords don't match")
+			})
+		})
 
 		const userSettings = settings.addButton("Account settings")
 		const newSettings = {}
@@ -1147,67 +1113,6 @@ class LocalUser {
 			localStorage.setItem("userinfos", JSON.stringify(userinfos))
 			document.documentElement.style.setProperty("--accent-color", userinfos.accent_color)
 		}, { initColor: getBulkInfo().accent_color })
-
-		const security = settings.addButton("Account security")
-		if (this.mfa_enabled) {
-			security.addTextInput("Disable MFA, TOTP code:", value => {
-				fetch(this.info.api + "/users/@me/mfa/totp/disable", {
-					method: "POST",
-					headers: this.headers,
-					body: JSON.stringify({
-						code: value
-					})
-				}).then(r => r.json()).then(json => {
-					if (json.message) alert(json.message)
-					else {
-						this.mfa_enabled = false
-						alert("MFA turned off successfully")
-					}
-				})
-			})
-		} else {
-			security.addButtonInput("", "Enable MFA", async () => {
-				const randomBytes = new Uint8Array(32)
-				crypto.getRandomValues(randomBytes)
-				let secret = "" // Cannot use .map()
-				for (const byte of randomBytes) {
-					secret += charsSecret.charAt(byte)
-				}
-
-				let password = ""
-				let code = ""
-				const addmodel = new Dialog(["vdiv",
-					["title", "MFA set up"],
-					["text", "Copy this secret into your TOTP (time-based one time password) app, e.g. Authy or Google Authenticator"],
-					["text", "Your secret is: " + secret + " (Configuration: 6 digits, 30 second interval)"],
-					["textbox", "Account password:", "", event => {
-						password = event.target.value
-					}],
-					["textbox", "TOTP Code:", "", event => {
-						code = event.target.value
-					}],
-					["button", "", "Enable MFA", () => {
-						fetch(this.info.api + "/users/@me/mfa/totp/enable", {
-							method: "POST",
-							headers: this.headers,
-							body: JSON.stringify({
-								password,
-								code,
-								secret
-							})
-						}).then(r => r.json()).then(json => {
-							if (json.message) alert(json.message)
-							else {
-								alert("2FA set up successfully")
-								addmodel.hide()
-								this.mfa_enabled = true
-							}
-						})
-					}]
-				])
-				addmodel.show()
-			})
-		}
 
 		const connections = settings.addButton("Connections")
 		const connectionContainer = document.createElement("div")
