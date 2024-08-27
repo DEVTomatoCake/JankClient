@@ -316,6 +316,7 @@ class Message {
 							next2.generateMessage(void 0, true)
 							next2 = this.channel.messages.get(this.channel.idToNext.get(next.id))
 						}
+
 						if (this.channel.infinite.scroll && scroll) {
 							func()
 							this.channel.infinite.scroll.scrollTop = scroll
