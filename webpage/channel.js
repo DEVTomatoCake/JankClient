@@ -134,18 +134,18 @@ class Channel {
 
 	setUpInfiniteScroller() {
 		this.infinite = new InfiniteScroller(async (id, offset) => {
-			const snowflake = this.messages.get(id).snowflake
+			const snowflake = id
 			if (offset == 1) {
-				if (this.idToPrev.has(snowflake)) return this.idToPrev.get(snowflake)?.id
+				if (this.idToPrev.has(snowflake)) return this.idToPrev.get(snowflake)
 				else {
 					await this.grabBefore(id)
-					return this.idToPrev.get(snowflake)?.id
+					return this.idToPrev.get(snowflake)
 				}
 			} else {
-				if (this.idToNext.has(snowflake)) return this.idToNext.get(snowflake)?.id
+				if (this.idToNext.has(snowflake)) return this.idToNext.get(snowflake)
 				if (this.lastmessage.id != id) {
 					await this.grabAfter(id)
-					return this.idToNext.get(snowflake)?.id || this.lastmessage.id
+					return this.idToNext.get(snowflake) || this.lastmessage.id
 				}
 			}
 		}, async id => {
@@ -193,8 +193,8 @@ class Channel {
 		this.children = []
 		this.guild_id = json.guild_id
 		this.messageids = new Map()
-		this.lastreadmessageid = null
-		this.lastmessageid = json.last_message_id ? SnowFlake.getSnowFlakeFromID(json.last_message_id, Message) : null
+		this.lastreadmessageid = void 0
+		this.lastmessageid = json.last_message_id
 		this.setUpInfiniteScroller()
 
 		this.permission_overwrites = new Map()
@@ -221,7 +221,7 @@ class Channel {
 		return this.snowflake.id
 	}
 	readStateInfo(json) {
-		this.lastreadmessageid = SnowFlake.getSnowFlakeFromID(json.last_message_id, Message)
+		this.lastreadmessageid = json.last_message_id
 		this.mentions = json.mention_count
 		this.mentions ??= 0
 		this.lastpin = json.last_pin_timestamp
@@ -537,8 +537,8 @@ class Channel {
 		} else replybox.classList.add("hideReplyBox")
 	}
 	async getmessage(id) {
-		const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
-		if (snowflake.getObject()) return snowflake.getObject()
+		const message = this.messages.get(id)
+		if (message) return message
 
 		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, {
 			headers: this.headers
@@ -623,7 +623,7 @@ class Channel {
 	}
 	async putmessages() {
 		if (this.allthewayup) return
-		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) return
+		if (this.lastreadmessageid && this.messages.has(this.lastreadmessageid)) return
 
 		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100", {
 			headers: this.headers
@@ -636,8 +636,8 @@ class Channel {
 		for (const thing of json) {
 			const message = new Message(thing, this)
 			if (prev) {
-				this.idToNext.set(message.snowflake, prev.snowflake)
-				this.idToPrev.set(prev.snowflake, message.snowflake)
+				this.idToNext.set(message.id, prev.id)
+				this.idToPrev.set(prev.id, message.id)
 			} else this.lastmessage = message
 			prev = message
 
@@ -652,7 +652,7 @@ class Channel {
 		this.children = build
 	}
 	async grabBefore(id) {
-		if (this.topid && this.topid.id == id) return
+		if (this.topid && this.topid == id) return
 
 		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
 			headers: this.headers
@@ -661,21 +661,21 @@ class Channel {
 
 		if (json.length < 100) {
 			this.allthewayup = true
-			if (json.length == 0) this.topid = SnowFlake.getSnowFlakeFromID(id, Message)
+			if (json.length == 0) this.topid = id
 		}
 
-		let previd = SnowFlake.getSnowFlakeFromID(id, Message)
+		let previd = id
 		for (const i in json) {
 			let messager
 			let willbreak = false
-			if (SnowFlake.hasSnowFlakeFromID(json[i].id, Message)) {
-				messager = SnowFlake.getSnowFlakeFromID(json[i].id, Message).getObject()
+			if (this.messages.has(json[i].id)) {
+				messager = this.messages.get(json[i].id)
 				willbreak = true
 			} else messager = new Message(json[i], this)
 
-			this.idToNext.set(messager.snowflake, previd)
-			this.idToPrev.set(previd, messager.snowflake)
-			previd = messager.snowflake
+			this.idToNext.set(messager.id, previd)
+			this.idToPrev.set(previd, messager.id)
+			previd = messager.id
 			this.messageids.set(messager.snowflake, messager)
 			if (json.length - 1 == i && json.length < 100) this.topid = previd
 
@@ -692,14 +692,14 @@ class Channel {
 			for (const i in json) {
 				let messager
 				let willbreak = false
-				if (SnowFlake.hasSnowFlakeFromID(json[i].id, Message)) {
-					messager = SnowFlake.getSnowFlakeFromID(json[i].id, Message).getObject()
+				if (this.messages.has(json[i].id)) {
+					messager = this.messages.get(json[i].id)
 					willbreak = true
 				} else messager = new Message(json[i], this)
 
-				this.idToPrev.set(messager.snowflake, previd)
-				this.idToNext.set(previd, messager.snowflake)
-				previd = messager.snowflake
+				this.idToNext.set(messager.id, previd)
+				this.idToPrev.set(previd, messager.id)
+				previd = messager.id
 				this.messageids.set(messager.snowflake, messager)
 
 				if (willbreak) break
@@ -722,8 +722,8 @@ class Channel {
 		const removetitle = document.getElementById("removetitle")
 
 		let id
-		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) id = this.lastreadmessageid
-		else if (this.lastmessage && this.lastmessage.snowflake) id = this.goBackIds(this.lastmessage.snowflake, 50)
+		if (this.lastreadmessageid && this.messages.has(this.lastreadmessageid)) id = this.lastreadmessageid
+		else if (this.lastmessageid && this.messages.has(this.lastmessageid)) id = this.goBackIds(this.lastmessageid, 50)
 
 		if (!id) {
 			if (document.getElementsByClassName("messagecontainer")[0]) document.getElementsByClassName("messagecontainer")[0].remove()
@@ -739,10 +739,10 @@ class Channel {
 			return
 		} else if (removetitle) removetitle.remove()
 
-		messages.append(await this.infinite.getDiv(id.id))
+		messages.append(await this.infinite.getDiv(id))
 		this.infinite.updatestuff()
 		this.infinite.watchForChange().then(async () => {
-			this.infinite.focus(id.id, false) //if someone could figure out how to make this work correctly without this, that's be great :P
+			this.infinite.focus(id, false) //if someone could figure out how to make this work correctly without this, that's be great :P
 			loading.classList.remove("loading")
 		})
 	}
@@ -759,19 +759,17 @@ class Channel {
 		}
 		return id
 	}
-	findClosest(snowflake) {
-		if (!this.lastmessage) return
+	findClosest(id) {
+		if (!this.lastmessageid || !id) return
 
-		let flake = this.lastmessage.snowflake
-		if (!snowflake) return
-
-		const time = snowflake.getUnixTime()
-		let flaketime = flake.getUnixTime()
+		let flake = this.lastmessageid
+		const time = Number((BigInt(id) >> 22n) + 1420070400000n)
+		let flaketime = Number((BigInt(flake) >> 22n) + 1420070400000n)
 		while (flake && time < flaketime) {
 			flake = this.idToPrev.get(flake)
 			if (!flake) return
 
-			flaketime = flake.getUnixTime()
+			flaketime = Number((BigInt(flake) >> 22n) + 1420070400000n)
 		}
 		return flake
 	}
@@ -848,15 +846,15 @@ class Channel {
 
 		const messagez = new Message(messagep.d, this)
 		if (this.lastmessageid) {
-			this.idToNext.set(this.lastmessageid, messagez.snowflake)
-			this.idToPrev.set(messagez.snowflake, this.lastmessageid)
+			this.idToNext.set(this.lastmessageid, messagez.id)
+			this.idToPrev.set(messagez.id, this.lastmessageid)
 		}
 		this.lastmessage = messagez
-		this.lastmessageid = messagez.snowflake
-		this.messageids.set(messagez.snowflake, messagez)
+		this.lastmessageid = messagez.id
+		this.messageids.set(messagez.id, messagez)
 
 		if (messagez.author === this.localuser.user) {
-			this.lastreadmessageid = messagez.snowflake
+			this.lastreadmessageid = messagez.id
 			if (this.myhtml) this.myhtml.classList.remove("cunread")
 		} else if (this.myhtml) this.myhtml.classList.add("cunread")
 

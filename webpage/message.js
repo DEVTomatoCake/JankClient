@@ -228,24 +228,37 @@ class Message {
 			this.div = void 0
 		}
 
-		const prev = this.channel.idToPrev.get(this.snowflake)
-		const next = this.channel.idToNext.get(this.snowflake)
-		this.channel.idToNext.set(prev, next)
-		this.channel.idToPrev.set(next, prev)
+		const prev = this.channel.idToPrev.get(this.id)
+		const next = this.channel.idToNext.get(this.id)
+		if (prev) this.channel.idToPrev.delete(this.id)
+		if (next) this.channel.idToNext.delete(this.id)
+		if (prev && next) {
+			this.channel.idToPrev.set(next, prev)
+			this.channel.idToNext.set(prev, next)
+		}
 		this.channel.messageids.delete(this.snowflake)
 
-		const regen = prev.getObject()
-		if (regen) regen.generateMessage()
-		if (this.channel.lastmessage === this) this.channel.lastmessage = prev.getObject()
+		if (prev) {
+			const prevmessage = this.channel.messages.get(prev)
+			if (prevmessage) prevmessage.generateMessage()
+		}
+
+		if (this.channel.lastmessage === this) this.channel.lastmessage = this.channel.messages.get(prev)
 	}
 	blockedPropigate() {
-		const premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
+		const previd = this.channel.idToPrev.get(this.id)
+		if (!previd) {
+			this.generateMessage()
+			return
+		}
+
+		const premessage = this.channel.messages.get(previd)
 		if (premessage?.author === this.author) premessage.blockedPropigate()
 		else this.generateMessage()
 	}
 	generateMessage(premessage, ignoredblock = false) {
 		if (!this.div) return
-		if (!premessage) premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
+		if (!premessage) premessage = this.messages.get(this.channel.idToPrev.get(this.id))
 
 		const div = this.div
 		div.classList.remove("zeroheight")
@@ -270,7 +283,7 @@ class Message {
 						let next = this
 						while (next?.author === this.author) {
 							next.generateMessage()
-							next = this.channel.idToNext.get(next.snowflake)?.getObject()
+							next = this.channel.messages.get(this.channel.idToNext.get(next.id))
 						}
 						if (this.channel.infinite.scroll && scroll) this.channel.infinite.scroll.scrollTop = scroll
 					}
@@ -286,10 +299,10 @@ class Message {
 					build.classList.add("blocked", "topMessage")
 
 					let count = 1
-					let next = this.channel.idToNext.get(this.snowflake)?.getObject()
+					let next = this.channel.messages.get(this.channel.idToNext.get(this.id))
 					while (next?.author === this.author) {
 						count++
-						next = this.channel.idToNext.get(next.snowflake)?.getObject()
+						next = this.channel.messages.get(this.channel.idToNext.get(next.id))
 					}
 
 					const span = document.createElement("span")
@@ -301,7 +314,7 @@ class Message {
 						let next2 = this
 						while (next2?.author === this.author) {
 							next2.generateMessage(void 0, true)
-							next2 = this.channel.idToNext.get(next2.snowflake)?.getObject()
+							next2 = this.channel.messages.get(this.channel.idToNext.get(next.id))
 						}
 						if (this.channel.infinite.scroll && scroll) {
 							func()
