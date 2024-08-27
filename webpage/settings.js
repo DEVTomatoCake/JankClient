@@ -781,6 +781,12 @@ class Form {
 		for (const thing of this.names.keys()) {
 			if (thing == "") continue
 			const input = this.names.get(thing)
+
+			if (input instanceof SelectInput) {
+				build[thing] = input.options[input.value]
+				continue
+			}
+
 			build[thing] = input.value
 		}
 

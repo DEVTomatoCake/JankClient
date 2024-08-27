@@ -628,17 +628,19 @@ class Channel {
 		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100", {
 			headers: this.headers
 		})
-
 		const json = await res.json()
 		if (json.length != 100) this.allthewayup = true
 
 		let prev
-		for (const thing of json) {
-			const message = new Message(thing, this)
+		for (const msg of json) {
+			const message = new Message(msg, this)
 			if (prev) {
 				this.idToNext.set(message.id, prev.id)
 				this.idToPrev.set(prev.id, message.id)
-			} else this.lastmessage = message
+			} else {
+				this.lastmessage = message
+				this.lastmessageid = message.id
+			}
 			prev = message
 
 			if (!this.messageids.has(message.snowflake)) this.messageids.set(message.snowflake, message)
@@ -685,26 +687,27 @@ class Channel {
 	async grabAfter(id) {
 		if (this.lastmessage.id == id) return
 
-		await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
+		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
 			headers: this.headers
-		}).then(j => j.json()).then(json => {
-			let previd = SnowFlake.getSnowFlakeFromID(id, Message)
-			for (const i in json) {
-				let messager
-				let willbreak = false
-				if (this.messages.has(json[i].id)) {
-					messager = this.messages.get(json[i].id)
-					willbreak = true
-				} else messager = new Message(json[i], this)
-
-				this.idToNext.set(messager.id, previd)
-				this.idToPrev.set(previd, messager.id)
-				previd = messager.id
-				this.messageids.set(messager.snowflake, messager)
-
-				if (willbreak) break
-			}
 		})
+		const json = await res.json()
+
+		let previd = SnowFlake.getSnowFlakeFromID(id, Message)
+		for (const i in json) {
+			let messager
+			let willbreak = false
+			if (this.messages.has(json[i].id)) {
+				messager = this.messages.get(json[i].id)
+				willbreak = true
+			} else messager = new Message(json[i], this)
+
+			this.idToNext.set(messager.id, previd)
+			this.idToPrev.set(previd, messager.id)
+			previd = messager.id
+			this.messageids.set(messager.snowflake, messager)
+
+			if (willbreak) break
+		}
 	}
 	async buildmessages() {
 		this.infinitefocus = false
@@ -742,7 +745,7 @@ class Channel {
 		messages.append(await this.infinite.getDiv(id))
 		this.infinite.updatestuff()
 		this.infinite.watchForChange().then(async () => {
-			this.infinite.focus(id, false) //if someone could figure out how to make this work correctly without this, that's be great :P
+			this.infinite.focus(id, false) // if someone could figure out how to make this work correctly without this, that's be great :P
 			loading.classList.remove("loading")
 		})
 	}

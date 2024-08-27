@@ -358,12 +358,12 @@ class LocalUser {
 
 					if (messageAcked.channel.myhtml === null) console.warn("Message acked but no channel HTML found, channel " + messageAcked.channel.id + " " + messageAcked.channel.name)
 					else {
-						if (messageAcked.channel.lastmessageid.id == json.d.message_id) {
+						if (messageAcked.channel.lastmessageid == json.d.message_id) {
 							messageAcked.channel.myhtml.classList.remove("cunread")
 							console.log("Last message " + json.d.message_id + " in " + messageAcked.channel.id + " acked")
 						} else {
 							messageAcked.channel.myhtml.classList.add("cunread")
-							console.log("Acked message " + json.d.message_id + " which isn't last in " + messageAcked.channel.id)
+							console.log("Acked message " + json.d.message_id + " which isn't last in #" + messageAcked.channel.name + ", last is " + messageAcked.channel.lastmessageid)
 						}
 					}
 
@@ -930,6 +930,7 @@ class LocalUser {
 
 		const security = settings.addButton("Account security")
 		const securityUpdate = () => {
+			security.removeAll()
 			if (this.mfa_enabled) {
 				security.addButtonInput("", "Disable MFA", () => {
 					const form = security.addSubForm("Disable MFA", json => {
@@ -1018,19 +1019,35 @@ class LocalUser {
 		const userSettings = settings.addButton("Account settings")
 		const newSettings = {}
 
+		userSettings.addButtonInput("", "Change status", () => {
+			const status = ["online", "invisible", "idle", "dnd"]
+			const form = userSettings.addSubForm("Change status", json => {
+				if (json.message) form.error("status", json.message)
+				else {
+					userSettings.returnFromSub()
+
+					this.status = status[form.names.get("status")]
+				}
+			}, {
+				fetchURL: this.info.api + "/users/@me/settings",
+				headers: this.headers,
+				method: "PATCH"
+			})
+
+			form.addSelect("Status:", "status", status, {
+				defaultIndex: status.includes(this.status) ? status.indexOf(this.status) : 0
+			})
+
+			//form.addTextInput("Custom status text:", "custom_status.text")
+			//form.addTextInput("Custom status emoji ID:", "custom_status.emoji_id")
+		})
+
 		userSettings.addTextInput("Locale:", value => {
 			if (value != this.settings.locale) {
 				if (value.length != 5) return alert("Please use a valid locale code (e.g. en-US)")
 				newSettings.locale = value
 			}
 		}, { initText: this.settings.locale })
-
-		const status = ["online", "invisible", "idle", "dnd"]
-		userSettings.addSelect("Status:", value => {
-			if (status[value] != this.settings.status) newSettings.status = status[value]
-		}, status, {
-			defaultIndex: status.indexOf(this.settings.status)
-		})
 
 		let reRender = false
 		userSettings.addCheckboxInput("Animate emojis", value => {

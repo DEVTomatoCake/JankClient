@@ -496,7 +496,7 @@ class MarkDown {
 									thisuser.guildids.values().forEach(guild => {
 										if (guild.roleids[parts[2]]) mentionText = guild.roleids[parts[2]].name
 									})
-							} else if (User.userids[parts[2]]) mentionText = User.userids[parts[2]].username
+							} else if (this.owner.localuser.userMap.has(parts[2])) mentionText = this.owner.localuser.userMap.get(parts[2]).username
 
 							mentionElem.textContent = "@" + mentionText
 						}

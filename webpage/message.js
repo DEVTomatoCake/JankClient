@@ -258,7 +258,7 @@ class Message {
 	}
 	generateMessage(premessage, ignoredblock = false) {
 		if (!this.div) return
-		if (!premessage) premessage = this.messages.get(this.channel.idToPrev.get(this.id))
+		if (!premessage) premessage = this.channel.messages.get(this.channel.idToPrev.get(this.id))
 
 		const div = this.div
 		div.classList.remove("zeroheight")
