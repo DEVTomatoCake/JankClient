@@ -563,7 +563,7 @@ class Message {
 		for (const reaction of this.reactions) {
 			if ((reaction.emoji.id && reaction.emoji.id == emoji.id) || (!reaction.emoji.id && reaction.emoji.name == emoji.name)) {
 				reaction.count++
-				if (userId.id == this.localuser.user.id) {
+				if (userId == this.localuser.user.id) {
 					reaction.me = true
 					this.updateReactions()
 					return
@@ -574,7 +574,7 @@ class Message {
 		this.reactions.push({
 			count: 1,
 			emoji,
-			me: userId.id == this.localuser.user.id
+			me: userId == this.localuser.user.id
 		})
 		this.updateReactions()
 	}

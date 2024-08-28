@@ -241,7 +241,14 @@ class Channel {
 	get hasunreads() {
 		if (!this.hasPermission("VIEW_CHANNEL")) return false
 
-		return this.lastmessageid && this.lastmessageid != this.lastreadmessageid && this.type != 4
+		const hasUnreads = this.lastmessageid && this.lastmessageid != this.lastreadmessageid && this.type != 4
+
+		try {
+			if (hasUnreads && this.myhtml) this.myhtml.classList.add("cunread")
+			else if (this.myhtml) this.myhtml.classList.remove("cunread")
+		} catch {}
+
+		return hasUnreads
 	}
 	get canMessage() {
 		return this.hasPermission("SEND_MESSAGES")
@@ -645,13 +652,12 @@ class Channel {
 
 			if (!this.messageids.has(message.snowflake)) this.messageids.set(message.snowflake, message)
 		}
+
+		if (json.some(msg => msg.author.id == this.localuser.user.id))
+			this.lastselfmessage = this.messageids.get(json.find(msg => msg.author.id == this.localuser.user.id).id)
 	}
 	delChannel(json) {
-		const build = []
-		for (const child of this.children) {
-			if (child.id != json.id) build.push(child)
-		}
-		this.children = build
+		this.children = this.children.filter(child => child.id != json.id)
 	}
 	async grabBefore(id) {
 		if (this.topid && this.topid == id) return
@@ -693,13 +699,13 @@ class Channel {
 		const json = await res.json()
 
 		let previd = SnowFlake.getSnowFlakeFromID(id, Message)
-		for (const i in json) {
+		for (const msg of json) {
 			let messager
 			let willbreak = false
-			if (this.messages.has(json[i].id)) {
-				messager = this.messages.get(json[i].id)
+			if (this.messages.has(msg.id)) {
+				messager = this.messages.get(msg.id)
 				willbreak = true
-			} else messager = new Message(json[i], this)
+			} else messager = new Message(msg, this)
 
 			this.idToNext.set(messager.id, previd)
 			this.idToPrev.set(previd, messager.id)
@@ -866,6 +872,8 @@ class Channel {
 			if (!this.infinitefocus) this.tryfocusinfinate()
 			this.infinite.addedBottom()
 		}
+
+		if (messagez.author == this.localuser.user) this.lastselfmessage = messagez
 
 		if (
 			messagez.author !== this.localuser.user &&

@@ -238,6 +238,16 @@ typebox.addEventListener("keyup", event => {
 		images = []
 		document.getElementById("pasteimage").innerHTML = ""
 		typebox.innerHTML = ""
+	} else if (event.key == "ArrowUp") {
+		if (!channel.lastselfmessage || (typebox.innerHTML.length > 0 && typebox.innerHTML != "<span></span>")) return
+
+		event.preventDefault()
+
+		channel.editing = channel.lastselfmessage
+
+		const markdownEdit = typebox.markdown
+		markdownEdit.txt = channel.lastselfmessage.content.rawString.split("")
+		markdownEdit.boxupdate(typebox)
 	} else channel.typingstart()
 })
 typebox.addEventListener("keydown", event => {

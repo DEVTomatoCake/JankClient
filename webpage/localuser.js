@@ -338,35 +338,9 @@ class LocalUser {
 					break
 				case "MESSAGE_REACTION_ADD":
 					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
-						json.d.guild_id ??= "@me"
 						const messageReactionAdd = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
-						const guild = SnowFlake.getSnowFlakeFromID(json.d.guild_id, Guild).getObject()
-
-						let thing
-						if (json.d.member) thing = await Member.new(json.d.member, guild)
-						else thing = { id: json.d.user_id }
-						messageReactionAdd.reactionAdd(json.d.emoji, thing)
+						messageReactionAdd.reactionAdd(json.d.emoji, json.d.user_id)
 					}
-					break
-				case "MESSAGE_ACK":
-					const messageAcked = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
-					console.warn(messageAcked)
-
-					const messageAckedChannel = SnowFlake.getSnowFlakeFromID(json.d.channel_id, Channel).getObject()
-					messageAckedChannel.lastreadmessageid = messageAcked.snowflake
-					messageAckedChannel.guild.unreads()
-
-					if (messageAcked.channel.myhtml === null) console.warn("Message acked but no channel HTML found, channel " + messageAcked.channel.id + " " + messageAcked.channel.name)
-					else {
-						if (messageAcked.channel.lastmessageid == json.d.message_id) {
-							messageAcked.channel.myhtml.classList.remove("cunread")
-							console.log("Last message " + json.d.message_id + " in " + messageAcked.channel.id + " acked")
-						} else {
-							messageAcked.channel.myhtml.classList.add("cunread")
-							console.log("Acked message " + json.d.message_id + " which isn't last in #" + messageAcked.channel.name + ", last is " + messageAcked.channel.lastmessageid)
-						}
-					}
-
 					break
 				case "MESSAGE_REACTION_REMOVE":
 					if (SnowFlake.hasSnowFlakeFromID(json.d.message_id, Message)) {
@@ -385,6 +359,14 @@ class LocalUser {
 						const messageReactionRemoveEmoji = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
 						messageReactionRemoveEmoji.reactionRemoveEmoji(json.d.emoji)
 					}
+					break
+				case "MESSAGE_ACK":
+					const messageAcked = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+
+					const messageAckedChannel = SnowFlake.getSnowFlakeFromID(json.d.channel_id, Channel).getObject()
+					messageAckedChannel.lastreadmessageid = messageAcked.snowflake
+					messageAckedChannel.guild.unreads()
+
 					break
 				case "TYPING_START":
 					if (this.initialized) this.typingStart(json.d)
