@@ -83,6 +83,7 @@ const showAccountSwitcher = () => {
 	document.body.append(container)
 }
 
+const triggerKeys = new Set(["Enter", "Return", "Space"])
 document.addEventListener("DOMContentLoaded", async () => {
 	const menu = new Contextmenu()
 	menu.addbutton("Create channel", () => {
@@ -99,14 +100,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 		event.stopImmediatePropagation()
 		showAccountSwitcher()
 	})
+	userinfo.addEventListener("keydown", event => {
+		event.stopImmediatePropagation()
+		if (triggerKeys.has(event.key)) showAccountSwitcher()
+	})
+
 	const switchaccounts = document.getElementById("switchaccounts")
 	switchaccounts.addEventListener("click", event => {
 		event.stopImmediatePropagation()
 		showAccountSwitcher()
 	})
+	switchaccounts.addEventListener("keydown", event => {
+		event.stopImmediatePropagation()
+		if (triggerKeys.has(event.key)) showAccountSwitcher()
+	})
 
 	document.getElementById("settings").addEventListener("click", () => {
 		thisuser.showusersettings()
+	})
+	document.getElementById("settings").addEventListener("click", event => {
+		if (triggerKeys.has(event.key)) thisuser.showusersettings()
 	})
 
 	if ("serviceWorker" in navigator) {

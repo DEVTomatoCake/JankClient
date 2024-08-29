@@ -349,7 +349,6 @@ class User {
 			if (member.nick) usernamehtml.textContent = member.nick
 
 			const profile = await member.getMemberProfile()
-			console.log(profile)
 			if (profile && profile.guild_member_profile) {
 				if (profile.guild_member_profile.bio && this.bio != profile.guild_member_profile.bio) {
 					const memberBio = new MarkDown(profile.guild_member_profile.bio, this.localuser)

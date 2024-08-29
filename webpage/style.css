@@ -198,6 +198,7 @@ body {
 	max-height: 80dvh;
 	width: auto;
 	height: auto;
+	aspect-ratio: auto;
 }
 
 dialog:not(.accountSwitcher) {
