@@ -91,15 +91,15 @@ const adduser = user => {
 
 // eslint-disable-next-line no-unused-vars
 const getAPIURLs = async str => {
-	if (str.at(-1) != "/") str += "/"
+	str = handleEndpoint(str)
 
 	let api
 	try {
 		const info = await fetch(str + "/.well-known/spacebar").then(x => x.json())
 		api = info.api
-	} catch {
-		return false
-	}
+	} catch {}
+
+	if (!api) api = new URL(str).origin + "/api/v9"
 
 	try {
 		const info = await fetch(api + "/policies/instance/domains").then(x => x.json())
@@ -220,9 +220,15 @@ const setInstance = async url => {
 		}
 	}
 
-	const wellKnown = await fetch(url.origin + "/.well-known/spacebar")
-		.then(x => x.json())
-		.then(x => new URL(x.api))
+	let wellKnown
+	try {
+		wellKnown = await fetch(url.origin + "/.well-known/spacebar")
+			.then(x => x.json())
+			.then(x => new URL(x.api))
+	} catch (e) {
+		console.error(e)
+		wellKnown = new URL(url.origin + "/api/v9")
+	}
 	return await attempt(wellKnown)
 }
 

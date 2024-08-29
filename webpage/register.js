@@ -39,7 +39,8 @@ const registertry = async event => {
 			username: usernameElem.value,
 			password: document.getElementById("pass1").value,
 			consent: document.getElementById("tos-check").checked,
-			captcha_key: event.srcElement[7].value
+			captcha_key: event.srcElement[7].value,
+			registration_token: document.getElementById("registration-token").value || void 0
 		})
 	})
 
@@ -119,4 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	}
 	checkInstance.alt()
+
+	const params = new URLSearchParams(location.search)
+	if (params.has("token")) document.getElementById("registration-token").value = params.get("token")
 })
