@@ -29,7 +29,7 @@ const main = async () => {
 		document.getElementById("status-additional").textContent = "You will be redirected shortly."
 
 		setTimeout(() => {
-			location.href = channelsPath + "@me"
+			location.href = "/channels/@me"
 		}, 2500)
 	} else {
 		const json = await res.json()

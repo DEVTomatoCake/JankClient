@@ -1,7 +1,5 @@
 "use strict"
 
-const applicationsPath = "/applications/"
-
 const supportsCompression = "DecompressionStream" in window
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
@@ -771,7 +769,7 @@ class LocalUser {
 			const reader = new FileReader()
 			reader.readAsDataURL(file)
 			reader.onload = () => {
-				fetch(this.info.api + usersMePath, {
+				fetch(this.info.api + "/users/@me", {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({
@@ -780,7 +778,7 @@ class LocalUser {
 				})
 			}
 		} else {
-			fetch(this.info.api + usersMePath, {
+			fetch(this.info.api + "/users/@me", {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -790,7 +788,7 @@ class LocalUser {
 		}
 	}
 	updateProfile(json) {
-		fetch(this.info.api + usersMePath + "/profile", {
+		fetch(this.info.api + "/users/@me/profile", {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(json)
@@ -801,14 +799,14 @@ class LocalUser {
 			...this.settings,
 			...settings
 		}
-		fetch(this.info.api + usersMePath + "/settings", {
+		fetch(this.info.api + "/users/@me/settings", {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(settings)
 		})
 	}
 	async updateAccount(json) {
-		const res = await fetch(this.info.api + usersMePath, {
+		const res = await fetch(this.info.api + "/users/@me", {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(json)
@@ -902,7 +900,7 @@ class LocalUser {
 
 		const baseData = settings.addButton("Account user data")
 		const baseDataRequest = {
-			fetchURL: this.info.api + usersMePath,
+			fetchURL: this.info.api + "/users/@me",
 			headers: this.headers,
 			method: "PATCH"
 		}
@@ -947,7 +945,7 @@ class LocalUser {
 							security.returnFromSub()
 						}
 					}, {
-						fetchURL: this.info.api + usersMePath + "/mfa/totp/disable",
+						fetchURL: this.info.api + "/users/@me/mfa/totp/disable",
 						headers: this.headers
 					})
 					form.addTextInput("MFA Code:", "code", { required: true })
@@ -977,7 +975,7 @@ class LocalUser {
 							security.returnFromSub()
 						}
 					}, {
-						fetchURL: this.info.api + usersMePath + "/mfa/totp/enable",
+						fetchURL: this.info.api + "/users/@me/mfa/totp/enable",
 						headers: this.headers
 					})
 					form.addTitle("Copy this secret into your totp(time-based one time password) app")
@@ -992,7 +990,7 @@ class LocalUser {
 				const form = security.addSubForm("Change password", () => {
 					security.returnFromSub()
 				}, {
-					fetchURL: this.info.api + usersMePath,
+					fetchURL: this.info.api + "/users/@me",
 					headers: this.headers,
 					method: "PATCH"
 				})
@@ -1030,7 +1028,7 @@ class LocalUser {
 					this.status = status[form.names.get("status")]
 				}
 			}, {
-				fetchURL: this.info.api + usersMePath + "/settings",
+				fetchURL: this.info.api + "/users/@me/settings",
 				headers: this.headers,
 				method: "PATCH"
 			})
@@ -1230,7 +1228,7 @@ class LocalUser {
 		settings.show()
 	}
 	async manageApplication(appId) {
-		const res = await fetch(this.info.api + applicationsPath + appId, {
+		const res = await fetch(this.info.api + "/applications/" + appId, {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -1293,7 +1291,7 @@ class LocalUser {
 						"",
 						"Save changes",
 						async () => {
-							const updateRes = await fetch(this.info.api + applicationsPath + appId, {
+							const updateRes = await fetch(this.info.api + "/applications/" + appId, {
 								method: "PATCH",
 								headers: this.headers,
 								body: JSON.stringify(fields)
@@ -1312,7 +1310,7 @@ class LocalUser {
 							if (!json.bot) {
 								if (!confirm("Are you sure you want to add a bot to this application? There's no going back.")) return
 
-								const updateRes = await fetch(this.info.api + applicationsPath + appId + "/bot", {
+								const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
 									method: "POST",
 									headers: this.headers
 								})
@@ -1330,7 +1328,7 @@ class LocalUser {
 		appDialog.show()
 	}
 	async manageBot(appId) {
-		const res = await fetch(this.info.api + applicationsPath + appId, {
+		const res = await fetch(this.info.api + "/applications/" + appId, {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -1365,7 +1363,7 @@ class LocalUser {
 						"",
 						"Save changes",
 						async () => {
-							const updateRes = await fetch(this.info.api + applicationsPath + appId + "/bot", {
+							const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
 								method: "PATCH",
 								headers: this.headers,
 								body: JSON.stringify(fields)
@@ -1383,7 +1381,7 @@ class LocalUser {
 						async () => {
 							if (!confirm("Are you sure you want to reset the token? Your bot will stop working until you update it.")) return
 
-							const updateRes = await fetch(this.info.api + applicationsPath + appId + "/bot/reset", {
+							const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot/reset", {
 								method: "POST",
 								headers: this.headers
 							})

@@ -1,10 +1,5 @@
 "use strict"
 
-// eslint-disable-next-line no-unused-vars
-const channelsPath = "/channels/"
-// eslint-disable-next-line no-unused-vars
-const usersMePath = "/users/@me"
-
 const users = getBulkUsers()
 if (!users.currentuser) location.href = "/login"
 console.log(users)

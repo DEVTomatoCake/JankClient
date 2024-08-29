@@ -51,7 +51,7 @@ class Message {
 		})
 
 		Message.contextmenu.addsubmenu("Mark as unread", (event, msg) => {
-			fetch(msg.info.api + channelsPath + msg.channel.id + "/messages/" + msg.id + "/ack", {
+			fetch(msg.info.api + "/channels/" + msg.channel.id + "/messages/" + msg.id + "/ack", {
 				method: "POST",
 				headers: msg.headers,
 				body: JSON.stringify({
@@ -74,14 +74,14 @@ class Message {
 		}, null, msg => msg.canDelete())
 
 		Message.contextmenu.addbutton("Pin message", (event, msg) => {
-			fetch(msg.info.api + channelsPath + msg.channel.id + "/pins/" + msg.id, {
+			fetch(msg.info.api + "/channels/" + msg.channel.id + "/pins/" + msg.id, {
 				method: "PUT",
 				headers: msg.headers,
 				body: JSON.stringify({})
 			})
 		}, null, msg => msg.channel.hasPermission("MANAGE_MESSAGES") && !msg.pinned)
 		Message.contextmenu.addbutton("Unpin message", (event, msg) => {
-			fetch(msg.info.api + channelsPath + msg.channel.id + "/pins/" + msg.id, {
+			fetch(msg.info.api + "/channels/" + msg.channel.id + "/pins/" + msg.id, {
 				method: "DELETE",
 				headers: msg.headers,
 				body: JSON.stringify({})
@@ -177,7 +177,7 @@ class Message {
 				break
 			}
 		}
-		fetch(this.info.api + channelsPath + this.channel.id + "/messages/" + this.id + "/reactions/" +
+		fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" +
 			encodeURIComponent(typeof emoji == "string" ? emoji : (emoji.name + ":" + emoji.id)) + "/@me", {
 			method: remove ? "DELETE" : "PUT",
 			headers: this.headers
@@ -210,14 +210,14 @@ class Message {
 		return build
 	}
 	async edit(content) {
-		return await fetch(this.info.api + channelsPath + this.channel.id + "/messages/" + this.id, {
+		return await fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify({content})
 		})
 	}
 	delete() {
-		fetch(this.info.api + channelsPath + this.channel.id + "/messages/" + this.id, {
+		fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
 			method: "DELETE",
 			headers: this.headers
 		})
