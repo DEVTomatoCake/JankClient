@@ -5,7 +5,10 @@ const main = async () => {
 
 	const data = getBulkInfo()
 	const params = new URLSearchParams(location.search)
-	if (!data || !data.currentuser || !params.has("code") || !params.has("state")) return location.href = "/login"
+	if (!data || !data.currentuser || !params.has("code") || !params.has("state")) {
+		location.href = "/login"
+		return
+	}
 
 	const res = await fetch(data.users[data.currentuser].serverurls.api + "/connections/" + connection + "/callback", {
 		method: "POST",
@@ -26,7 +29,7 @@ const main = async () => {
 		document.getElementById("status-additional").textContent = "You will be redirected shortly."
 
 		setTimeout(() => {
-			location.href = "/channels/@me"
+			location.href = channelsPath + "@me"
 		}, 2500)
 	} else {
 		const json = await res.json()

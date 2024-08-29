@@ -10,6 +10,7 @@ class Emoji {
 
 	get guild() {
 		if (this.owner instanceof Guild) return this.owner
+		throw new Error("Emoji is not in a guild")
 	}
 	get localuser() {
 		if (this.owner instanceof Guild) return this.owner.localuser
@@ -52,29 +53,25 @@ class Emoji {
 			}
 			return new TextDecoder("utf8").decode(array.buffer)
 		}
-		const readString8 = () => {
-			return readStringNo(read8())
-		}
-		const readString16 = () => {
-			return readStringNo(read16())
-		}
+		const readString8 = () => readStringNo(read8())
+		const readString16 = () => readStringNo(read16())
 
 		const build = []
 		let cats = read16()
-		for (; cats != 0; cats--) {
+		for (; cats > 0; cats--) {
 			const name = readString16()
 			const emojis = []
 			let emojinumber = read16()
-			for (; emojinumber != 0; emojinumber--) {
+			for (; emojinumber > 0; emojinumber--) {
 				const name8 = readString8()
 				const slug8 = readString8()
 				const len = read8()
-				const skin_tone_support = len > 127
-				const emoji = readStringNo(len - ((skin_tone_support ? 1 : 0) * 128))
+				const skinToneSupport = len > 127
+				const emoji = readStringNo(len - ((skinToneSupport ? 1 : 0) * 128))
 				emojis.push({
 					name: name8,
 					slug: slug8,
-					skin_tone_support,
+					skin_tone_support: skinToneSupport,
 					emoji
 				})
 			}

@@ -54,9 +54,8 @@ app.get("/getupdates", async (req, res) => {
 	res.send("" + Math.round(out.mtimeMs))
 })
 
-const needsEmbed = str => {
-	return str == "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)" || str == "Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)"
-}
+const needsEmbed = str =>
+	str == "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)" || str == "Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)"
 
 const handleEndpoint = (url = "", isAPI = false) => {
 	let parsed = new URL(url).toString()

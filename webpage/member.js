@@ -2,8 +2,6 @@
 
 // eslint-disable-next-line no-unused-vars
 class Member {
-	static already = {}
-
 	roles = []
 	/**
 	 * @param {memberjson|User|{guild_member: memberjson, user: userjson}} memberjson

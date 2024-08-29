@@ -46,29 +46,17 @@ class Audio {
 
 		switch (this.wave) {
 			case "sin":
-				return (t, freq) => {
-					return Math.sin(t * Math.PI * 2 * freq)
-				}
+				return (t, freq) => Math.sin(t * Math.PI * 2 * freq)
 			case "triangle":
-				return (t, freq) => {
-					return Math.abs((4 * t * freq) % 4 - 2) - 1
-				}
+				return (t, freq) => Math.abs((4 * t * freq) % 4 - 2) - 1
 			case "sawtooth":
-				return (t, freq) => {
-					return ((t * freq) % 1) * 2 - 1
-				}
+				return (t, freq) => ((t * freq) % 1) * 2 - 1
 			case "square":
-				return (t, freq) => {
-					return (t * freq) % 2 < 1 ? 1 : -1
-				}
+				return (t, freq) => (t * freq) % 2 < 1 ? 1 : -1
 			case "white":
-				return () => {
-					return Math.random() * 2 - 1
-				}
+				return () => Math.random() * 2 - 1
 			case "noise":
-				return () => {
-					return 0
-				}
+				return () => 0
 		}
 	}
 	play() {
@@ -101,9 +89,7 @@ class Audio {
 					break
 				}
 			case "zip":{
-				const voicy = new Audio((t, freq) => {
-					return Math.sin(((t + 2) ** (Math.cos(t * 4))) * Math.PI * 2 * freq)
-				}, 700)
+				const voicy = new Audio((t, freq) => Math.sin(((t + 2) ** (Math.cos(t * 4))) * Math.PI * 2 * freq), 700)
 				voicy.play()
 				setTimeout(() => {
 					voicy.stop()

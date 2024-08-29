@@ -14,7 +14,7 @@ class Guild {
 		Guild.contextmenu.addbutton("Create invite", async (event, guild) => {
 			if (Object.keys(guild.channelids).length == 0) return alert("No channels to create invite for")
 
-			let res = await fetch(guild.info.api + "/channels/" + (guild.prevchannel ? guild.prevchannel.id : Object.keys(guild.channelids)[0]) + "/invites", {
+			let res = await fetch(guild.info.api + channelsPath + (guild.prevchannel ? guild.prevchannel.id : Object.keys(guild.channelids)[0]) + "/invites", {
 				method: "POST",
 				headers: guild.headers
 			})
@@ -36,7 +36,7 @@ class Guild {
 					"",
 					"Create invite",
 					async () => {
-						res = await fetch(guild.info.api + "/channels/" + (guild.prevchannel ? guild.prevchannel.id : Object.keys(guild.channelids)[0]) + "/invites", {
+						res = await fetch(guild.info.api + channelsPath + (guild.prevchannel ? guild.prevchannel.id : Object.keys(guild.channelids)[0]) + "/invites", {
 							method: "POST",
 							headers: guild.headers
 						})
@@ -514,7 +514,7 @@ class Guild {
 				fields.suppress_roles = event.target.checked
 			}],
 			["button", "", "submit", () => {
-				fetch(this.info.api + "/users/@me/guilds/" + this.id + "/settings", {
+				fetch(this.info.api + usersMePath + "/guilds/" + this.id + "/settings", {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify(fields)
@@ -555,7 +555,7 @@ class Guild {
 		full.show()
 	}
 	async leave() {
-		return fetch(this.info.api + "/users/@me/guilds/" + this.id, {
+		return fetch(this.info.api + usersMePath + "/guilds/" + this.id, {
 			method: "DELETE",
 			headers: this.headers
 		})

@@ -52,7 +52,7 @@ class Channel {
 		let uses = 0
 		let expires = 1800
 		const update = () => {
-			fetch(this.info.api + "/channels/" + this.id + "/invites", {
+			fetch(this.info.api + channelsPath + this.id + "/invites", {
 				method: "POST",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -440,7 +440,7 @@ class Channel {
 	readbottom() {
 		if (!this.hasunreads) return
 
-		fetch(this.info.api + "/channels/" + this.id + "/messages/" + this.lastmessageid + "/ack", {
+		fetch(this.info.api + channelsPath + this.id + "/messages/" + this.lastmessageid + "/ack", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({})
@@ -476,17 +476,17 @@ class Channel {
 				dragged.parent = this.parent
 				if (dragged.parent) {
 					const build = []
-					for (let i = 0; i < dragged.parent.children.length; i++) {
-						build.push(dragged.parent.children[i])
-						if (dragged.parent.children[i] === this) build.push(dragged)
-					}
+					dragged.parent.children.forEach(child => {
+						build.push(child)
+						if (child === this) build.push(dragged)
+					})
 					dragged.parent.children = build
 				} else {
 					const build = []
-					for (let i = 0; i < this.guild.headchannels.length; i++) {
-						build.push(this.guild.headchannels[i])
-						if (this.guild.headchannels[i] === this) build.push(dragged)
-					}
+					this.guild.headchannels.forEach(child => {
+						build.push(child)
+						if (child === this) build.push(dragged)
+					})
 					this.guild.headchannels = build
 				}
 
@@ -510,7 +510,7 @@ class Channel {
 		})
 	}
 	deleteChannel() {
-		if (confirm("Do you really want to delete the channel \"" + this.name + "\"?")) fetch(this.info.api + "/channels/" + this.id, {
+		if (confirm("Do you really want to delete the channel \"" + this.name + "\"?")) fetch(this.info.api + channelsPath + this.id, {
 			method: "DELETE",
 			headers: this.headers
 		})
@@ -547,7 +547,7 @@ class Channel {
 		const message = this.messages.get(id)
 		if (message) return message
 
-		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, {
+		const res = await fetch(this.info.api + channelsPath + this.id + "/messages?limit=1&around=" + id, {
 			headers: this.headers
 		})
 
@@ -566,7 +566,8 @@ class Channel {
 	}
 	static genid = 0
 	async getHTML() {
-		const id = ++Channel.genid
+		Channel.genid++
+		const id = Channel.genid
 		if (this.owner != this.localuser.lookingguild) this.owner.loadGuild()
 		if (this.localuser.channelfocus) this.localuser.channelfocus.infinite.delete()
 
@@ -578,7 +579,7 @@ class Channel {
 		this.localuser.channelfocus = this
 		const prom = this.infinite.delete()
 
-		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
+		history.pushState(null, "", channelsPath + this.guild_id + "/" + this.id)
 		this.localuser.pageTitle("#" + this.name, this.guild.properties.name)
 
 		const topic = document.getElementById("channelTopic")
@@ -632,7 +633,7 @@ class Channel {
 		if (this.allthewayup) return
 		if (this.lastreadmessageid && this.messages.has(this.lastreadmessageid)) return
 
-		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100", {
+		const res = await fetch(this.info.api + channelsPath + this.id + "/messages?limit=100", {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -662,7 +663,7 @@ class Channel {
 	async grabBefore(id) {
 		if (this.topid && this.topid == id) return
 
-		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
+		const res = await fetch(this.info.api + channelsPath + this.id + "/messages?before=" + id + "&limit=100", {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -673,7 +674,7 @@ class Channel {
 		}
 
 		let previd = id
-		for (const i in json) {
+		for (let i = json.length - 1; i >= 0; i--) {
 			let messager
 			let willbreak = false
 			if (this.messages.has(json[i].id)) {
@@ -693,7 +694,7 @@ class Channel {
 	async grabAfter(id) {
 		if (this.lastmessage.id == id) return
 
-		const res = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
+		const res = await fetch(this.info.api + channelsPath + this.id + "/messages?limit=100&after=" + id, {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -804,7 +805,7 @@ class Channel {
 		if (this.typing > Date.now()) return
 
 		this.typing = Date.now() + 6000
-		fetch(this.info.api + "/channels/" + this.id + "/typing", {
+		fetch(this.info.api + channelsPath + this.id + "/typing", {
 			method: "POST",
 			headers: this.headers
 		})
@@ -829,7 +830,7 @@ class Channel {
 		}
 		if (replyjson) body.message_reference = replyjson
 
-		if (attachments.length == 0) return await fetch(this.info.api + "/channels/" + this.id + "/messages", {
+		if (attachments.length == 0) return await fetch(this.info.api + channelsPath + this.id + "/messages", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify(body)
@@ -838,11 +839,9 @@ class Channel {
 		const formData = new FormData()
 
 		formData.append("payload_json", JSON.stringify(body))
-		for (const i in attachments) {
-			formData.append("files[" + i + "]", attachments[i])
-		}
+		for (let i = 0; i < attachments.length; i++) formData.append("file" + i, attachments[i])
 
-		return await fetch(this.info.api + "/channels/" + this.id + "/messages", {
+		return await fetch(this.info.api + channelsPath + this.id + "/messages", {
 			method: "POST",
 			headers: {
 				Authorization: this.headers.Authorization
@@ -919,7 +918,7 @@ class Channel {
 		}
 	}
 	async addRoleToPerms(role) {
-		await fetch(this.info.api + "/channels/" + this.id + "/permissions/" + role.id, {
+		await fetch(this.info.api + channelsPath + this.id + "/permissions/" + role.id, {
 			method: "PUT",
 			headers: this.headers,
 			body: JSON.stringify({
@@ -938,7 +937,7 @@ class Channel {
 		if (permission) {
 			permission.allow = perms.allow
 			permission.deny = perms.deny
-			await fetch(this.info.api + "/channels/" + this.id + "/permissions/" + id, {
+			await fetch(this.info.api + channelsPath + this.id + "/permissions/" + id, {
 				method: "PUT",
 				headers: this.headers,
 				body: JSON.stringify({

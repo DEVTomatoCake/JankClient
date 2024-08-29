@@ -64,7 +64,8 @@ class Group extends Channel {
 		return div
 	}
 	async getHTML() {
-		const id = ++Channel.genid
+		Channel.genid++
+		const id = Channel.genid
 		if (this.guild !== this.localuser.lookingguild) this.guild.loadGuild()
 
 		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) this.localuser.channelfocus.myhtml.classList.remove("viewChannel")
@@ -78,7 +79,7 @@ class Group extends Channel {
 		if (id != Channel.genid) return
 
 		this.buildmessages()
-		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
+		history.pushState(null, "", channelsPath + this.guild_id + "/" + this.id)
 		this.localuser.pageTitle("@" + this.name)
 		document.getElementById("channelTopic").setAttribute("hidden", "")
 		document.getElementById("typebox").contentEditable = true

@@ -211,7 +211,7 @@ class MarkDown {
 					else {
 						build.push(txt[j])
 						if (find != 0) {
-							build = build.concat(new Array(find).fill("*"))
+							build = build.concat(Array.from({length: find}).fill("*"))
 							find = 0
 						}
 					}
@@ -263,7 +263,7 @@ class MarkDown {
 					else {
 						build.push(txt[j])
 						if (find != 0) {
-							build = build.concat(new Array(find).fill("_"))
+							build = build.concat(Array.from({length: find}).fill("_"))
 							find = 0
 						}
 					}
@@ -309,7 +309,7 @@ class MarkDown {
 					else {
 						build.push(txt[j])
 						if (find != 0) {
-							build = build.concat(new Array(find).fill("~"))
+							build = build.concat(Array.from({length: find}).fill("~"))
 							find = 0
 						}
 					}
@@ -340,7 +340,7 @@ class MarkDown {
 					else {
 						build.push(txt[j])
 						if (find != 0) {
-							build = build.concat(new Array(find).fill("~"))
+							build = build.concat(Array.from({length: find}).fill("~"))
 							find = 0
 						}
 					}
@@ -445,7 +445,7 @@ class MarkDown {
 
 				let foundEmoji = false
 				while (searchInput.length > 1) {
-					if (/^\u00a9|\u00ae|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]$/.test(searchInput)) {
+					if (/^(\u00a9|\u00ae|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])$/.test(searchInput)) {
 						appendcurrent()
 						span.appendChild(MarkDown.renderTwemoji(searchInput, isEmojiOnly ? 48 : 22))
 
@@ -472,7 +472,7 @@ class MarkDown {
 				}
 
 				if (found) {
-					const parts = build.join("").match(/^<(#|@)&?(\d{10,30})>$/)
+					const parts = build.join("").match(/^<[#@]&?(\d{10,30})>$/)
 					if (parts && parts[2]) {
 						appendcurrent()
 						i = j
@@ -530,7 +530,7 @@ class MarkDown {
 					appendcurrent()
 					i = j
 
-					const parts = build.join("").match(/^\[(.+)\]\((https?:.+?)( ('|").+('|"))?\)$/)
+					const parts = build.join("").match(/^\[(.+)\]\((https?:.+?)( (['"]).+(['"]))?\)$/)
 					if (parts) {
 						const linkElem = document.createElement("a")
 						linkElem.href = parts[2]
@@ -564,7 +564,8 @@ class MarkDown {
 			p = 0,
 			i = 0
 		while (i < unicodeSurrogates.length) {
-			c = unicodeSurrogates.charCodeAt(i++)
+			c = unicodeSurrogates.charCodeAt(i)
+			i++
 			if (p) {
 				r.push((0x10000 + ((p - 0xD800) << 10) + (c - 0xDC00)).toString(16))
 				p = 0

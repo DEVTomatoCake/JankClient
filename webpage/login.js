@@ -1,8 +1,6 @@
 "use strict"
 
-const getBulkInfo = () => {
-	return JSON.parse(localStorage.getItem("userinfos"))
-}
+const getBulkInfo = () => JSON.parse(localStorage.getItem("userinfos"))
 
 const handleEndpoint = (url = "", isAPI = false) => {
 	let parsed = new URL(url).toString()

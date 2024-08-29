@@ -1,5 +1,7 @@
 "use strict"
 
+const applicationsPath = "/applications/"
+
 const supportsCompression = "DecompressionStream" in window
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
@@ -135,6 +137,7 @@ class LocalUser {
 		document.getElementById("servers").innerHTML = ""
 		document.getElementById("channels").innerHTML = ""
 		this.lookingguild = null
+
 		if (this.channelfocus) this.channelfocus.infinite.delete()
 		this.channelfocus = null
 	}
@@ -323,14 +326,14 @@ class LocalUser {
 
 		if (json.op == 0) {
 			switch (json.t) {
+				case "READY":
+					this.gottenReady(json)
+					break
 				case "MESSAGE_CREATE":
 					if (this.initialized) this.messageCreate(json)
 					break
 				case "MESSAGE_DELETE":
 					SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject().deleteEvent()
-					break
-				case "READY":
-					this.gottenReady(json)
 					break
 				case "MESSAGE_UPDATE":
 					const messageUpdated = SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject()
@@ -410,19 +413,29 @@ class LocalUser {
 					this.gotChunk(json.d)
 					break
 			}
-		} else if (json.op == 1) this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
+		} else if (json.op == 1)
+			this.ws.send(JSON.stringify({
+				op: 1,
+				d: this.lastSequence
+			}))
 		else if (json.op == 10) {
 			this.heartbeatInterval = json.d.heartbeat_interval
 
 			this.heartbeatTimeout = setTimeout(() => {
-				this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
+				this.ws.send(JSON.stringify({
+					op: 1,
+					d: this.lastSequence
+				}))
 			}, Math.round(json.d.heartbeat_interval * Math.random()))
 		} else if (json.op == 11) {
 			this.heartbeatTimeout = setTimeout(() => {
 				if (!this.ws) return
 
 				if (this.connectionSucceed == 0) this.connectionSucceed = Date.now()
-				this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
+				this.ws.send(JSON.stringify({
+					op: 1,
+					d: this.lastSequence
+				}))
 			}, this.heartbeatInterval)
 		}
 	}
@@ -630,13 +643,19 @@ class LocalUser {
 		const categoryRes = await fetch(this.info.api + "/discovery/categories", {
 			headers: this.headers
 		})
-		if (!categoryRes.ok) return container.textContent = "An error occurred (response code " + categoryRes.status + ")"
+		if (!categoryRes.ok) {
+			container.textContent = "An error occurred (response code " + categoryRes.status + ")"
+			return
+		}
 		const categories = await categoryRes.json()
 
 		const res = await fetch(this.info.api + "/discoverable-guilds?limit=50", {
 			headers: this.headers
 		})
-		if (!res.ok) return container.textContent = "An error occurred (response code " + res.status + ")"
+		if (!res.ok) {
+			container.textContent = "An error occurred (response code " + res.status + ")"
+			return
+		}
 
 		const json = await res.json()
 		container.innerHTML = ""
@@ -752,7 +771,7 @@ class LocalUser {
 			const reader = new FileReader()
 			reader.readAsDataURL(file)
 			reader.onload = () => {
-				fetch(this.info.api + "/users/@me", {
+				fetch(this.info.api + usersMePath, {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({
@@ -761,7 +780,7 @@ class LocalUser {
 				})
 			}
 		} else {
-			fetch(this.info.api + "/users/@me", {
+			fetch(this.info.api + usersMePath, {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -771,7 +790,7 @@ class LocalUser {
 		}
 	}
 	updateProfile(json) {
-		fetch(this.info.api + "/users/@me/profile", {
+		fetch(this.info.api + usersMePath + "/profile", {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(json)
@@ -782,14 +801,14 @@ class LocalUser {
 			...this.settings,
 			...settings
 		}
-		fetch(this.info.api + "/users/@me/settings", {
+		fetch(this.info.api + usersMePath + "/settings", {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(settings)
 		})
 	}
 	async updateAccount(json) {
-		const res = await fetch(this.info.api + "/users/@me", {
+		const res = await fetch(this.info.api + usersMePath, {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(json)
@@ -883,7 +902,7 @@ class LocalUser {
 
 		const baseData = settings.addButton("Account user data")
 		const baseDataRequest = {
-			fetchURL: this.info.api + "/users/@me",
+			fetchURL: this.info.api + usersMePath,
 			headers: this.headers,
 			method: "PATCH"
 		}
@@ -928,7 +947,7 @@ class LocalUser {
 							security.returnFromSub()
 						}
 					}, {
-						fetchURL: this.info.api + "/users/@me/mfa/totp/disable",
+						fetchURL: this.info.api + usersMePath + "/mfa/totp/disable",
 						headers: this.headers
 					})
 					form.addTextInput("MFA Code:", "code", { required: true })
@@ -958,7 +977,7 @@ class LocalUser {
 							security.returnFromSub()
 						}
 					}, {
-						fetchURL: this.info.api + "/users/@me/mfa/totp/enable",
+						fetchURL: this.info.api + usersMePath + "/mfa/totp/enable",
 						headers: this.headers
 					})
 					form.addTitle("Copy this secret into your totp(time-based one time password) app")
@@ -973,7 +992,7 @@ class LocalUser {
 				const form = security.addSubForm("Change password", () => {
 					security.returnFromSub()
 				}, {
-					fetchURL: this.info.api + "/users/@me",
+					fetchURL: this.info.api + usersMePath,
 					headers: this.headers,
 					method: "PATCH"
 				})
@@ -1011,7 +1030,7 @@ class LocalUser {
 					this.status = status[form.names.get("status")]
 				}
 			}, {
-				fetchURL: this.info.api + "/users/@me/settings",
+				fetchURL: this.info.api + usersMePath + "/settings",
 				headers: this.headers,
 				method: "PATCH"
 			})
@@ -1211,7 +1230,7 @@ class LocalUser {
 		settings.show()
 	}
 	async manageApplication(appId) {
-		const res = await fetch(this.info.api + "/applications/" + appId, {
+		const res = await fetch(this.info.api + applicationsPath + appId, {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -1274,7 +1293,7 @@ class LocalUser {
 						"",
 						"Save changes",
 						async () => {
-							const updateRes = await fetch(this.info.api + "/applications/" + appId, {
+							const updateRes = await fetch(this.info.api + applicationsPath + appId, {
 								method: "PATCH",
 								headers: this.headers,
 								body: JSON.stringify(fields)
@@ -1293,7 +1312,7 @@ class LocalUser {
 							if (!json.bot) {
 								if (!confirm("Are you sure you want to add a bot to this application? There's no going back.")) return
 
-								const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
+								const updateRes = await fetch(this.info.api + applicationsPath + appId + "/bot", {
 									method: "POST",
 									headers: this.headers
 								})
@@ -1311,7 +1330,7 @@ class LocalUser {
 		appDialog.show()
 	}
 	async manageBot(appId) {
-		const res = await fetch(this.info.api + "/applications/" + appId, {
+		const res = await fetch(this.info.api + applicationsPath + appId, {
 			headers: this.headers
 		})
 		const json = await res.json()
@@ -1346,7 +1365,7 @@ class LocalUser {
 						"",
 						"Save changes",
 						async () => {
-							const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
+							const updateRes = await fetch(this.info.api + applicationsPath + appId + "/bot", {
 								method: "PATCH",
 								headers: this.headers,
 								body: JSON.stringify(fields)
@@ -1364,7 +1383,7 @@ class LocalUser {
 						async () => {
 							if (!confirm("Are you sure you want to reset the token? Your bot will stop working until you update it.")) return
 
-							const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot/reset", {
+							const updateRes = await fetch(this.info.api + applicationsPath + appId + "/bot/reset", {
 								method: "POST",
 								headers: this.headers
 							})

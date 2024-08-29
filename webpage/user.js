@@ -1,5 +1,7 @@
 "use strict"
 
+const relationshipsPath = "/relationships/"
+
 class User {
 	static contextmenu = new Contextmenu()
 	static setUpContextMenu() {
@@ -8,7 +10,7 @@ class User {
 		}, null, owner => owner.localuser.settings.developer_mode)
 
 		this.contextmenu.addbutton("Message user", (event, user) => {
-			fetch(user.info.api + "/users/@me/channels", {
+			fetch(user.info.api + usersMePath + "/channels", {
 				method: "POST",
 				headers: user.localuser.headers,
 				body: JSON.stringify({
@@ -18,7 +20,7 @@ class User {
 		}, null, owner => owner.id != owner.localuser.user.id)
 
 		this.contextmenu.addbutton("Block user", (event, user) => {
-			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
+			fetch(user.info.api + usersMePath + relationshipsPath + user.id, {
 				method: "PUT",
 				headers: user.localuser.headers,
 				body: JSON.stringify({
@@ -27,14 +29,14 @@ class User {
 			})
 		}, null, user => user.id != user.localuser.user.id && user.relationshipType != 2)
 		this.contextmenu.addbutton("Unblock user", (event, user) => {
-			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
+			fetch(user.info.api + usersMePath + relationshipsPath + user.id, {
 				method: "DELETE",
 				headers: user.localuser.headers
 			})
 		}, null, user => user.id != user.localuser.user.id && user.relationshipType == 2)
 
 		this.contextmenu.addbutton("Send friend request", (event, user) => {
-			fetch(user.info.api + "/users/@me/relationships", {
+			fetch(user.info.api + usersMePath + "/relationships", {
 				method: "POST",
 				headers: user.localuser.headers,
 				body: JSON.stringify({
@@ -44,7 +46,7 @@ class User {
 			})
 		}, null, user => user.id != user.localuser.user.id && !user.relationshipType)
 		this.contextmenu.addbutton("Accept friend request", (event, user) => {
-			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
+			fetch(user.info.api + usersMePath + relationshipsPath + user.id, {
 				method: "PUT",
 				headers: user.localuser.headers,
 				body: JSON.stringify({
@@ -54,13 +56,13 @@ class User {
 		}, null, user => user.id != user.localuser.user.id && user.relationshipType == 3)
 
 		this.contextmenu.addbutton("Remove friend", (event, user) => {
-			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
+			fetch(user.info.api + usersMePath + relationshipsPath + user.id, {
 				method: "DELETE",
 				headers: user.localuser.headers
 			})
 		}, null, user => user.id != user.localuser.user.id && user.relationshipType == 1)
 		this.contextmenu.addbutton("Revoke friend request", (event, user) => {
-			fetch(user.info.api + "/users/@me/relationships/" + user.id, {
+			fetch(user.info.api + usersMePath + relationshipsPath + user.id, {
 				method: "DELETE",
 				headers: user.localuser.headers
 			})
@@ -370,7 +372,7 @@ class User {
 
 		if (this.localuser.noteCache.has(this.id)) noteInput.value = this.localuser.noteCache.get(this.id)
 		else {
-			fetch(this.info.api + "/users/@me/notes/" + this.id, {
+			fetch(this.info.api + usersMePath + "/notes/" + this.id, {
 				headers: this.localuser.headers
 			}).then(async res => {
 				if (res.ok) {
@@ -385,7 +387,7 @@ class User {
 		}
 
 		noteInput.addEventListener("change", async () => {
-			await fetch(this.info.api + "/users/@me/notes/" + this.id, {
+			await fetch(this.info.api + usersMePath + "/notes/" + this.id, {
 				method: "PUT",
 				headers: this.localuser.headers,
 				body: JSON.stringify({
@@ -437,7 +439,7 @@ class User {
 		return new User(await res.json(), localuser)
 	}
 	block() {
-		fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+		fetch(this.info.api + usersMePath + relationshipsPath + this.id, {
 			method: "PUT",
 			headers: this.owner.headers,
 			body: JSON.stringify({
@@ -454,7 +456,7 @@ class User {
 		}
 	}
 	unblock() {
-		fetch(this.info.api + "/users/@me/relationships/" + this.id, {
+		fetch(this.info.api + usersMePath + relationshipsPath + this.id, {
 			method: "DELETE",
 			headers: this.owner.headers
 		})
