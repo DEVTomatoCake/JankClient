@@ -69,9 +69,7 @@
 	--link: #88f;
 	--embed-fallback: #6b717c;
 	--message-jump: #7678b0;
-
 	--button-bg: color-mix(in srgb, #303030 80%, var(--accent-color));
-	--button-hover: #282832;
 
 	--channels-bg: color-mix(in srgb, #2a2a2a 90%, var(--accent-color));
 	--channel-hover: color-mix(in srgb, #121212 70%, var(--accent-color));
@@ -143,9 +141,7 @@
 	--link: #3333ee;
 	--embed-fallback: #6b717c;
 	--message-jump: #ccceff;
-
 	--button-bg: color-mix(in srgb, #b7b7c7 80%, var(--accent-color));
-	--button-hover: #FFF;
 
 	--channels-bg: color-mix(in srgb, #ededf1 75%, var(--accent-color));
 	--channel-hover: color-mix(in srgb, #cbcbd8 70%, var(--accent-color));
@@ -864,7 +860,7 @@ textarea {
 
 button, input::file-selector-button {
 	transition: background-color .1s ease-in-out;
-	background: var(--message-bg-hover);
+	background: var(--button-bg);
 	border-color: var(--settings-hover);
 	color: var(--primary-text);
 	font-weight: bold;
@@ -899,7 +895,7 @@ input[type="file"] {
 
 select {
 	transition: background-color .1s ease-in-out;
-	background: var(--message-bg-hover);
+	background: var(--button-bg);
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
