@@ -172,13 +172,7 @@ class LocalUser {
 						client_build_number: 0,
 						release_channel: "Custom"
 					},
-					compress: supportsCompression,
-					presence: {
-						status: "online",
-						since: null,
-						activities: [],
-						afk: false
-					}
+					compress: supportsCompression
 				}
 			}))
 		})

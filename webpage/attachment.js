@@ -81,22 +81,25 @@ class Attachment {
 		div.append(contained)
 
 		const controls = document.createElement("div")
+		controls.classList.add("controls")
+
 		const garbage = document.createElement("button")
 		garbage.textContent = "🗑"
 		garbage.addEventListener("click", () => {
 			div.remove()
 			files.splice(files.indexOf(file), 1)
 		})
-		controls.classList.add("controls")
-		div.append(controls)
 		controls.append(garbage)
+
+		div.append(controls)
+
 		return div
 	}
 	static initFromBlob(file) {
 		return new Attachment({
+			id: null,
 			filename: file.name,
 			size: file.size,
-			id: null,
 			content_type: file.type,
 			url: URL.createObjectURL(file)
 		}, null)
@@ -106,15 +109,15 @@ class Attachment {
 		const div = document.createElement("table")
 		div.classList.add("unknownfile")
 		const nametr = document.createElement("tr")
-		div.append(nametr)
 
 		const fileicon = document.createElement("td")
-		fileicon.append("🗎")
 		fileicon.classList.add("fileicon")
+		fileicon.append("🗎")
 		fileicon.rowSpan = 2
 		nametr.append(fileicon)
 
 		const nametd = document.createElement("td")
+		nametd.classList.add("filename")
 		if (src) {
 			const a = document.createElement("a")
 			a.target = "_blank"
@@ -123,15 +126,19 @@ class Attachment {
 			a.textContent = this.filename
 			nametd.append(a)
 		} else nametd.textContent = this.filename
-		nametd.classList.add("filename")
+
 		nametr.append(nametd)
+		div.append(nametr)
 
 		const sizetr = document.createElement("tr")
+
 		const size = document.createElement("td")
-		sizetr.append(size)
-		size.textContent = "Size:" + this.filesizehuman(this.size)
 		size.classList.add("filesize")
+		size.textContent = "Size:" + this.filesizehuman(this.size)
+		sizetr.append(size)
+
 		div.appendChild(sizetr)
+
 		return div
 	}
 	filesizehuman(fsize) {

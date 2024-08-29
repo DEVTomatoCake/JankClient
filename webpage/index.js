@@ -286,7 +286,7 @@ if (screen.width <= 600) {
 		mobileBack.removeAttribute("hidden")
 
 		document.getElementById("channels").parentElement.classList.add("collapse")
-		document.getElementById("servers").parentElement.classList.add("collapse")
+		document.getElementById("neunence").classList.add("collapse")
 	}
 	collapse()
 
@@ -298,6 +298,6 @@ if (screen.width <= 600) {
 		mobileBack.setAttribute("hidden", "")
 
 		document.getElementById("channels").parentElement.classList.remove("collapse")
-		document.getElementById("servers").parentElement.classList.remove("collapse")
+		document.getElementById("neunence").classList.remove("collapse")
 	})
 }

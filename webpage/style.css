@@ -69,6 +69,7 @@
 	--link: #88f;
 	--embed-fallback: #6b717c;
 	--message-jump: #7678b0;
+	--member-error-bg: #f87132;
 	--button-bg: color-mix(in srgb, #303030 80%, var(--accent-color));
 
 	--channels-bg: color-mix(in srgb, #2a2a2a 90%, var(--accent-color));
@@ -141,6 +142,7 @@
 	--link: #3333ee;
 	--embed-fallback: #6b717c;
 	--message-jump: #ccceff;
+	--member-error-bg: #ff7f44;
 	--button-bg: color-mix(in srgb, #b7b7c7 80%, var(--accent-color));
 
 	--channels-bg: color-mix(in srgb, #ededf1 75%, var(--accent-color));
@@ -1329,13 +1331,13 @@ span {
 
 .membererror {
 	display: inline-block;
-	background-color: #656500;
+	color: var(--primary-text);
+	background-color: var(--member-error-bg);
 	height: .15in;
 	width: .15in;
 	border-radius: .1in;
 	text-align: center;
-	border: solid var(--black) .03in;
-	margin-left: .025in;
+	margin-left: 5px;
 }
 .controls {
 	position: absolute;

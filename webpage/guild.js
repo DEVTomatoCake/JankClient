@@ -349,10 +349,8 @@ class Guild {
 			}
 		}
 
-		if (html) {
-			if (read) html.children[0].classList.remove("notiunread")
-			else html.children[0].classList.add("notiunread")
-		}
+		if (read) html.children[0].classList.remove("notiunread")
+		else html.children[0].classList.add("notiunread")
 	}
 	getHTML() {
 		this.sortchannels()
@@ -370,11 +368,9 @@ class Guild {
 		return this.member.isAdmin()
 	}
 	async markAsRead() {
-		const build = {
-			read_states: []
-		}
+		const readStates = []
 		for (const channel of this.channels.filter(ch => ch.hasunreads)) {
-			build.read_states.push({
+			readStates.push({
 				channel_id: channel.id,
 				message_id: channel.lastmessageid,
 				read_state_type: 0
@@ -386,7 +382,9 @@ class Guild {
 		fetch(this.info.api + "/read-states/ack-bulk", {
 			method: "POST",
 			headers: this.headers,
-			body: JSON.stringify(build)
+			body: JSON.stringify({
+				read_states: readStates
+			})
 		})
 	}
 	hasRole(role) {
