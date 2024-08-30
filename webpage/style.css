@@ -654,7 +654,7 @@ hr {
 	flex-direction: column;
 	flex-shrink: 1;
 	min-height: 0;
-	height: 100%;
+	height: 100vh;
 	position: relative;
 }
 
@@ -1363,6 +1363,7 @@ video {
 	flex-shrink: 1;
 	flex-grow: 1;
 	align-items: stretch;
+	align-content: stretch;
 }
 .flexttb {
 	display: flex;
@@ -1438,9 +1439,8 @@ video {
 	font-weight: 900;
 	font-size: .25in;
 	border-bottom: .03in solid var(--message-bg-hover);
-	background: var(--primary-bg);
 	padding: .06in .2in;
-	background: var(--server-bg);
+	background: var(--channel-name-bg);
 }
 
 .exitsettings {
@@ -1482,12 +1482,14 @@ video {
 
 .channelflex {
 	flex-shrink: 0;
+	flex-grow: 1;
 	width: 2.5in;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
 	justify-content: space-between;
 	min-height: 100vh;
+	height: 100vh;
 }
 
 .messageflex {
@@ -1555,6 +1557,7 @@ video {
 	overflow: hidden;
 	width: 100%;
 	max-height: 100in;
+	justify-content: flex-end;
 }
 
 
@@ -2220,4 +2223,111 @@ small.edited {
 }
 .clickable:hover {
 	text-decoration: underline;
+}
+
+#titleDiv {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	width: 100%;
+	padding: .03in .1in;
+	background: var(--profile-bg);
+	border-bottom: solid var(--black);
+	justify-content: center;
+}
+
+.TitleButtons {
+	color: var(--primary-text);
+	margin-left: .03in;
+	padding: .05in;
+	border-radius:.075in;
+	border:solid .03in var(--black);
+	box-shadow: 0 0 .07in var(--shadow);
+	transition: box-shadow .3s;
+	display: block;
+	width: fit-content;
+}
+.TitleButtons:hover {
+	box-shadow: 0 0 .01in var(--shadow);
+}
+
+#pageTitle {
+	margin-right: .1in;
+}
+
+.pagehead {
+	background: var(--channel-hover);
+	height: 1in;
+	display: flex;
+	align-items: center;
+	border-bottom: solid var(--black);
+	justify-content: center;
+	font-size: .25in;
+	flex-shrink: 0;
+}
+
+.pagebox {
+	padding: .06in;
+	background: var(--channel-hover);
+	margin: .1in;
+	border-radius: .1in;
+	box-sizing: border-box;
+	border: solid .04in #000;
+	border-left: solid .05in darkblue;
+	box-shadow: .03in .04in .1in var(--black);
+	flex-shrink: 0;
+}
+
+#instancebox {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: fit-content;
+}
+
+.instance {
+	flex-grow: 0;
+	width: 4.8in;
+	background: var(--button-bg);
+	border-radius: .1in;
+	padding: .06in;
+	margin: .05in;
+	border: solid .04in var(--black);
+	box-shadow: 0 0 .1in var(--shadow);
+	display: flex;
+	cursor: pointer;
+	user-select: none;
+}
+
+.instance img {
+	width: .6in;
+	height: .6in;
+	margin-right: 8px;
+	border-radius: 50%;
+	border: solid .03in var(--black);
+}
+
+.instance h2 {
+	font-size: .25in;
+}
+
+.instanceDescription {
+	background: var(--message-bg-hover);
+	border-radius: .1in;
+	padding: .03in .05in;
+	border: solid .03in var(--black);
+	display: flex;
+	width: 3.9in;
+	margin-bottom: .1in;
+}
+
+.instanceStatus {
+	font-size: .125in;
+	font-weight: 100;
+	margin-left: .05in;
+}
+
+#apple-is-stupid {
+	display: none;
 }

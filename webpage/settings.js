@@ -331,7 +331,7 @@ class SettingsText {
 	}
 	generateHTML() {
 		const span = document.createElement("span")
-		span.innerText = this.text
+		span.textContent = this.text
 		return span
 	}
 	watchForChange() {}
@@ -344,7 +344,7 @@ class SettingsTitle {
 	}
 	generateHTML() {
 		const span = document.createElement("h2")
-		span.innerText = this.text
+		span.textContent = this.text
 		return span
 	}
 	watchForChange() {}
@@ -500,7 +500,7 @@ class Options {
 				container.append(this.subOptions.generateHTML()) //more code needed, though this is enough for now
 				if (title) {
 					const name = document.createElement("span")
-					name.innerText = this.name
+					name.textContent = this.name
 					name.classList.add("clickable")
 					name.onclick = () => {
 						this.returnFromSub()
@@ -512,10 +512,10 @@ class Options {
 					this.generate(thing)
 				}
 				if (title) {
-					title.innerText = this.name
+					title.textContent = this.name
 				}
 			}
-			if (title && title.innerText !== "") {
+			if (title && title.textContent != "") {
 				title.classList.add("settingstitle")
 			} else if (title) {
 				title.classList.remove("settingstitle")

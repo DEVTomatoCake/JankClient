@@ -10,6 +10,18 @@ const express = require("express")
 const app = express()
 app.disable("x-powered-by")
 
+const { observe, uptime } = require("./stats.js")
+const { getAPIURLs, handleEndpoint } = require("./util.js")
+
+const instances = []
+fetch("https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instances/instances.json").then(res => res.json()).then(json => {
+	for (const instance of json) {
+		console.log(instance)
+		instances.push(instance)
+	}
+	observe(instances)
+})
+
 const compression = require("compression")
 app.use(compression({
 	chunkSize: 1024 * 256
@@ -45,6 +57,44 @@ app.use((req, res, next) => {
 		"report-uri https://api.tomatenkuchen.com/csp-violation"
 	)
 
+	res.header("Permissions-Policy",
+		"accelerometer=(), " +
+		"ambient-light-sensor=(), " +
+		"attribution-reporting=(), " +
+		"autoplay=(), " +
+		"bluetooth=(), " +
+		"browsing-topics=(), " +
+		"camera=(), " +
+		"compute-pressure=(), " +
+		"display-capture=(), " +
+		"document-domain=(), " +
+		"encrypted-media=(), " +
+		"fullscreen=(), " +
+		"gamepad=(), " +
+		"geolocation=(), " +
+		"gyroscope=(), " +
+		"hid=(), " +
+		"identity-credentials-get=(), " +
+		"idle-detection=(), " +
+		"local-fonts=(), " +
+		"magnetometer=(), " +
+		"microphone=(), " +
+		"midi=(), " +
+		"otp-credentials=(), " +
+		"payment=(), " +
+		"picture-in-picture=(), " +
+		"publickey-credentials-create=(), " +
+		"publickey-credentials-get=(), " +
+		"screen-wake-lock=(), " +
+		"serial=(), " +
+		"speaker-selection=(), " +
+		"storage-access=(), " +
+		"usb=(), " +
+		"web-share=(), " +
+		"window-management=(), " +
+		"xr-spatial-tracking=()"
+	)
+
 	next()
 })
 
@@ -54,39 +104,16 @@ app.get("/getupdates", async (req, res) => {
 	res.send("" + Math.round(out.mtimeMs))
 })
 
+app.get("/instances", async (req, res) => {
+	res.send(JSON.stringify(instances))
+})
+app.get("/uptime", async (req, res) => {
+	if (!req.query.name || typeof req.query.name != "string") return res.status(400).send("No name query parameter provided!")
+	res.send(uptime[req.query.name])
+})
+
 const needsEmbed = str =>
 	str == "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)" || str == "Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)"
-
-const handleEndpoint = (url = "", isAPI = false) => {
-	let parsed = new URL(url).toString()
-	if (parsed.endsWith("/")) parsed = parsed.slice(0, -1)
-	if (!/\/v\d+$/.test(parsed) && isAPI) parsed += "/v9"
-	return parsed
-}
-
-const getAPIURLs = async str => {
-	if (str.at(-1) != "/") str += "/"
-
-	let api
-	try {
-		const info = await fetch(str + "/.well-known/spacebar").then(x => x.json())
-		api = info.api
-	} catch {
-		return false
-	}
-
-	try {
-		const info = await fetch(api + "/policies/instance/domains").then(x => x.json())
-		return {
-			api: handleEndpoint(info.apiEndpoint, true),
-			gateway: handleEndpoint(info.gateway),
-			cdn: handleEndpoint(info.cdn),
-			wellknown: handleEndpoint(str)
-		}
-	} catch {
-		return false
-	}
-}
 
 const encode = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
 
@@ -126,7 +153,8 @@ const inviteres = async (res, reqPath, query) => {
 app.use("/", async (req, res) => {
 	const reqPath = req.path.replace(/[^\w.-]/g, "")
 
-	if (reqPath.length == 0 || reqPath.startsWith("channels")) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
+	if (reqPath.length == 0) return res.sendFile(path.join(__dirname, "webpage", "home.html"))
+	if (reqPath.startsWith("channels")) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
 	if (reqPath == "login") return res.sendFile(path.join(__dirname, "webpage", "login.html"))
 	if (reqPath == "register") return res.sendFile(path.join(__dirname, "webpage", "register.html"))
 	if (/^connections[\w-]{1,64}callback$/.test(reqPath)) return res.sendFile(path.join(__dirname, "webpage", "connections.html"))
@@ -163,3 +191,6 @@ const PORT = process.env.PORT || 25512
 app.listen(PORT, () => {
 	console.warn("Started Jank Client on http://localhost:" + PORT)
 })
+
+module.exports.getAPIURLs = getAPIURLs
+module.exports.handleEndpoint = handleEndpoint
