@@ -66,7 +66,6 @@ const calcStats = instance => {
 }
 
 const setStatus = (instance, status) => {
-	console.trace(instance)
 	const name = instance.name
 	let obj = uptimeObject[name]
 	let needSetting = false

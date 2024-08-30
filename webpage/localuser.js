@@ -6,51 +6,6 @@ const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 let charsSecret = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
 while (charsSecret.length < 256) charsSecret += charsSecret
 
-let fixsvgtheme
-document.addEventListener("DOMContentLoaded", () => {
-	let last
-	const dud = document.createElement("p")
-	dud.classList.add("svgtheme")
-	document.body.append(dud)
-	const css = window.getComputedStyle(dud)
-
-	const fixsvgthemeFunc = () => {
-		if (css.color == last) return
-		last = css.color
-
-		const rgbParts = css.color.replace("rgb(", "").replace(")", "").split(",")
-		const r = Number.parseInt(rgbParts[0]) / 255
-		const g = Number.parseInt(rgbParts[1]) / 255
-		const b = Number.parseInt(rgbParts[2]) / 255
-		const max = Math.max(r, g, b)
-		const min = Math.min(r, g, b)
-		const l = (max + min) / 2
-		let s
-		let h
-		if (max == min) {
-			s = 0
-			h = 0
-		} else {
-			if (l <= 0.5) s = (max - min) / (max + min)
-			else s = (max - min) / (2 - max - min)
-
-			if (r == max) h = (g - b) / (max - min)
-			else if (g == max) h = 2 + (b - r) / (max - min)
-			else if (b == max) h = 4 + (r - g) / (max - min)
-		}
-
-		const rot = Math.floor(h * 60) + "deg"
-		const invert = 0.5 - (s / 2) + ""
-		const brightness = Math.floor((l * 200)) + "%"
-		document.documentElement.style.setProperty("--rot", rot)
-		document.documentElement.style.setProperty("--invert", invert)
-		document.documentElement.style.setProperty("--brightness", brightness)
-	}
-	fixsvgtheme = fixsvgthemeFunc
-	setTimeout(fixsvgthemeFunc, 100)
-	fixsvgthemeFunc()
-})
-
 // eslint-disable-next-line no-unused-vars
 class LocalUser {
 	/**
@@ -490,15 +445,14 @@ class LocalUser {
 
 		const div = document.createElement("div")
 		div.classList.add("home", "servericon")
-		const img = document.createElement("img")
-		img.classList.add("svgtheme", "svgicon")
-		img.src = "/icons/home.svg"
-		img.all = this.guildids.get("@me")
-		img.addEventListener("click", () => {
-			img.all.loadGuild()
-			img.all.loadChannel()
+		const home = document.createElement("span")
+		home.classList.add("svgtheme", "svgicon", "svg-home")
+		home.all = this.guildids.get("@me")
+		home.addEventListener("click", () => {
+			home.all.loadGuild()
+			home.all.loadChannel()
 		})
-		div.appendChild(img)
+		div.appendChild(home)
 
 		const outdiv = document.createElement("div")
 		this.guildids.get("@me").html = outdiv
@@ -544,9 +498,8 @@ class LocalUser {
 
 		const guildDiscoveryContainer = document.createElement("div")
 		guildDiscoveryContainer.classList.add("home", "servericon")
-		const guildDiscoveryIcon = document.createElement("img")
-		guildDiscoveryIcon.src = "/icons/explore.svg"
-		guildDiscoveryIcon.classList.add("svgtheme", "svgicon")
+		const guildDiscoveryIcon = document.createElement("span")
+		guildDiscoveryIcon.classList.add("svgtheme", "svgicon", "svg-explore")
 		guildDiscoveryContainer.appendChild(guildDiscoveryIcon)
 		guildDiscoveryContainer.addEventListener("click", () => {
 			this.guildDiscovery()
@@ -1117,7 +1070,6 @@ class LocalUser {
 		})
 
 		tas.addColorInput("Accent color:", value => {
-			fixsvgtheme()
 			const userinfos = getBulkInfo()
 			userinfos.accent_color = value
 			localStorage.setItem("userinfos", JSON.stringify(userinfos))

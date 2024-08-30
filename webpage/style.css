@@ -446,6 +446,7 @@ p {
 	width: .175in;
 	height: .175in;
 	padding-right: .026in;
+	vertical-align: text-bottom;
 }
 
 .indent {
@@ -753,7 +754,7 @@ textarea {
 	transition: height .2s ease-in-out;
 	user-select: none;
 	cursor: pointer;
-	padding-left: .05in;
+	padding: 0 .05in;
 }
 
 .channel {
@@ -1712,11 +1713,6 @@ form div {
 	user-select: none;
 }
 
-.svgtheme {
-	color: var(--icon-color);
-	filter: hue-rotate(var(--rot)) invert(var(--invert)) brightness(var(--brightness));
-}
-
 img.svgtheme,
 #app-list-container img {
 	aspect-ratio: 1;
@@ -1728,8 +1724,8 @@ img.svgtheme,
 
 .collapse-icon {
 	width: 12px;
-	padding-left: .05in;
-	padding-right: .025in;
+	height: 12px;
+	margin-right: 3px;
 	transition: rotate .2s;
 }
 .hiddencat {
@@ -1920,6 +1916,7 @@ small.edited {
 
 #settings {
 	width: 20px;
+	height: 20px;
 	margin: .05in;
 }
 
@@ -1986,7 +1983,9 @@ small.edited {
 }
 
 .copybutton {
+	display: inline-block;
 	width: .25in;
+	height: .2in;
 }
 
 .copycontainer {
@@ -2330,4 +2329,34 @@ small.edited {
 
 #apple-is-stupid {
 	display: none;
+}
+
+.svg-announce {
+	mask: url("/icons/announce.svg");
+}
+.svg-collapse {
+	mask: url("/icons/collapse.svg");
+}
+.svg-channel {
+	mask: url("/icons/channel.svg");
+}
+.svg-copy {
+	mask: url("/icons/copy.svg");
+}
+.svg-explore {
+	mask: url("/icons/explore.svg");
+}
+.svg-home {
+	mask: url("/icons/home.svg");
+}
+.svg-settings {
+	mask: url("/icons/settings.svg");
+}
+.svg-voice {
+	mask: url("/icons/voice.svg");
+}
+
+.svgtheme {
+	background: var(--icon-color);
+	mask-repeat: no-repeat;
 }

@@ -40,9 +40,8 @@ class Channel {
 
 		const copycontainer = document.createElement("div")
 		copycontainer.classList.add("copycontainer")
-		const copy = document.createElement("img")
-		copy.src = "/icons/copy.svg"
-		copy.classList.add("copybutton", "svgtheme")
+		const copy = document.createElement("span")
+		copy.classList.add("copybutton", "svgtheme", "svg-copy")
 		copycontainer.append(copy)
 		copycontainer.addEventListener("click", () => {
 			if (text.value) navigator.clipboard.writeText(text.value)
@@ -315,9 +314,8 @@ class Channel {
 			const decdiv = document.createElement("div")
 			decdiv.classList.add("channeleffects", "category")
 
-			const decoration = document.createElement("img")
-			decoration.src = "/icons/collapse.svg"
-			decoration.classList.add("svgtheme", "collapse-icon")
+			const decoration = document.createElement("span")
+			decoration.classList.add("svgtheme", "collapse-icon", "svg-collapse")
 			decdiv.appendChild(decoration)
 
 			const myhtml = document.createElement("span")
@@ -375,19 +373,12 @@ class Channel {
 			myhtml.textContent = this.name
 
 			if (this.type == 0 || this.type == 2 || this.type == 5) {
-				const icon = document.createElement("img")
+				const icon = document.createElement("span")
 				if (this.parent) icon.classList.add("indent")
 
-				if (this.type == 0) {
-					icon.src = "/icons/channel.svg"
-					icon.classList.add("space", "svgtheme")
-				} else if (this.type == 2) {
-					icon.src = "/icons/voice.svg"
-					icon.classList.add("space", "svgtheme")
-				} else if (this.type == 5) {
-					icon.src = "/icons/announce.svg"
-					icon.classList.add("space", "svgtheme")
-				}
+				if (this.type == 0) icon.classList.add("space", "svgtheme", "svg-channel")
+				else if (this.type == 2) icon.classList.add("space", "svgtheme", "svg-voice")
+				else if (this.type == 5) icon.classList.add("space", "svgtheme", "svg-announce")
 				div.appendChild(icon)
 			} else {
 				const decoration = document.createElement("b")

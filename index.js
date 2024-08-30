@@ -185,6 +185,9 @@ app.use("/", async (req, res) => {
 		return res.sendFile(path.join(__dirname, "webpage", "icons", reqPath.replace("icons", "")), {
 			maxAge: 1000 * 60 * 60 * 24
 		})
+
+	console.warn("Unknown path requested: " + reqPath + " | " + req.originalUrl)
+	res.status(404).send("Unknown path!")
 })
 
 const PORT = process.env.PORT || 25512
