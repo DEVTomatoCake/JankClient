@@ -101,9 +101,9 @@ class Member {
 		return this.roles.some(role => role.id == id)
 	}
 	getColor() {
-		if (!this.roles) return ""
+		if (this.roles.length == 0) return ""
 
-		return this.roles.find(role => role.getColor())?.getColor() || ""
+		return this.roles.filter(Boolean).find(role => role.getColor())?.getColor() || ""
 	}
 	isAdmin() {
 		return this.guild.properties.owner_id == this.user.id || this.roles.some(role => role.permissions.hasPermission("ADMINISTRATOR"))

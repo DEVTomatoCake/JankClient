@@ -454,7 +454,7 @@ class Message {
 			div.txt = messaged
 			if (this.edited_timestamp) {
 				const edited = document.createElement("small")
-				edited.classList.add("edited")
+				edited.classList.add("msg-edited")
 				edited.textContent = "(edited)"
 				edited.title = "Edited " + formatTime(new Date(this.edited_timestamp), this.localuser.settings.locale, compactLayout)
 				messaged.appendChild(edited)
@@ -541,15 +541,15 @@ class Message {
 			reactionContainer.classList.add("reaction")
 			if (reaction.me) reactionContainer.classList.add("meReacted")
 
-			const count = document.createElement("span")
-			count.textContent = reaction.count
-			count.classList.add("reactionCount")
-			reactionContainer.appendChild(count)
-
 			if (reaction.emoji.id) {
 				const emoji = new Emoji(reaction.emoji, this.guild)
 				reactionContainer.appendChild(emoji.getHTML(false))
 			} else reactionContainer.appendChild(MarkDown.renderTwemoji(reaction.emoji.name))
+
+			const count = document.createElement("span")
+			count.classList.add("reactionCount")
+			count.textContent = reaction.count
+			reactionContainer.appendChild(count)
 
 			reactdiv.appendChild(reactionContainer)
 			reactionContainer.addEventListener("click", () => {

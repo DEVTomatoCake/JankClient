@@ -422,6 +422,7 @@ class User {
 					html.after(errorElem)
 					return
 				}
+
 				if (member) member.contextMenuBind(html)
 			})
 		} else User.contextmenu.bindContextmenu(html, this)

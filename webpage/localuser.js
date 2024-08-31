@@ -1185,7 +1185,7 @@ class LocalUser {
 		const appDialog = new Dialog(
 			["vdiv",
 				["title",
-					"Editing " + json.name
+					"Editing \"" + json.name + "\""
 				],
 				["hdiv",
 					["textbox", "Application name:", json.name, event => {
@@ -1203,6 +1203,18 @@ class LocalUser {
 							reader.readAsDataURL(event.target.files[0])
 							reader.onload = () => {
 								fields.icon = reader.result
+							}
+						}]
+					],
+					["vdiv",
+						json.cover_image
+							? ["img", this.info.cdn + "/app-icons/" + appId + "/" + json.cover_image + "." + (json.cover_image.startsWith("a_") ? "gif" : "png") + "?size=128", [128, 128]]
+							: ["text", "No cover image"],
+						["fileupload", "Application RPC cover image:", event => {
+							const reader = new FileReader()
+							reader.readAsDataURL(event.target.files[0])
+							reader.onload = () => {
+								fields.cover_image = reader.result
 							}
 						}]
 					]
@@ -1256,7 +1268,7 @@ class LocalUser {
 						(json.bot ? "Manage" : "Add") + " bot",
 						async () => {
 							if (!json.bot) {
-								if (!confirm("Are you sure you want to add a bot to this application? There's no going back.")) return
+								if (!confirm("Are you sure you want to add a bot to \"" + json.name + "\"? There's no going back.")) return
 
 								const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
 									method: "POST",

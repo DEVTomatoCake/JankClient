@@ -48,9 +48,10 @@ class PermissionToggle {
 		div.append(name)
 		div.append(this.generateCheckbox())
 
-		const p = document.createElement("p")
-		p.textContent = this.rolejson.description
-		div.appendChild(p)
+		const perm = document.createElement("p")
+		perm.textContent = this.rolejson.description
+		div.appendChild(perm)
+
 		return div
 	}
 	generateCheckbox() {

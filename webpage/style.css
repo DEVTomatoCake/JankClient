@@ -69,7 +69,7 @@
 	--link: #88f;
 	--embed-fallback: #6b717c;
 	--message-jump: #7678b0;
-	--member-error-bg: #f87132;
+	--member-error-bg: #ff843d;
 	--button-bg: color-mix(in srgb, #303030 80%, var(--accent-color));
 
 	--channels-bg: color-mix(in srgb, #2a2a2a 90%, var(--accent-color));
@@ -142,7 +142,7 @@
 	--link: #3333ee;
 	--embed-fallback: #6b717c;
 	--message-jump: #ccceff;
-	--member-error-bg: #ff7f44;
+	--member-error-bg: #ff943d;
 	--button-bg: color-mix(in srgb, #b7b7c7 80%, var(--accent-color));
 
 	--channels-bg: color-mix(in srgb, #ededf1 75%, var(--accent-color));
@@ -668,7 +668,7 @@ hr {
 .replyflex {
 	display: flex;
 	align-items: center;
-	color: var(--reply-text); /* for date line */
+	color: var(--reply-text);
 	font-size: .9rem;
 }
 
@@ -782,12 +782,12 @@ textarea {
 }
 
 #servername, #channelname {
-	padding-left: 5px;
+	margin-left: 10px;
 	text-overflow: ellipsis;
 	overflow-x: hidden;
 	white-space: nowrap;
 	max-width: 230px;
-	font-size: 17px;
+	font-size: 16.5px;
 }
 
 .channeleffects {
@@ -837,7 +837,7 @@ textarea {
 #userdock {
 	background: var(--user-dock-bg);
 	position: relative;
-	justify-content: center;
+	justify-content: space-between;
 	align-items: center;
 	padding: 2px;
 	padding-top: 10px;
@@ -845,7 +845,6 @@ textarea {
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
 	width: 100%;
-	gap: .1in;
 	flex-grow: 0;
 }
 
@@ -1331,20 +1330,24 @@ span {
 }
 
 .membererror {
-	display: inline-block;
+	display: flex;
 	color: var(--primary-text);
-	background-color: var(--member-error-bg);
+	background: var(--member-error-bg);
 	height: .15in;
 	width: .15in;
 	border-radius: .1in;
-	text-align: center;
 	margin-left: 5px;
+	justify-content: center;
+	align-items: center;
+	align-self: center;
 }
+
 .controls {
 	position: absolute;
 	top: 0;
 	right: 0;
 }
+
 .containedFile {
 	position: relative;
 	width: fit-content;
@@ -1476,6 +1479,7 @@ video {
 }
 .tritoggle:first-child {
 	accent-color: var(--green);
+	TODO;
 }
 .tritoggle:last-child {
 	accent-color: red;
@@ -1532,7 +1536,7 @@ video {
 	z-index: 5;
 }
 .savediv button {
-	background-color: var(--green);
+	background: var(--green);
 }
 
 .flex {
@@ -1805,7 +1809,9 @@ img.svgtheme,
 }
 
 .reactionCount {
-	font-size: 13.5px;
+	font-size: 15px;
+	font-weight: bold;
+	color: var(--mention-color);
 	padding: 0 .05in 0 .02in;
 }
 
@@ -1813,10 +1819,8 @@ img.svgtheme,
 	cursor: pointer;
 	position: relative;
 	display: flex;
-	flex-direction: row;
-	align-content: stretch;
 	margin-right: .05in;
-	padding: 1px 8px;
+	padding: 2px 5px;
 	border-radius: 5px;
 	border: 2px solid var(--light-border);
 	background: var(--code-bg);
@@ -1842,7 +1846,7 @@ img.svgtheme,
 	flex-shrink: 0;
 }
 
-small.edited {
+.msg-edited {
 	font-size: 12px;
 	color: var(--timestamp-color);
 	user-select: none;
