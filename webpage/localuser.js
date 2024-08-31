@@ -515,8 +515,8 @@ class LocalUser {
 			icon: null
 		}
 		const full = new Dialog(["tabs", [
-			["Join using invite", [
-				"vdiv",
+			["Join using invite",
+				["vdiv",
 					["textbox",
 						"Invite Link/Code",
 						"",
@@ -545,7 +545,8 @@ class LocalUser {
 							}
 						}
 					]
-			]],
+				]
+			],
 			["Create server",
 				["vdiv",
 					["title", "Create a server"],
@@ -560,8 +561,8 @@ class LocalUser {
 						fields.name = event.target.value
 					}],
 					["button", "", "submit", () => {
-						this.makeGuild(fields).then(_ => {
-							if (_.message) alert(_.errors.name._errors[0].message)
+						this.makeGuild(fields).then(json => {
+							if (json.message) alert(json.errors.name._errors[0].message)
 							else full.hide()
 						})
 					}]

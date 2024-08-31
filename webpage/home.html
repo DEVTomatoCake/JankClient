@@ -14,13 +14,13 @@
 		<link href="/style.css" rel="stylesheet">
 		<link rel="manifest" href="/manifest.json">
 
-		<script src="/home.js"></script>
 		<script src="/login.js"></script>
+		<script src="/home.js"></script>
 	</head>
 	<body class="dark-theme">
 		<div id="titleDiv">
-			<img src="/logo.svg" width="40" alt="Jank Client logo">
-			<h1 id="pageTitle">Jank Client</h1>
+			<img src="/logo.svg" id="home-logo" width="45" height="45" alt="Jank Client logo">
+			<h2 id="pageTitle">Jank Client</h2>
 
 			<a href="./invite/USgYJo?instance=https%3A%2F%2Fspacebar.chat" class="TitleButtons">
 				Spacebar Guild
@@ -31,9 +31,12 @@
 		</div>
 		<div class="flexttb">
 			<div class="flexttb pagehead">
-				<h2>Welcome to Jank Client</h2>
-				<br>
-				<a href="/channels/@me">Open client</a>
+				<h1>Welcome to Jank Client</h1>
+
+				<div id="open-client-container" hidden>
+					<br>
+					<a href="/channels/@me">Open client</a>
+				</div>
 			</div>
 			<div class="pagebox">
 				<p>

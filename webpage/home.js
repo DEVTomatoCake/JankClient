@@ -1,13 +1,16 @@
+const userInfo = getBulkUsers()
+
 document.addEventListener("DOMContentLoaded", async () => {
+	if (Object.keys(userInfo.users).length > 0) document.getElementById("open-client-container").removeAttribute("hidden")
+
 	const serverbox = document.getElementById("instancebox")
 
 	const res = await fetch("/instances")
 	const json = await res.json()
 
 	for (const instance of json) {
-		if (instance.display === false) {
-			continue
-		}
+		if (instance.display === false) continue
+
 		const div = document.createElement("div")
 		div.classList.add("flexltr", "instance")
 

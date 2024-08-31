@@ -2,13 +2,7 @@ const { getAPIURLs, handleEndpoint } = require("./util.js")
 const fs = require("node:fs")
 let uptimeObject = {}
 
-if (fs.existsSync("./instanceUptime.json")) {
-	try {
-		uptimeObject = JSON.parse(fs.readFileSync("./instanceUptime.json", "utf8"))
-	} catch {
-		uptimeObject = {}
-	}
-}
+if (fs.existsSync("./instanceUptime.json")) uptimeObject = JSON.parse(fs.readFileSync("./instanceUptime.json", "utf8"))
 
 const calcStats = instance => {
 	const obj = uptimeObject[instance.name]
@@ -18,19 +12,20 @@ const calcStats = instance => {
 	const week = Date.now() - 1000 * 60 * 60 * 24 * 7
 	let alltime = -1
 	let totalTimePassed = 0
-	let laststamp = 0
 	let daytime = -1
 	let weektime = -1
 	let online = false
 
+	let i = 0
 	for (const thing of obj) {
+		online = thing.online
 		const stamp = thing.time
-		if (alltime == -1) {
-			laststamp = stamp
-			alltime = 0
-		}
+		if (alltime == -1) alltime = 0
 
-		const timepassed = stamp - laststamp
+		let timepassed
+		if (obj[i + 1]) timepassed = obj[i + 1].time - stamp
+		else timepassed = Date.now() - stamp
+
 		totalTimePassed += timepassed
 		alltime += online * timepassed
 		if (stamp > week) {
@@ -42,20 +37,15 @@ const calcStats = instance => {
 				else daytime += online * timepassed
 			}
 		}
-		online = thing.online
+		i++
 	}
 	instance.online = online
 
-	const timepassed = Date.now() - laststamp
-	totalTimePassed += timepassed
-	daytime += online * Math.min(timepassed, 1000 * 60 * 60 * 24)
-	weektime += online * Math.min(timepassed, 1000 * 60 * 60 * 24 * 7)
-	alltime += online * timepassed
 	alltime /= totalTimePassed
 
-	if (timepassed > 1000 * 60 * 60 * 24) {
+	if (totalTimePassed > 1000 * 60 * 60 * 24) {
 		daytime /= 1000 * 60 * 60 * 24
-		if (timepassed > 1000 * 60 * 60 * 24 * 7) weektime /= 1000 * 60 * 60 * 24 * 7
+		if (totalTimePassed > 1000 * 60 * 60 * 24 * 7) weektime /= 1000 * 60 * 60 * 24 * 7
 		else weektime = alltime
 	} else {
 		weektime = alltime
@@ -85,7 +75,7 @@ const setStatus = (instance, status) => {
 }
 
 const observe = async instances => {
-	const resolveinstance = async instance => {
+	const resolveInstance = async instance => {
 		calcStats(instance)
 		let api
 
@@ -96,7 +86,7 @@ const observe = async instances => {
 			setStatus(instance, false)
 			console.warn(instance.name + " does not resolve API URL")
 			setTimeout(() => {
-				resolveinstance(instance)
+				resolveInstance(instance)
 			}, 1000 * 60 * 30)
 			return
 		}
@@ -105,22 +95,26 @@ const observe = async instances => {
 		const check = async () => {
 			const res = await fetch(api + "/ping", {
 				method: "HEAD"
-			}).catch(() => {
+			}).catch(e => {
+				console.warn("[" + new Date().toISOString() + "] Unable to reach " + instance.name + " (" + e.message + ")")
 				setStatus(instance, false)
 			})
-			if (res) setStatus(instance, res.ok)
+			if (res) {
+				console.warn("[" + new Date().toISOString() + "] Got " + res.status + " from " + instance.name)
+				setStatus(instance, res.ok)
+			}
 		}
 
 		setTimeout(() => {
 			check()
 			setInterval(() => {
 				check()
-			}, 1000 * 60 * 30)
+			}, 1000 * 60 * 20)
 		}, Math.random() * 1000 * 60 * 10)
 	}
 
 	for (const instance of instances) {
-		resolveinstance(instance)
+		resolveInstance(instance)
 	}
 }
 
