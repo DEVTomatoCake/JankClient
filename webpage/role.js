@@ -60,20 +60,22 @@ class PermissionToggle {
 		const state = this.permissions.getPermission(this.rolejson.name)
 
 		const on = document.createElement("input")
+		on.classList.add("permission-enabled")
 		on.type = "radio"
 		on.name = this.rolejson.name
-		div.append(on)
 		if (state == 1) on.checked = true
+		div.append(on)
 
 		on.addEventListener("click", () => {
 			this.permissions.setPermission(this.rolejson.name, 1)
 			this.owner.changed()
 		})
+
 		const no = document.createElement("input")
 		no.type = "radio"
 		no.name = this.rolejson.name
-		div.append(no)
 		if (state == 0) no.checked = true
+		div.append(no)
 
 		no.addEventListener("click", () => {
 			this.permissions.setPermission(this.rolejson.name, 0)
@@ -82,16 +84,18 @@ class PermissionToggle {
 
 		if (this.permissions.hasDeny) {
 			const off = document.createElement("input")
+			off.classList.add("permission-disabled")
 			off.type = "radio"
 			off.name = this.rolejson.name
-			div.append(off)
 			if (state == -1) off.checked = true
+			div.append(off)
 
 			off.addEventListener("click", () => {
 				this.permissions.setPermission(this.rolejson.name, -1)
 				this.owner.changed()
 			})
-		}
+		} else no.classList.add("permission-disabled")
+
 		return div
 	}
 	watchForChange() {}

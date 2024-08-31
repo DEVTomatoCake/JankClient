@@ -1496,7 +1496,10 @@ class LocalUser {
 		}
 		this.instancePing = userInfo.instances[wellknown].instance
 
-		this.pageTitle("Loading...")
+		if (document.readyState == "loading") document.addEventListener("DOMContentLoaded", () => {
+			this.pageTitle("Loading...")
+		})
+		else this.pageTitle("Loading...")
 	}
 	pageTitle(channelName = "", guildName = "") {
 		document.getElementById("channelname").textContent = channelName

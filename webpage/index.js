@@ -83,7 +83,48 @@ const showAccountSwitcher = () => {
 	document.body.append(container)
 }
 
+// eslint-disable-next-line no-unused-vars
+const requestTestNotif = async () => {
+	fetch(thisuser.info.api + "/notifications/webpush/testNotification", {
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: users.users[users.currentuser].token
+		}
+	})
+}
+
 const triggerKeys = new Set(["Enter", "Return", "Space"])
+const emojiConversions = {
+	"😠": [">:(", ">:-(", ">=(", ">=-("],
+	"😊": [":\")", ":-\")", "=\")", "=-\")"],
+	"💔": ["</3", "<\\3"],
+	"😕": [":-\\", ":-/", "=-\\", "=-/"],
+	"😢": [":'(", ":'-(", ":,(", ":,-(", "='(", "='-(", "=,(", "=,-("],
+	"😦": [":(", ":-(", "=(", "=-("],
+	"❤️": ["<3"],
+	"👿": ["]:(", "]:-(", "]=(", "]=-("],
+	"😇": ["o:)", "O:)", "o:-)", "O:-)", "0:)", "0:-)", "o=)", "O=)", "o=-)", "O=-)", "0=)", "0=-)"],
+	"😂": [":'D", ":'-D", ":,D", ":,-D", "='D", "='-D", "=,D", "=,-D"],
+	"😗": [":*", ":-*", "=*", "=-*"],
+	"😆": ["x-)", "X-)"],
+	"😐": [":|", ":-|", "=|", "=-|"],
+	"😮": [":o", ":-o", ":O", ":-O", "=o", "=-o", "=O", "=-O"],
+	"😡": [":@", ":-@", "=@", "=-@"],
+	"😄": [":D", ":-D", "=D", "=-D"],
+	"🥲": [":')", ":'-)", ":,)", ":,-)", "='-)", "='-)", "=,)", "=,-)"],
+	"🙂": [":)", ":-)", "=)", "=-)"],
+	"😈": ["]:)", "]:-)", "]=)", "]=-)"],
+	"😭": [":,'(", ":'-(", ";(", ";-(", "=,'(", "=,'-("],
+	"😛": [":P", ":-P", "=P", "=-P"],
+	"😎": ["8-)", "B-)"],
+	"😓": [",:(", ",:-(", ",=(", ",=-("],
+	"😅": [",:)", ",:-)", ",=)", ",=-)"],
+	"😒": [":s", ":-S", ":z", ":-Z", ":$", ":-$", "=s", "=-S", "=z", "=-Z", "=$", "=-$"],
+	"😉": [";)", ";-)"]
+}
+
+let images = []
+
 document.addEventListener("DOMContentLoaded", async () => {
 	const menu = new Contextmenu()
 	menu.addbutton("Create channel", () => {
@@ -148,156 +189,117 @@ document.addEventListener("DOMContentLoaded", async () => {
 		})
 		console.log("Subscribed to push notifications")*/
 	}
-})
 
-// eslint-disable-next-line no-unused-vars
-const requestTestNotif = async () => {
-	fetch(thisuser.info.api + "/notifications/webpush/testNotification", {
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: users.users[users.currentuser].token
-		}
-	})
-}
 
-const emojiConversions = {
-	"😠": [">:(", ">:-(", ">=(", ">=-("],
-	"😊": [":\")", ":-\")", "=\")", "=-\")"],
-	"💔": ["</3", "<\\3"],
-	"😕": [":-\\", ":-/", "=-\\", "=-/"],
-	"😢": [":'(", ":'-(", ":,(", ":,-(", "='(", "='-(", "=,(", "=,-("],
-	"😦": [":(", ":-(", "=(", "=-("],
-	"❤️": ["<3"],
-	"👿": ["]:(", "]:-(", "]=(", "]=-("],
-	"😇": ["o:)", "O:)", "o:-)", "O:-)", "0:)", "0:-)", "o=)", "O=)", "o=-)", "O=-)", "0=)", "0=-)"],
-	"😂": [":'D", ":'-D", ":,D", ":,-D", "='D", "='-D", "=,D", "=,-D"],
-	"😗": [":*", ":-*", "=*", "=-*"],
-	"😆": ["x-)", "X-)"],
-	"😐": [":|", ":-|", "=|", "=-|"],
-	"😮": [":o", ":-o", ":O", ":-O", "=o", "=-o", "=O", "=-O"],
-	"😡": [":@", ":-@", "=@", "=-@"],
-	"😄": [":D", ":-D", "=D", "=-D"],
-	"🥲": [":')", ":'-)", ":,)", ":,-)", "='-)", "='-)", "=,)", "=,-)"],
-	"🙂": [":)", ":-)", "=)", "=-)"],
-	"😈": ["]:)", "]:-)", "]=)", "]=-)"],
-	"😭": [":,'(", ":'-(", ";(", ";-(", "=,'(", "=,'-("],
-	"😛": [":P", ":-P", "=P", "=-P"],
-	"😎": ["8-)", "B-)"],
-	"😓": [",:(", ",:-(", ",=(", ",=-("],
-	"😅": [",:)", ",:-)", ",=)", ",=-)"],
-	"😒": [":s", ":-S", ":z", ":-Z", ":$", ":-$", "=s", "=-S", "=z", "=-Z", "=$", "=-$"],
-	"😉": [";)", ";-)"]
-}
+	const typebox = document.getElementById("typebox")
+	const markdown = new MarkDown("", thisuser)
+	markdown.giveBox(typebox)
+	typebox.markdown = markdown
 
-let images = []
-const typebox = document.getElementById("typebox")
-const markdown = new MarkDown("", thisuser)
-markdown.giveBox(typebox)
-typebox.markdown = markdown
+	typebox.addEventListener("keyup", event => {
+		const channel = thisuser.channelfocus
 
-typebox.addEventListener("keyup", event => {
-	const channel = thisuser.channelfocus
+		if (event.key == "Enter" && !event.shiftKey) {
+			event.preventDefault()
 
-	if (event.key == "Enter" && !event.shiftKey) {
-		event.preventDefault()
-
-		let content = markdown.rawString.trim()
-			.replace(/:([-+\w]+):/g, (match, p1) => {
-				let found = Emoji.emojisFlat.find(emoji => emoji.slug == p1)
-				if (!found) {
-					found = Emoji.emojisFlat.find(emoji => emoji.slug == p1.replace(/(_medium)?_(dark|light|medium)_skin_tone$/, ""))
-					if (found) {
-						if (p1.endsWith("_medium_light_skin_tone")) return found.emoji + "🏼"
-						if (p1.endsWith("_medium_dark_skin_tone")) return found.emoji + "🏽"
-						if (p1.endsWith("_medium_skin_tone")) return found.emoji + "🏾"
-						if (p1.endsWith("_light_skin_tone")) return found.emoji + "🏻"
-						if (p1.endsWith("_dark_skin_tone")) return found.emoji + "🏿"
+			let content = markdown.rawString.trim()
+				.replace(/:([-+\w]+):/g, (match, p1) => {
+					let found = Emoji.emojisFlat.find(emoji => emoji.slug == p1)
+					if (!found) {
+						found = Emoji.emojisFlat.find(emoji => emoji.slug == p1.replace(/(_medium)?_(dark|light|medium)_skin_tone$/, ""))
+						if (found) {
+							if (p1.endsWith("_medium_light_skin_tone")) return found.emoji + "🏼"
+							if (p1.endsWith("_medium_dark_skin_tone")) return found.emoji + "🏽"
+							if (p1.endsWith("_medium_skin_tone")) return found.emoji + "🏾"
+							if (p1.endsWith("_light_skin_tone")) return found.emoji + "🏻"
+							if (p1.endsWith("_dark_skin_tone")) return found.emoji + "🏿"
+						}
 					}
+
+					return found ? found.emoji : match
+				})
+
+			if (thisuser.settings.convert_emoticons)
+				Object.keys(emojiConversions).forEach(emoji => {
+					emojiConversions[emoji].forEach(alias => {
+						content = content.replaceAll(alias, emoji)
+					})
+				})
+
+			if (channel.editing) {
+				if (content.length == 0 && images.length == 0) {
+					if (confirm("Do you want to delete this message?")) channel.editing.delete()
+					channel.editing = null
+					return
 				}
 
-				return found ? found.emoji : match
-			})
-
-		if (thisuser.settings.convert_emoticons)
-			Object.keys(emojiConversions).forEach(emoji => {
-				emojiConversions[emoji].forEach(alias => {
-					content = content.replaceAll(alias, emoji)
-				})
-			})
-
-		if (channel.editing) {
-			if (content.length == 0 && images.length == 0) {
-				if (confirm("Do you want to delete this message?")) channel.editing.delete()
+				channel.editing.edit(content)
 				channel.editing = null
-				return
+			} else {
+				if (content.length == 0 && images.length == 0) return
+
+				const replyingto = channel.replyingto
+				if (replyingto) replyingto.div.classList.remove("replying")
+
+				channel.replyingto = null
+				channel.sendMessage(content, {
+					attachments: images,
+					replyingto
+				})
+				channel.makereplybox()
 			}
 
-			channel.editing.edit(content)
-			channel.editing = null
-		} else {
-			if (content.length == 0 && images.length == 0) return
+			images = []
+			document.getElementById("pasteimage").innerHTML = ""
+			typebox.innerHTML = ""
+		} else if (event.key == "ArrowUp") {
+			if (!channel.lastselfmessage || (typebox.innerHTML.length > 0 && typebox.innerHTML != "<span></span>")) return
 
-			const replyingto = channel.replyingto
-			if (replyingto) replyingto.div.classList.remove("replying")
+			event.preventDefault()
 
-			channel.replyingto = null
-			channel.sendMessage(content, {
-				attachments: images,
-				replyingto
-			})
-			channel.makereplybox()
-		}
+			channel.editing = channel.lastselfmessage
 
-		images = []
-		document.getElementById("pasteimage").innerHTML = ""
-		typebox.innerHTML = ""
-	} else if (event.key == "ArrowUp") {
-		if (!channel.lastselfmessage || (typebox.innerHTML.length > 0 && typebox.innerHTML != "<span></span>")) return
+			const markdownEdit = typebox.markdown
+			markdownEdit.txt = channel.lastselfmessage.content.rawString.split("")
+			markdownEdit.boxupdate(typebox)
+		} else channel.typingstart()
+	})
+	typebox.addEventListener("keydown", event => {
+		if (event.key == "Enter" && !event.shiftKey) event.preventDefault()
+	})
 
+	document.addEventListener("paste", event => {
+		if (event.clipboardData.files.length == 0) return
 		event.preventDefault()
 
-		channel.editing = channel.lastselfmessage
-
-		const markdownEdit = typebox.markdown
-		markdownEdit.txt = channel.lastselfmessage.content.rawString.split("")
-		markdownEdit.boxupdate(typebox)
-	} else channel.typingstart()
-})
-typebox.addEventListener("keydown", event => {
-	if (event.key == "Enter" && !event.shiftKey) event.preventDefault()
-})
-
-document.addEventListener("paste", event => {
-	if (event.clipboardData.files.length == 0) return
-	event.preventDefault()
-
-	Array.from(event.clipboardData.files).forEach(file => {
-		const attachment = Attachment.initFromBlob(file)
-		const html = attachment.upHTML(images, file)
-		document.getElementById("pasteimage").appendChild(html)
-		images.push(file)
+		Array.from(event.clipboardData.files).forEach(file => {
+			const attachment = Attachment.initFromBlob(file)
+			const html = attachment.upHTML(images, file)
+			document.getElementById("pasteimage").appendChild(html)
+			images.push(file)
+		})
 	})
-})
 
-if (screen.width <= 600) {
-	const mobileBack = document.getElementById("mobileback")
+	if (screen.width <= 600) {
+		const mobileBack = document.getElementById("mobileback")
 
-	const collapse = () => {
-		mobileBack.removeAttribute("hidden")
+		const collapse = () => {
+			mobileBack.removeAttribute("hidden")
 
-		document.getElementById("channels").parentElement.classList.add("collapse")
-		document.getElementById("neunence").classList.add("collapse")
-	}
-	collapse()
-
-	document.getElementById("channelw").addEventListener("click", () => {
+			document.getElementById("channels").parentElement.classList.add("collapse")
+			document.getElementById("neunence").classList.add("collapse")
+		}
 		collapse()
-	})
 
-	mobileBack.addEventListener("click", () => {
-		mobileBack.setAttribute("hidden", "")
+		document.getElementById("channelw").addEventListener("click", () => {
+			collapse()
+		})
 
-		document.getElementById("channels").parentElement.classList.remove("collapse")
-		document.getElementById("neunence").classList.remove("collapse")
-	})
-}
+		mobileBack.addEventListener("click", () => {
+			mobileBack.setAttribute("hidden", "")
+
+			document.getElementById("channels").parentElement.classList.remove("collapse")
+			document.getElementById("neunence").classList.remove("collapse")
+		})
+	}
+})
