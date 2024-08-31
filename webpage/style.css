@@ -1640,7 +1640,7 @@ video {
 	gap: 10px;
 }
 
-#connection-container > div, #app-list-container > div {
+#connection-container > div, .application {
 	padding: 5px 10px;
 	border-radius: 5px;
 	background: var(--textarea-bg);
@@ -1648,6 +1648,7 @@ video {
 	display: flex;
 	flex-direction: column;
 }
+
 #connection-container > .disabled {
 	background: var(--embed-fallback);
 	cursor: not-allowed;
@@ -2176,6 +2177,7 @@ small.edited {
 
 .settings .flexttb {
 	max-height: unset;
+	overflow: unset;
 }
 
 /* Breaks embeds & co.: .commentrow.compact {

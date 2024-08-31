@@ -32,15 +32,15 @@
     "clean-css": "^5.3.3",
     "compression": "^1.7.4",
     "express": "^4.19.2",
-    "uglify-js": "^3.19.2"
+    "uglify-js": "^3.19.3"
   },
   "devDependencies": {
     "@html-eslint/eslint-plugin": "^0.26.0",
     "@html-eslint/parser": "^0.26.0",
-    "@stylistic/eslint-plugin-js": "^2.6.4",
+    "@stylistic/eslint-plugin-js": "^2.7.2",
     "eslint": "^9.9.1",
     "eslint-plugin-html": "^8.1.1",
-    "eslint-plugin-sonarjs": "^2.0.1",
+    "eslint-plugin-sonarjs": "^2.0.2",
     "eslint-plugin-unicorn": "^55.0.0",
     "globals": "^15.9.0",
     "taiko": "^1.4.1"

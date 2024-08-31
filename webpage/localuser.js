@@ -1115,25 +1115,23 @@ class LocalUser {
 		})
 		const teams = await teamsRes.json()
 
-		const newApplication = {}
-		devPortal.addTextInput("Name", value => {
-			newApplication.name = value
-		})
-		devPortal.addSelect("Team", value => {
-			newApplication.team_id = value == 0 ? void 0 : teams[value - 1].id
-		}, ["Personal", ...teams.map(team => team.name)], {
-			defaultIndex: 0
-		})
-		devPortal.addButtonInput("", "Create application", async () => {
-			if (!newApplication.name || newApplication.name.trim().length == 0) return alert("Please enter a name for the application.")
-
-			const res = await fetch(this.info.api + "/applications", {
-				method: "POST",
+		devPortal.addButtonInput("", "Create application", () => {
+			const form = devPortal.addSubForm("Create application", json => {
+				if (json.message) form.error("name", json.message)
+				else {
+					devPortal.returnFromSub()
+					this.manageApplication(json.id)
+				}
+			}, {
+				fetchURL: this.info.api + "/applications",
 				headers: this.headers,
-				body: JSON.stringify(newApplication)
+				method: "POST"
 			})
-			const json = await res.json()
-			this.manageApplication(json.id)
+
+			form.addTextInput("Name", "name", { required: true })
+			form.addSelect("Team", "team_id", ["Personal", ...teams.map(team => team.name)], {
+				defaultIndex: 0
+			})
 		})
 
 		const appListContainer = document.createElement("div")
@@ -1143,6 +1141,7 @@ class LocalUser {
 		}).then(r => r.json()).then(json => {
 			json.forEach(application => {
 				const container = document.createElement("div")
+				container.classList.add("application")
 
 				const appIcon = application.cover_image || application.icon
 				if (appIcon) {
@@ -1150,6 +1149,8 @@ class LocalUser {
 					cover.crossOrigin = "anonymous"
 					cover.src = this.info.cdn + "/app-icons/" + application.id + "/" + appIcon + "." + (appIcon.startsWith("a_") ? "gif" : "png") + "?size=256"
 					cover.alt = ""
+					cover.width = 200
+					cover.height = 200
 					cover.loading = "lazy"
 					container.appendChild(cover)
 				}
@@ -1267,6 +1268,23 @@ class LocalUser {
 
 							appDialog.hide()
 							this.manageBot(appId)
+						}
+					],
+					["button",
+						"",
+						"Delete application",
+						async () => {
+							if (!confirm("Are you sure you want to delete \"" + json.name + "\"? There's no going back.")) return
+
+							const deleteRes = await fetch(this.info.api + "/applications/" + appId + "/delete", {
+								method: "POST",
+								headers: this.headers
+							})
+							if (deleteRes.ok) appDialog.hide()
+							else {
+								const deleteJSON = await deleteRes.json()
+								alert("An error occurred: " + deleteJSON.message)
+							}
 						}
 					]
 				]

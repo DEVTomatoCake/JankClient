@@ -471,11 +471,13 @@ class Options {
 		const div = document.createElement("div")
 		div.classList.add("titlediv")
 
-		const title = document.createElement("h2")
-		if (this.name != "") title.classList.add("settingstitle")
-		title.textContent = this.name
-		div.append(title)
-		this.title = new WeakRef(title)
+		if (this.name) {
+			const title = document.createElement("h2")
+			title.classList.add("settingstitle")
+			title.textContent = this.name
+			div.append(title)
+			this.title = new WeakRef(title)
+		}
 
 		const container = document.createElement("div")
 		container.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace")
