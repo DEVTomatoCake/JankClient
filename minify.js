@@ -40,8 +40,7 @@ const minifyFile = async (inputPath, options = {}) => {
 			nameCache,
 			mangle: true,
 			...defaultOptions,
-			...options//,
-			//mangle: false // temp override to fix re-defined variables
+			...options
 		})
 
 		if (result.error) throw result.error
