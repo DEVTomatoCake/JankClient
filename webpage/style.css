@@ -498,7 +498,7 @@ div {
 }
 
 #typebox[contenteditable=false]:before {
-	content: "You can't chat here";
+	content: "You cannot send messages here";
 	color: color-mix(in hsl, var(--primary-bg), var(--primary-text));
 }
 

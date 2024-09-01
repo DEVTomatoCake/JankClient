@@ -317,7 +317,6 @@ const rules = {
 	"sonarjs/no-redundant-jump": 2,
 	"sonarjs/no-redundant-optional": 2,
 	"sonarjs/no-redundant-type-constituents": 2,
-	"sonarjs/no-reference-error": 2,
 	"sonarjs/no-same-line-conditional": 2,
 	"sonarjs/no-self-compare": 2,
 	"sonarjs/no-try-promise": 2,

@@ -121,13 +121,11 @@ class LocalUser {
 					token: this.token,
 					capabilities: 16381,
 					properties: {
-						os: "Redacted",
-						device: "Redacted",
 						browser: "Jank Client (Tomato fork)",
-						client_build_number: 0,
-						release_channel: "Custom"
+						release_channel: "dev"
 					},
-					compress: supportsCompression
+					compress: supportsCompression,
+					large_threshold: 50000
 				}
 			}))
 		})

@@ -28,8 +28,10 @@ class Contextmenu {
 		const div = document.createElement("div")
 		div.classList.add("contextmenu", "flexttb")
 
+		let visibleButtons = 0
 		for (const button of this.buttons) {
 			if (!button.shown(addinfo, other)) continue
+			visibleButtons++
 
 			const intext = document.createElement("button")
 			intext.classList.add("contextbutton")
@@ -41,6 +43,8 @@ class Contextmenu {
 
 			div.appendChild(intext)
 		}
+		if (visibleButtons == 0) return
+
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
 		div.style.top = y + "px"
@@ -61,14 +65,14 @@ class Contextmenu {
 		obj.addEventListener("contextmenu", func)
 		return func
 	}
-	static keepOnScreen(obj) {
+	static keepOnScreen(elem) {
 		const html = document.documentElement.getBoundingClientRect()
-		const docheight = html.height
-		const docwidth = html.width
+		const docHeight = html.height
+		const docWidth = html.width
 
-		const box = obj.getBoundingClientRect()
-		if (box.right > docwidth) obj.style.left = docwidth - box.width + "px"
-		if (box.bottom > docheight) obj.style.top = docheight - box.height + "px"
+		const box = elem.getBoundingClientRect()
+		if (box.x + elem.clientWidth > docWidth) elem.style.left = docWidth - elem.clientWidth + "px"
+		if (box.y + elem.clientHeight > docHeight) elem.style.top = docHeight - elem.clientHeight + "px"
 	}
 }
 Contextmenu.setup()

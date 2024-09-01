@@ -88,10 +88,10 @@ const observe = async instances => {
 
 		if (!api) {
 			setStatus(instance, false)
-			console.warn(instance.name + " does not resolve API URL")
+			console.warn("[" + new Date().toISOString() + "] Cannot resolve API URL for " + instance.name)
 			setTimeout(() => {
 				resolveInstance(instance)
-			}, 1000 * 60 * 30)
+			}, 1000 * 60 * 20 + Math.round(Math.random() * 1000 * 60 * 20))
 			return
 		}
 		api = handleEndpoint(api)
@@ -113,7 +113,7 @@ const observe = async instances => {
 			check()
 			setInterval(() => {
 				check()
-			}, 1000 * 60 * 20)
+			}, 1000 * 60 * 20 + Math.round(Math.random() * 1000 * 60 * 10))
 		}, Math.random() * 1000 * 60 * 10)
 	}
 

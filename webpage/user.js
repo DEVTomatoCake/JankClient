@@ -230,8 +230,11 @@ class User {
 	userupdate(json) {
 		if (json.avatar != this.avatar) this.changepfp(json.avatar)
 	}
-	changepfp(update) {
-		this.avatar = update
+	/**
+	 * @param {string|null} newAvatar
+	 */
+	changepfp(newAvatar = null) {
+		this.avatar = newAvatar
 		this.hypotheticalpfp = false
 
 		for (const elem of document.getElementsByClassName("userid:" + this.id))
@@ -243,6 +246,11 @@ class User {
 		if (this.avatar === null) return this.info.cdn + "/embed/avatars/" + ((this.id.replace("#clone", "") >>> 22) % 6) + ".png?size=64"
 		return this.info.cdn + "/avatars/" + this.id.replace("#clone", "") + "/" + this.avatar + ".png?size=64"
 	}
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @param {Guild} guild
+	 */
 	async buildprofile(x, y, guild) {
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
@@ -260,8 +268,8 @@ class User {
 				profileContainer.style.setProperty("--theme_color1", "#" + this.accent_color.toString(16).padStart(6, "0"))
 				profileContainer.style.setProperty("--theme_color2", "#" + this.accent_color.toString(16).padStart(6, "0"))
 			} else {
-				profileContainer.style.setProperty("--theme_color1", "transparent")
-				profileContainer.style.setProperty("--theme_color2", "transparent")
+				profileContainer.style.setProperty("--theme_color1", "var(--profile-bg)")
+				profileContainer.style.setProperty("--theme_color2", "var(--profile-bg)")
 			}
 		}
 
@@ -414,7 +422,9 @@ class User {
 
 			document.body.appendChild(profileContainer)
 			Contextmenu.currentmenu = profileContainer
-			Contextmenu.keepOnScreen(profileContainer)
+			setTimeout(() => {
+				Contextmenu.keepOnScreen(profileContainer)
+			}, 0)
 		}
 
 		profileContainer.appendChild(div)

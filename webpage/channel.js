@@ -240,7 +240,7 @@ class Channel {
 	get hasunreads() {
 		if (!this.hasPermission("VIEW_CHANNEL")) return false
 
-		const hasUnreads = this.lastmessageid && this.lastmessageid != this.lastreadmessageid && this.type != 4
+		const hasUnreads = this.lastmessageid && BigInt(this.lastmessageid) > BigInt(this.lastreadmessageid) && this.type != 4
 
 		try {
 			if (hasUnreads && this.myhtml) this.myhtml.classList.add("cunread")
@@ -433,8 +433,7 @@ class Channel {
 
 		fetch(this.info.api + "/channels/" + this.id + "/messages/" + this.lastmessageid + "/ack", {
 			method: "POST",
-			headers: this.headers,
-			body: JSON.stringify({})
+			headers: this.headers
 		})
 		this.lastreadmessageid = this.lastmessageid
 	}
