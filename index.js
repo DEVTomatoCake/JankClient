@@ -126,7 +126,7 @@ const inviteres = async (res, reqPath, query) => {
 		const json = await inviteRes.json()
 
 		const title = json.guild.name
-		const description = (json.inviter ? json.inviter.username : "Someone") + " has invited you to " + json.guild.name + (json.guild.description ? " - " + json.guild.description : "")
+		const description = (json.inviter ? json.inviter.username : "Someone") + " has invited you to " + json.guild.name + (json.guild.description ? ": " + json.guild.description : "")
 
 		let icon = urls.cdn + "/embed/avatars/" + ((json.guild.id >>> 22) % 6) + ".png?size=256"
 		if (json.guild.icon) icon = urls.cdn + "/icons/" + json.guild.id + "/" + json.guild.icon + "." + (json.guild.icon.startsWith("a_") ? "gif" : "png") + "?size=256"

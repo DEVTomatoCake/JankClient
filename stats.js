@@ -44,9 +44,13 @@ const calcStats = instance => {
 	alltime /= totalTimePassed
 
 	if (totalTimePassed > 1000 * 60 * 60 * 24) {
+		if (daytime == -1) daytime = online * 1000 * 60 * 60 * 24
 		daytime /= 1000 * 60 * 60 * 24
-		if (totalTimePassed > 1000 * 60 * 60 * 24 * 7) weektime /= 1000 * 60 * 60 * 24 * 7
-		else weektime = alltime
+
+		if (totalTimePassed > 1000 * 60 * 60 * 24 * 7) {
+			if (weektime == -1) weektime = online * 1000 * 60 * 60 * 24 * 7
+			weektime /= 1000 * 60 * 60 * 24 * 7
+		} else weektime = alltime
 	} else {
 		weektime = alltime
 		daytime = alltime

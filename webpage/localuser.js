@@ -735,7 +735,7 @@ class LocalUser {
 			})
 		}
 	}
-	updateProfile(json) {
+	updateProfile(json = {}) {
 		fetch(this.info.api + "/users/@me/profile", {
 			method: "PATCH",
 			headers: this.headers,
@@ -753,7 +753,7 @@ class LocalUser {
 			body: JSON.stringify(settings)
 		})
 	}
-	async updateAccount(json) {
+	async updateAccount(json = {}) {
 		const res = await fetch(this.info.api + "/users/@me", {
 			method: "PATCH",
 			headers: this.headers,
@@ -770,8 +770,11 @@ class LocalUser {
 		let avatarFile = null
 		let newpronouns
 		let newbio
-		let color = this.user.accent_color ? "#" + this.user.accent_color.toString(16) : "transparent"
+
 		const hypouser = this.user.clone()
+		if (!hypouser.theme_colors) hypouser.theme_colors = [0, 0]
+		const themeColors = hypouser.theme_colors.length == 2 ?
+			["#" + hypouser.theme_colors[0].toString(16), "#" + hypouser.theme_colors[1].toString(16)] : ["transparent", "transparent"]
 
 		const regen = async () => {
 			hypotheticalProfile.textContent = ""
@@ -822,7 +825,7 @@ class LocalUser {
 			if (newpronouns || newbio || changed) this.updateProfile({
 				pronouns: newpronouns,
 				bio: newbio,
-				accent_color: Number.parseInt("0x" + color.slice(1), 16)
+				theme_colors: themeColors.map(color => Number.parseInt("0x" + color.slice(1), 16))
 			})
 		}, { initText: this.user.pronouns })
 		pronounbox.watchForChange(value => {
@@ -838,10 +841,17 @@ class LocalUser {
 			regen()
 		})
 
-		const colorPicker = profileLeft.addColorInput("Profile color", () => {}, { initColor: color })
-		colorPicker.watchForChange(value => {
-			color = value
-			hypouser.accent_color = Number.parseInt("0x" + value.slice(1), 16)
+		const colorPickerTheme0 = profileLeft.addColorInput("Theme color 1", () => {}, { initColor: themeColors[0] })
+		colorPickerTheme0.watchForChange(value => {
+			themeColors[0] = value
+			hypouser.theme_colors[0] = Number.parseInt("0x" + value.slice(1), 16)
+			changed = true
+			regen()
+		})
+		const colorPickerTheme1 = profileLeft.addColorInput("Theme color 2", () => {}, { initColor: themeColors[1] })
+		colorPickerTheme1.watchForChange(value => {
+			themeColors[1] = value
+			hypouser.theme_colors[1] = Number.parseInt("0x" + value.slice(1), 16)
 			changed = true
 			regen()
 		})
@@ -1503,7 +1513,7 @@ class LocalUser {
 	}
 	pageTitle(channelName = "", guildName = "") {
 		document.getElementById("channelname").textContent = channelName
-		document.getElementsByTagName("title")[0].textContent = channelName + (guildName ? " | " + guildName : "") + " | " + this.instancePing.name + " | Jank Client (Tomato fork)"
+		document.getElementsByTagName("title")[0].textContent = channelName + (guildName ? " | " + guildName : "") + " | " + this.instancePing.name + " | Jank Client"
 	}
 	async showUpdates() {
 		const res = await fetch(this.info.api + "/updates?platform=web")

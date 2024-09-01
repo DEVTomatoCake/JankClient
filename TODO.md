@@ -40,7 +40,7 @@ List of properties which should be editable somewhere, and handled if necessary 
 | ✅ | accent_color | integer┃null
 | ✅ | banner | string┃null
 | ✅ | pronouns | string
-| ❌ | theme_colors | [integer, integer]
+| ✅ | theme_colors | [integer, integer]
 
 #### User settings
 

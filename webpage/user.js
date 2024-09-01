@@ -246,10 +246,24 @@ class User {
 	async buildprofile(x, y, guild) {
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
+		const profileContainer = document.createElement("div")
+		profileContainer.classList.add("profile-container")
+
 		const div = document.createElement("div")
 		div.classList.add("profile", "flexttb")
-		if (this.accent_color) div.style.setProperty("--accent_color", "#" + this.accent_color.toString(16).padStart(6, "0"))
-		else div.style.setProperty("--accent_color", "transparent")
+
+		if (this.theme_colors && this.theme_colors.length == 2) {
+			profileContainer.style.setProperty("--theme_color1", "#" + Number.parseInt(this.theme_colors[0]).toString(16).padStart(6, "0"))
+			profileContainer.style.setProperty("--theme_color2", "#" + Number.parseInt(this.theme_colors[1]).toString(16).padStart(6, "0"))
+		} else {
+			if (this.accent_color) {
+				profileContainer.style.setProperty("--theme_color1", "#" + this.accent_color.toString(16).padStart(6, "0"))
+				profileContainer.style.setProperty("--theme_color2", "#" + this.accent_color.toString(16).padStart(6, "0"))
+			} else {
+				profileContainer.style.setProperty("--theme_color1", "transparent")
+				profileContainer.style.setProperty("--theme_color2", "transparent")
+			}
+		}
 
 		const topContainer = document.createElement("div")
 		topContainer.classList.add("profileTop")
@@ -265,11 +279,11 @@ class User {
 		topContainer.appendChild(banner)
 
 		if (x == -1) {
-			div.classList.add("hypoprofile")
+			profileContainer.classList.add("hypoprofile")
 			this.setstatus("online")
 		} else {
-			div.style.left = x + "px"
-			div.style.top = y + "px"
+			profileContainer.style.left = x + "px"
+			profileContainer.style.top = y + "px"
 		}
 
 		const pfp = await this.buildstatuspfp()
@@ -398,11 +412,13 @@ class User {
 		if (x != -1) {
 			if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
-			document.body.appendChild(div)
-			Contextmenu.currentmenu = div
-			Contextmenu.keepOnScreen(div)
+			document.body.appendChild(profileContainer)
+			Contextmenu.currentmenu = profileContainer
+			Contextmenu.keepOnScreen(profileContainer)
 		}
-		return div
+
+		profileContainer.appendChild(div)
+		return profileContainer
 	}
 	profileclick(obj, guild) {
 		obj.addEventListener("click", event => {

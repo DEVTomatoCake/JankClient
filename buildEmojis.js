@@ -34,6 +34,7 @@ write16(emojilist.length)
 for (const thing of emojilist) {
 	writeString16(thing.name)
 	write16(thing.emojis.length)
+
 	for (const emoji of thing.emojis) {
 		writeString8(emoji.name)
 		writeString8(emoji.slug)

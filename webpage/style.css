@@ -302,10 +302,10 @@ button:disabled,
 .infosection {
 	display: inline-block;
 	background: var(--profile-info-bg);
-	border-radius: 10%;
-	padding: .3cm;
+	border-radius: 20px;
+	padding: 10px;
 	width: 100%;
-	height: calc(100% - .5in - .2cm);
+	max-height: 300px;
 	box-sizing: border-box;
 }
 
@@ -322,7 +322,7 @@ h2 {
 	font-size: .25in;
 }
 
-small.subtext {
+.subtext {
 	font-size: 13px;
 }
 
@@ -516,7 +516,7 @@ hr {
 }
 
 .username:hover, .username:focus,
-.clickable:hover {
+.clickable:hover, .clickable:focus {
 	text-decoration: underline;
 }
 
@@ -1385,17 +1385,20 @@ video {
 	flex-grow: 1;
 }
 
-.profile {
+.profile-container {
 	display: inline-block;
+	border-radius: 20px;
 	position: absolute;
-	background: var(--profile-bg);
-	border-radius: 10%;
-	padding: .2cm;
+	padding: 5px;
 	width: 285px;
 	max-height: 70vh;
 	z-index: 5;
-	border: solid, color-mix(in hsl, var(--black), transparent 80%), .03in;
-	box-shadow: inset .03in .35in .2in var(--accent_color);
+	border: 2px solid var(--profile-bg);
+	background: var(--theme_color1);
+	background: linear-gradient(180deg, var(--theme_color1) 0%, var(--theme_color2) 100%);
+}
+.profile {
+	padding: 3px 0;
 }
 
 .hypoprofile {
@@ -2003,16 +2006,19 @@ img.svgtheme,
 
 .banner {
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 105px;
+	width: 285px;
+	height: 95px;
 	opacity: .8;
 	object-fit: cover;
+	border-radius: 10px;
 }
 
 .profileTop {
-	height: 105px;
+	height: 95px;
+	background: var(--profile-bg);
+	width: 100%;
+	margin-bottom: 3px;
+	border-radius: 10px;
 }
 
 .rolesbox {
