@@ -125,17 +125,16 @@ class LocalUser {
 						release_channel: "dev"
 					},
 					compress: supportsCompression,
-					large_threshold: 50000
+					large_threshold: 75000
 				}
 			}))
 		})
 
-		let ds
 		let w
 		let r
 		let arr
 		if (supportsCompression) {
-			ds = new DecompressionStream("deflate")
+			const ds = new DecompressionStream("deflate")
 			w = ds.writable.getWriter()
 			r = ds.readable.getReader()
 			arr = new Uint8Array()
@@ -246,18 +245,17 @@ class LocalUser {
 						break
 				}
 
-				setTimeout(() => {
+				setTimeout(async () => {
 					if (this.swapped) return
 					loadDesc.textContent = "Retrying..."
 
-					this.initwebsocket().then(() => {
-						this.loaduser()
-						this.init()
-						loading.classList.add("doneloading")
-						loading.classList.remove("loading")
+					await this.initwebsocket()
+					this.loaduser()
+					this.init()
+					loading.classList.add("doneloading")
+					loading.classList.remove("loading")
 
-						loadDesc.textContent = "This shouldn't take long"
-					})
+					loadDesc.textContent = "This shouldn't take long"
 				}, 200 + (this.errorBackoff * 2800))
 			} else if (!this.swapped) loadDesc.textContent = "Unable to connect to the Spacebar instance. Please try logging out and back in."
 		})
